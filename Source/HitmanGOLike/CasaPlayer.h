@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -20,8 +21,10 @@ protected:
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
 	UPROPERTY()
 	class UAudioComponent* AudioComponent = nullptr;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	class UCameraComponent* PlayerCamera = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USpringArmComponent* SpringArmComponent = nullptr;
 
 
 public:
@@ -38,5 +41,12 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// Input functions
+	void Move_XAxis(float AxisValue);
+	void Move_YAxis(float AxisValue);
+
+	// Input variables
+	FVector CurrentVelocity;
 
 };
