@@ -4,6 +4,7 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "CasaPlayerController.h"
 #include "CasaPlayer.h"
 
 // Sets default values
@@ -53,6 +54,7 @@ ACasaPlayer::ACasaPlayer()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 
+
 }
 
 // Called when the game starts or when spawned
@@ -99,5 +101,15 @@ void ACasaPlayer::Move_YAxis(float AxisValue)
 {
 	// Move at 100 units per second right or left
 	CurrentVelocity.Y = FMath::Clamp(AxisValue, -100.0f, 100.0f);
+}
+
+void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
+
+	//Converstion en FVector
+	FVector NewLocation(TargetPosition.X,TargetPosition.Y,GetActorLocation().Z);
+
+	//Changement des coordonnées
+	SetActorLocation(NewLocation);
+
 }
 
