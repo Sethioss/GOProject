@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
+#include "CasaPlayer.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CasaPlayerController.h"
-#include "CasaPlayer.h"
 
 // Sets default values
 ACasaPlayer::ACasaPlayer()
@@ -50,8 +51,7 @@ ACasaPlayer::ACasaPlayer()
 	SpringArmComponent->bEnableCameraLag = true;
 	SpringArmComponent->CameraLagSpeed = 3.0f;
 
-	//Take control of the default Player
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	
 
 
 
@@ -62,6 +62,9 @@ void ACasaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Take control of the default Player
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
 }
 
 // Called every frame
