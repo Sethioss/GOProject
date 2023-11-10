@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -47,8 +44,6 @@ public:
 	void Move_XAxis(float AxisValue);
 	UFUNCTION()
 	void Move_YAxis(float AxisValue);
-	UFUNCTION()
-	void Test();
 
 	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
 	UFUNCTION()
