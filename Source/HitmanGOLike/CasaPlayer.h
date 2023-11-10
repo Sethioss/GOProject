@@ -8,7 +8,6 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "CasaPlayerController.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -26,8 +25,6 @@ protected:
 	class UCameraComponent* PlayerCamera = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComponent = nullptr;
-	UPROPERTY(EditAnywhere)
-	ACasaPlayerController* CasaPlayerController = nullptr;
 
 
 public:
@@ -50,6 +47,8 @@ public:
 	void Move_XAxis(float AxisValue);
 	UFUNCTION()
 	void Move_YAxis(float AxisValue);
+	UFUNCTION()
+	void Test();
 
 	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
 	UFUNCTION()

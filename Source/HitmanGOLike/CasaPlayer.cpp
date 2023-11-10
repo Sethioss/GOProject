@@ -6,7 +6,6 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "CasaPlayerController.h"
 
 // Sets default values
 ACasaPlayer::ACasaPlayer()
@@ -86,11 +85,13 @@ void ACasaPlayer::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	/*
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Respond every frame to the values of our two movement axes, "MoveX" and "MoveY".
 	InputComponent->BindAxis("CasaPlayerMoveX", this, &ACasaPlayer::Move_XAxis);
 	InputComponent->BindAxis("CasaPlayerMoveY", this, &ACasaPlayer::Move_YAxis);
+	*/
 
 }
 
@@ -110,6 +111,7 @@ void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 
 	//Converstion en FVector
 	FVector NewLocation(TargetPosition.X,TargetPosition.Y,GetActorLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("New location - X: %f, Y: %f, Z: %f"), NewLocation.X, NewLocation.Y , NewLocation.Z);
 
 	//Changement des coordonnées
 	SetActorLocation(NewLocation);
