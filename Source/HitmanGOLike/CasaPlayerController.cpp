@@ -2,7 +2,6 @@
 
 
 #include "CasaPlayerController.h"
-#include "CasaPlayer.h"
 
 // Définissez une fonction pour gérer le clic de souris
 void ACasaPlayerController::OnMouseClick()
@@ -17,6 +16,13 @@ void ACasaPlayerController::OnMouseClick()
 
 	// Faites quelque chose avec les coordonnées (par exemple, tracez-les dans la console)
 	UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
+
+	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(CasaPlayer);
+	if (PlayerFinal)
+	{
+		PlayerFinal->MoveTo(MousePosition);
+	}
+
 }
 
 // Associez cette fonction à un événement de clic de souris, par exemple, dans votre constructeur

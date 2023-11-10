@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CasaPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "CasaPlayerController.generated.h"
 
@@ -21,6 +22,9 @@ public:
 	void OnMouseClick();
 	UFUNCTION()
 	void SetupInputComponent();
+
+	UPROPERTY(EditDefaultsOnly, Category=Player)
+	TSubclassOf<ACasaPlayer> CasaPlayer;
 
 protected:
 	//virtual void SetupInputComponent() override;
