@@ -17,7 +17,7 @@ void ACasaPlayerController::OnMouseClick()
 	// Faites quelque chose avec les coordonnées (par exemple, tracez-les dans la console)
 	UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
 
-	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(CasaPlayer);
+	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
 	if (PlayerFinal)
 	{
 		PlayerFinal->MoveTo(MousePosition);
