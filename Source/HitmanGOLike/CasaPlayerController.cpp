@@ -2,8 +2,13 @@
 
 
 #include "CasaPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 
 // Définissez une fonction pour gérer le clic de souris
+FVector	WorldPosition, WorldDirection;
+
 void ACasaPlayerController::OnMouseClick()
 {
 	// Récupérez la position de la souris
@@ -14,23 +19,31 @@ void ACasaPlayerController::OnMouseClick()
 	float MouseX = MousePosition.X;
 	float MouseY = MousePosition.Y;
 
+	FHitResult HitResult;
+
+	FVector2D MousePos(MouseX, MouseY);
+
 	// Faites quelque chose avec les coordonnées (par exemple, tracez-les dans la console)
 	UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
 
 	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
 	if (PlayerFinal)
 	{
-		
-		FVector	WorldPosition, WorldDirection;
 
-		APlayerController* MyController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+		ACasaPlayerController* MyController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
 
 		if (MyController) {
-			MyController->DeprojectScreenPositionToWorld(MouseX,MouseY,WorldPosition, WorldDirection);
+			UGameplayStatics::DeprojectScreenToWorld(MyController, MousePos, WorldPosition, WorldDirection);
+			GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 10000,
+				ECollisionChannel::ECC_WorldStatic);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("WorldLocation: %s"), *WorldPosition.ToString());
-		MousePosition.X = WorldPosition.X;
-		MousePosition.Y = WorldPosition.Z;
+
+		DrawDebugLine(GetWorld(), WorldPosition, WorldPosition + WorldDirection * 10000, FColor::Red, true, 50.f);
+		DrawDebugLine(GetWorld(), WorldPosition, HitResult.ImpactPoint, FColor::Green, true, 50.f);
+		DrawDebugSphere(GetWorld(), WorldPosition, 25.f, 16, FColor::Red, true, 50.f);
+
+		MousePosition.X = HitResult.ImpactPoint.X;
+		MousePosition.Y = HitResult.ImpactPoint.Y;
 
 		PlayerFinal->MoveTo(MousePosition);
 	}

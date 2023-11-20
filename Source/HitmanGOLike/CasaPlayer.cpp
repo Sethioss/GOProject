@@ -110,9 +110,7 @@ void ACasaPlayer::Move_YAxis(float AxisValue)
 void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 
 	//Converstion en FVector
-	FVector NewLocation(TargetPosition.X,TargetPosition.Y,GetActorLocation().Z);
-	UE_LOG(LogTemp, Warning, TEXT("New location - X: %f, Y: %f, Z: %f"), NewLocation.X, NewLocation.Y , NewLocation.Z);
-
+	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
 	//Changement des coordonnées
 	SetActorLocation(NewLocation);
 
