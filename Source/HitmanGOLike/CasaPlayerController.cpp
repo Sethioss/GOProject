@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "PathActor.h"
 
 // Définissez une fonction pour gérer le clic de souris
 FVector	WorldPosition, WorldDirection;
@@ -44,10 +45,25 @@ void ACasaPlayerController::OnMouseClick()
 
 		if (HitResult.bBlockingHit)
 		{
-			MousePosition.X = HitResult.GetActor()->GetActorLocation().X;
-			MousePosition.Y = HitResult.GetActor()->GetActorLocation().Y;
+			
+			APathActor* Path = Cast<APathActor>(HitResult.GetActor());
 
-			PlayerFinal->MoveTo(MousePosition);
+			if (Path)
+			{
+				if (Path->GetIsNode())
+				{
+					UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
+
+					if (Path->IsPlayerOnNeighbouringNode())
+					{
+						FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
+						//MousePosition.X = HitResult.GetActor()->GetActorLocation().X;
+						//MousePosition.Y = HitResult.GetActor()->GetActorLocation().Y;
+
+						PlayerFinal->MoveTo(ActorLocation);
+					}
+				}
+			}
 		}
 
 	}
