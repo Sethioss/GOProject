@@ -28,6 +28,8 @@ protected:
 	TArray<APathActor*> NeighbouringNodes;
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool StartingNode = false;
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	bool EndingNode = false;
 	UPROPERTY()
 	class ACasaPlayer* PlayerPawn;
 

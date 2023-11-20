@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Engine/World.h"
 
 // Sets default values
 ACasaPlayer::ACasaPlayer()
@@ -50,10 +51,6 @@ ACasaPlayer::ACasaPlayer()
 	SpringArmComponent->bEnableCameraLag = true;
 	SpringArmComponent->CameraLagSpeed = 3.0f;
 
-	
-
-
-
 }
 
 // Called when the game starts or when spawned
@@ -71,47 +68,44 @@ void ACasaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Handle movement based on our "MoveX" and "MoveY" axes
+	/*if (ShouldMove)
 	{
-		if (!CurrentVelocity.IsZero())
+		if(FVector::Distance(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z), 
+							 FVector(TargetedPosition.X, TargetedPosition.Y, GetActorLocation().Z))
+			< 0.5f)
 		{
-			FVector NewLocation = GetActorLocation() + (CurrentVelocity * DeltaTime);
-			SetActorLocation(NewLocation);
+			ShouldMove = false;
 		}
-	}
+		else 
+		{
+			MoveToTarget(TargetedPosition, Speed);
+		}
+	}*/
 
 }
 
 // Called to bind functionality to input
 void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	/*
+	
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Respond every frame to the values of our two movement axes, "MoveX" and "MoveY".
-	InputComponent->BindAxis("CasaPlayerMoveX", this, &ACasaPlayer::Move_XAxis);
-	InputComponent->BindAxis("CasaPlayerMoveY", this, &ACasaPlayer::Move_YAxis);
-	*/
 
 }
 
-void ACasaPlayer::Move_XAxis(float AxisValue)
-{
-	// Move at 100 units per second forward or backward
-	CurrentVelocity.X = FMath::Clamp(AxisValue, -100.0f, 100.0f);
-}
+/*void ACasaPlayer::MoveToTarget(FVector2D Target, float speed) {
 
-void ACasaPlayer::Move_YAxis(float AxisValue)
-{
-	// Move at 100 units per second right or left
-	CurrentVelocity.Y = FMath::Clamp(AxisValue, -100.0f, 100.0f);
-}
+	FVector2D Direction = Target - FVector2D(GetActorLocation().X, GetActorLocation().Y).Normalize();
+
+	AddActorLocalOffset(FVector(Direction.X * Speed * GetWorld()->GetDeltaSeconds(), Direction.Y * Speed * GetWorld()->GetDeltaSeconds(), 0));
+}*/
 
 void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 
-	//Converstion en FVector
+	//TargetedPosition = TargetPosition;
+	//ShouldMove = true;
+
 	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
-	//Changement des coordonnées
 	SetActorLocation(NewLocation);
 
 }

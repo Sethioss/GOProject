@@ -20,8 +20,14 @@ protected:
 	class UAudioComponent* AudioComponent = nullptr;
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* PlayerCamera = nullptr;
+	UPROPERTY(EditAnywhere)
+	float Speed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComponent = nullptr;
+
+	FVector2D TargetedPosition;
+	void MoveToTarget(FVector2D Target, float speed);
+	bool ShouldMove = false;
 
 
 public:
@@ -38,12 +44,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// Input functions
-	UFUNCTION()
-	void Move_XAxis(float AxisValue);
-	UFUNCTION()
-	void Move_YAxis(float AxisValue);
 
 	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
 	UFUNCTION()
