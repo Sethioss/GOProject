@@ -38,14 +38,18 @@ void ACasaPlayerController::OnMouseClick()
 				ECollisionChannel::ECC_GameTraceChannel1);
 		}
 
-		DrawDebugLine(GetWorld(), WorldPosition, WorldPosition + WorldDirection * 10000, FColor::Red, true, 50.f);
-		DrawDebugLine(GetWorld(), WorldPosition, HitResult.ImpactPoint, FColor::Green, true, 50.f);
-		DrawDebugSphere(GetWorld(), WorldPosition, 25.f, 16, FColor::Red, true, 50.f);
+		//DrawDebugLine(GetWorld(), WorldPosition, WorldPosition + WorldDirection * 10000, FColor::Red, true, 50.f);
+		//DrawDebugLine(GetWorld(), WorldPosition, HitResult.ImpactPoint, FColor::Green, true, 50.f);
+		//DrawDebugSphere(GetWorld(), WorldPosition, 25.f, 16, FColor::Red, true, 50.f);
 
-		MousePosition.X = HitResult.ImpactPoint.X;
-		MousePosition.Y = HitResult.ImpactPoint.Y;
+		if (HitResult.bBlockingHit)
+		{
+			MousePosition.X = HitResult.GetActor()->GetActorLocation().X;
+			MousePosition.Y = HitResult.GetActor()->GetActorLocation().Y;
 
-		PlayerFinal->MoveTo(MousePosition);
+			PlayerFinal->MoveTo(MousePosition);
+		}
+
 	}
 
 }
