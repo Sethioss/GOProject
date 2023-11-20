@@ -35,7 +35,7 @@ void ACasaPlayerController::OnMouseClick()
 		if (MyController) {
 			UGameplayStatics::DeprojectScreenToWorld(MyController, MousePos, WorldPosition, WorldDirection);
 			GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 10000,
-				ECollisionChannel::ECC_WorldStatic);
+				ECollisionChannel::ECC_GameTraceChannel1);
 		}
 
 		DrawDebugLine(GetWorld(), WorldPosition, WorldPosition + WorldDirection * 10000, FColor::Red, true, 50.f);
