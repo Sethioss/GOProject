@@ -20,12 +20,24 @@ void ACasaPlayerController::OnMouseClick()
 	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
 	if (PlayerFinal)
 	{
+		
+		FVector	WorldPosition, WorldDirection;
+
+		APlayerController* MyController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+		if (MyController) {
+			MyController->DeprojectScreenPositionToWorld(MouseX,MouseY,WorldPosition, WorldDirection);
+		}
+		UE_LOG(LogTemp, Warning, TEXT("WorldLocation: %s"), *WorldPosition.ToString());
+		MousePosition.X = WorldPosition.X;
+		MousePosition.Y = WorldPosition.Z;
+
 		PlayerFinal->MoveTo(MousePosition);
 	}
 
 }
 
-// Associez cette fonction à un événement de clic de souris, par exemple, dans votre constructeur
+// Associez cette fonction à un événement de clic de souris
 ACasaPlayerController::ACasaPlayerController()
 {
 	// Associez la fonction OnMouseClick() à l'événement de clic de souris
