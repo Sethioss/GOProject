@@ -32,6 +32,10 @@ protected:
 	bool EndingNode = false;
 	UPROPERTY()
 	class ACasaPlayer* PlayerPawn;
+	UFUNCTION()
+	void AddNeighbouringNodes();
+
+
 
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
@@ -44,5 +48,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsNode; }
+	UFUNCTION(BlueprintCallable)
+	inline TArray<APathActor*> GetNeighbouringNodes() { return NeighbouringNodes; }
+	UFUNCTION()
+	TArray<APathActor*> ReachNeighbouringPath();
 
 };
