@@ -61,8 +61,8 @@ void APathActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//if(StartingNode) 
-		//UE_LOG(LogTemp, Warning, TEXT("Le start possede : %f noeud enfant"), NeighbouringNodes.Num());
+	if(StartingNode) 
+		UE_LOG(LogTemp, Warning, TEXT("Le start possede : %f noeud enfant"), NeighbouringNodes.Num());
 }
 
 bool APathActor::IsPlayerOnNeighbouringNode()
@@ -115,7 +115,6 @@ TArray<APathActor*> APathActor::ReachNeighbouringPath() {
 	for (FHitResult* HitResult : HitResults) {
 		if (HitResult->bBlockingHit) {
 			APathActor* NearbyPath = Cast<APathActor>(HitResult->GetActor());
-			UE_LOG(LogTemp, Warning, TEXT("HitResult Class name : %s"), *(HitResult->GetActor()->GetClass()->GetName()));
 			if (NearbyPath != NULL) {
 				//Si le voisin est un Node: alors on l'ajoute
 				if (NearbyPath->GetIsNode()) {
