@@ -4,6 +4,8 @@
 #include "PathActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "CasaPlayer.h"
+#include "Foreuse.h"
+#include "Otage.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -50,6 +52,15 @@ void APathActor::BeginPlay()
 
 		PlayerPawn = Cast<ACasaPlayer>(Pawn);
 
+
+	}
+
+	if (SpawnForeuse) 
+	{
+		GetWorld()->SpawnActor(AForeuse::Foreuse(this));
+	}
+	if(SpawnOtage)
+	{
 
 	}
 

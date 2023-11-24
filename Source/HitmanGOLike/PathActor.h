@@ -23,6 +23,10 @@ protected:
 	class UStaticMeshComponent* PlaneMesh = nullptr;
 	UPROPERTY(EditAnywhere, Category = NodePathParameters)
 	bool IsNode = false;
+	UPROPERTY(EditAnywhere, Category = NodePathParameters)
+	bool SpawnForeuse = false;
+	UPROPERTY(EditAnywhere, Category = NodePathParameters)
+	bool SpawnOtage = false;
 
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<APathActor*> NeighbouringNodes;
