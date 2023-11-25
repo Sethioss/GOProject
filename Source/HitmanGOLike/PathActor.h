@@ -22,10 +22,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* PlaneMesh = nullptr;
-	UPROPERTY(EditAnywhere, Category = NodePathParameters)
-	bool IsNode = false;
 
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<APathActor*> NeighbouringNodes;
@@ -35,6 +31,24 @@ protected:
 	bool EndingNode = false;
 	UPROPERTY()
 	class ACasaPlayer* PlayerPawn;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* PlaneMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Up = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Down = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Right = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Left = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
+	bool IsWalkableNode = true;
 
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
@@ -45,7 +59,10 @@ public:
 	bool IsPlayerOnNeighbouringNode();
 	void TransferPlayerOwnership(APathActor& OriginTile);
 
+	inline UStaticMeshComponent* GetPlaneMesh() { return PlaneMesh; }
+
+
 	UFUNCTION(BlueprintCallable)
-	inline bool GetIsNode(){ return IsNode; }
+	inline bool GetIsNode(){ return IsWalkableNode; }
 
 };

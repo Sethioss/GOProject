@@ -105,7 +105,7 @@ APathActor* AEnemyActor::SnapToGrid(FVector offset)
 
 			FBox ActorBounds = GetComponentsBoundingBox();
 
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetExtent().Z)));
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
 		}
 	}
 

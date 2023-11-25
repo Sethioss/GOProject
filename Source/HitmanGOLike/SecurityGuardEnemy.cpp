@@ -57,12 +57,18 @@ void ASecurityGuardEnemy::PatrolStep()
 {
 	FHitResult HitResult;
 
+	FBox ActorBounds = CurrentNode->GetComponentsBoundingBox();
+
 	for (int i = 0; i < 4; ++i)
 	{
 		FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * i, 0.0f));
 
 		FVector direction = RotationQuat.RotateVector(GetActorForwardVector());
-		FVector NextNodePos = direction * 100;
+
+		FString str = ActorBounds.ToString();
+
+		UE_LOG(LogTemp, Error, TEXT("Node size: %s"), *str);
+		FVector NextNodePos = direction * ((static_cast<float>(direction.Y) == 0 ? ActorBounds.GetSize().X : ActorBounds.GetSize().Y));
 		FVector vec = GetActorLocation() + NextNodePos;
 		vec.Z = CurrentNode->GetActorLocation().Z - 5;
 
