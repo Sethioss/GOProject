@@ -3,18 +3,22 @@
 
 #include "SecurityGuardEnemy.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Called when the game starts or when spawned
 void ASecurityGuardEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	if (CurrentNode)
-	{
-		PatrolStep();
+void ASecurityGuardEnemy::Update()
+{
+	switch (State) {
+		case EEnemyState::NEUTRAL:
+			PatrolStep();
+			MoveToDestination();
 	}
 
 }
@@ -25,35 +29,66 @@ ASecurityGuardEnemy::ASecurityGuardEnemy()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+}
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
-	mesh->SetStaticMesh(meshFinder.Object);
+void ASecurityGuardEnemy::MoveToDestination()
+{
+	if (Destination) {
 
-	RootComponent = mesh;
+		FVector2f diff = FVector2f(Destination->GetActorLocation().X - GetActorLocation().Y);
 
-	State = EEnemyState::NEUTRAL;
+		float AngleToRotate = FMath::Atan2(Destination->GetActorLocation().Y - GetActorLocation().Y, Destination->GetActorLocation().X - GetActorLocation().X);
 
+		// Convert the angle from radians to degrees
+		float AngleInDegrees = FMath::RadiansToDegrees(AngleToRotate);
+
+		FQuat RotationQuat = FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AngleInDegrees));
+
+		// Set the new rotation to your object
+		SetActorRotation(RotationQuat.Rotator());
+
+		SetActorLocation(FVector(Destination->GetActorLocation().X, Destination->GetActorLocation().Y, GetActorLocation().Z));
+		CurrentNode = Destination;
+		Destination = nullptr;
+	}
 }
 
 void ASecurityGuardEnemy::PatrolStep() 
 {
 	FHitResult HitResult;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, CurrentNode->GetActorLocation() + FVector(0, 0, 51), GetActorForwardVector() * CurrentNode->GetActorLocation() + FVector(0, 51, 0), ECollisionChannel::ECC_GameTraceChannel1);
-
-	DrawDebugLine(GetWorld(), CurrentNode->GetActorLocation() + FVector(0, 0, 51), GetActorForwardVector() * CurrentNode->GetActorLocation() + FVector(0, 51, 0), FColor::Red, true, 50.f);
-
-	if (HitResult.bBlockingHit)
+	for (int i = 0; i < 4; ++i)
 	{
+		FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * i, 0.0f));
 
-		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+		FVector direction = RotationQuat.RotateVector(GetActorForwardVector());
+		FVector NextNodePos = direction * 100;
+		FVector vec = GetActorLocation() + NextNodePos;
+		vec.Z = CurrentNode->GetActorLocation().Z - 5;
 
-		if (Path)
+		FString VectorAsString = vec.ToString();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *VectorAsString);
+
+		GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), vec,
+			ECollisionChannel::ECC_GameTraceChannel1);
+
+		DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::White, true, 50.f);
+
+		if (HitResult.bBlockingHit)
 		{
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, GetActorLocation().Z));
+			APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+
+			if (Path)
+			{
+				if (CurrentNode->IsConnectedNode(CurrentNode, Path))
+				{
+					Destination = Path;
+					return;
+				}
+			}
 		}
 	}
+	
 }
 
 void ASecurityGuardEnemy::AlertedStart()

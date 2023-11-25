@@ -108,5 +108,8 @@ void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
 	SetActorLocation(NewLocation);
 
+	//REMOVE LATER
+	SecurityEnemy->Update();
+
 }
 

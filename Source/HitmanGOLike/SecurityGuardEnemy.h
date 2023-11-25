@@ -16,6 +16,7 @@ class HITMANGOLIKE_API ASecurityGuardEnemy : public AEnemyActor
 	GENERATED_BODY()
 public:
 	ASecurityGuardEnemy();
+	virtual void Update() override;
 
 protected:
 	
@@ -26,7 +27,5 @@ protected:
 	virtual void AlertedEnd() override;
 	virtual void Attack() override;
 
-public:
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* mesh = nullptr;
+	virtual void MoveToDestination() override;
 };

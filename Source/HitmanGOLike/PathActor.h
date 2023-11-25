@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	APathActor();
 
+	//Put this in a manager
+	bool IsConnectedNode(APathActor* A, APathActor* B);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

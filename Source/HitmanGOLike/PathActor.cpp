@@ -69,6 +69,18 @@ bool APathActor::IsPlayerOnNeighbouringNode()
 	return false;
 }
 
+bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
+{
+	for (int i = 0; i < A->NeighbouringNodes.Num(); ++i)
+	{
+		if (A->NeighbouringNodes[i] == B) 
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void APathActor::TransferPlayerOwnership(APathActor& OriginTile) 
 {
 	PlayerPawn = OriginTile.PlayerPawn;

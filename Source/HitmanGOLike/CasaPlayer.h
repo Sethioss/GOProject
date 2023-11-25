@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Camera/CameraComponent.h"
+#include "SecurityGuardEnemy.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -28,6 +29,10 @@ protected:
 	FVector2D TargetedPosition;
 	void MoveToTarget(FVector2D Target, float speed);
 	bool ShouldMove = false;
+
+	//REMOVE LATER
+	UPROPERTY(EditAnywhere)
+	ASecurityGuardEnemy* SecurityEnemy = nullptr;
 
 
 public:
