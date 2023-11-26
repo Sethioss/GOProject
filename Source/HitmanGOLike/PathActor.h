@@ -18,6 +18,10 @@ public:
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
 
+#if WITH_EDITOR
+	virtual void PostEditMove(bool bFinished) override;
+#endif
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -49,6 +53,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
 	bool IsWalkableNode = true;
+
+	APathActor* CheckNeighbourNode(int direction);
+	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
 
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
