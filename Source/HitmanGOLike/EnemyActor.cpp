@@ -37,7 +37,6 @@ void AEnemyActor::Update()
 
 void AEnemyActor::PatrolStep()
 {
-	
 }
 
 void AEnemyActor::AlertedStart()

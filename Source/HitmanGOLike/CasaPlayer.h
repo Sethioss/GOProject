@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "Camera/CameraComponent.h"
 #include "SecurityGuardEnemy.h"
+#include "GameManager.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -38,6 +39,9 @@ protected:
 public:
 	// Sets default values for this pawn's properties
 	ACasaPlayer();
+
+	UPROPERTY(VisibleAnywhere)
+	bool TurnFinished = false;
 
 protected:
 	// Called when the game starts or when spawned

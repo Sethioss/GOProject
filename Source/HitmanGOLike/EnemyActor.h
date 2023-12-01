@@ -38,11 +38,12 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState State;
 
+	virtual void Update();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void Update();
 
 	virtual void PatrolStep();
 	virtual void AlertedStart();
