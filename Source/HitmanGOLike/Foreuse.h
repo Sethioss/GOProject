@@ -13,5 +13,18 @@ UCLASS()
 class HITMANGOLIKE_API AForeuse : public AItem
 {
 	GENERATED_BODY()
+
+protected:
+	//Call the special effect of the item
+	virtual void ItemEffect() override;
+
+public:
+	UPROPERTY()
+	bool IsHeld=false;
+
+	UFUNCTION()
+	void Init(APathActor* Node) { CurrentNode = Node; }
 	
+	AForeuse(APathActor* CurrentNode);
+	AForeuse();
 };

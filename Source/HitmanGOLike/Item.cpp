@@ -6,6 +6,23 @@
 #include "Components/AudioComponent.h"
 #include "PathActor.h"
 
+AItem::AItem()
+{
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	// creation du component staticmesh
+	StaticMeshComponent =
+		CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visuel"));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
+	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
+
+	// creation du component audio
+	AudioComponent =
+		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
+}
+
 // Sets default values
 AItem::AItem(APathActor* CurrentNode)
 {
@@ -40,15 +57,30 @@ void AItem::Tick(float DeltaTime)
 
 }
 
-bool AItem::IsForwardNodeValid()
+APathActor* AItem::IsForwardNodeValid()
 {
-	return true;
+	FHitResult ForwardObject;
+	//Looking for Northern Object
+	GetWorld()->LineTraceSingleByChannel(ForwardObject, CurrentNode->GetActorLocation() + FVector(0, 0, 51), CurrentNode->GetActorLocation() + (GetActorForwardVector() * 1000),
+		ECollisionChannel::ECC_GameTraceChannel1);
+
+	APathActor* Node = Cast<APathActor>(ForwardObject.GetActor());
+
+	if (Node) return Node;
+
+	/*
+	* ABreakableWall* Wall = Cast<ABreakableWall>(ForwardObject.GetActor());
+	* if (Wall) return Wall;
+	*/
+
+	
+	return nullptr;
 }
 
 
-bool AItem::IsBackwardNodeValid()
+APathActor* AItem::IsBackwardNodeValid()
 {
-	return true;
+	return nullptr;
 }
 
 void AItem::ItemEffect()

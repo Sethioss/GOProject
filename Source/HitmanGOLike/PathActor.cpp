@@ -57,7 +57,13 @@ void APathActor::BeginPlay()
 
 	if (SpawnForeuse) 
 	{
-		GetWorld()->SpawnActor(AForeuse::Foreuse(this));
+		SpawnForeuse = !SpawnForeuse;
+		AForeuse* NewForeuse = GetWorld()->SpawnActor<AForeuse>(AForeuse::StaticClass(), GetActorLocation(), GetActorRotation());
+
+		if (NewForeuse)
+		{
+			NewForeuse->Init(this);
+		}
 	}
 	if(SpawnOtage)
 	{

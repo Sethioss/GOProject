@@ -17,6 +17,7 @@ class HITMANGOLIKE_API AItem : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AItem(APathActor* CurrentNode);
+	AItem();
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,12 +36,11 @@ protected:
 
 	//Node en face de l'item permet d'utiliser l'item (avancer la foreuse, pousser l'otage)
 	UFUNCTION()
-	virtual bool IsForwardNodeValid();
+	APathActor* IsForwardNodeValid();
 	//Node derrière l'item permet d'utiliser l'item (uniquement pour la foreuse -> la reculer)
 	UFUNCTION()
-	virtual bool IsBackwardNodeValid();
+	APathActor* IsBackwardNodeValid();
 	//Call the special effect of the item
-	UFUNCTION()
 	virtual void ItemEffect();
 
 public:	
