@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "GameManager.h"
 #include "EnemyActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "CasaPlayer.h"
-#include "GameManager.h"
 
 // Sets default values for this component's properties
 UGameManager::UGameManager()

@@ -17,7 +17,6 @@ public:
 
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
-
 #if WITH_EDITOR
 	virtual void PostEditMove(bool bFinished) override;
 #endif
@@ -56,8 +55,6 @@ protected:
 
 	APathActor* CheckNeighbourNode(int direction);
 	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
-
-	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
 public:	
 	// Called every frame

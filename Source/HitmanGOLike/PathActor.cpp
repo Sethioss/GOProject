@@ -21,11 +21,6 @@ APathActor::APathActor()
 	RootComponent = PlaneMesh;
 }
 
-void APathActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}
-
 // Called when the game starts or when spawned
 void APathActor::BeginPlay()
 {
@@ -73,6 +68,7 @@ bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
 	return false;
 }
 
+#if WITH_EDITOR
 void APathActor::PostEditMove(bool bFinished)
 {
 	if (bFinished)
@@ -201,6 +197,7 @@ void APathActor::PostEditMove(bool bFinished)
 		}
 	}	
 }
+#endif
 
 void APathActor::SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value)
 {
