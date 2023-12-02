@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "PathActor.h"
 #include "IBoardElement.h"
+#include "CasaFSM.h"
 #include "EnemyActor.generated.h"
 
 UENUM(BlueprintType)
@@ -38,12 +39,15 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState State;
 
-	virtual void Update();
+	virtual void UpdateBehaviour();
+	virtual void BeginTurnBehaviour();
+	virtual void EndTurnBehaviour();
+
+	CasaFSM Fsm;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 
 	virtual void PatrolStep();
 	virtual void AlertedStart();
@@ -51,11 +55,14 @@ protected:
 	virtual void AlertedEnd();
 	virtual void Attack();
 
+	virtual void InitFsm();
+
 	virtual void MoveToDestination();
 
 	virtual APathActor* GetCurrentNode();
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
+
 
 public:
 	// Called every frame

@@ -16,7 +16,8 @@ class HITMANGOLIKE_API ASecurityGuardEnemy : public AEnemyActor
 	GENERATED_BODY()
 public:
 	ASecurityGuardEnemy();
-	virtual void Update() override;
+	virtual void UpdateBehaviour() override;
+	virtual void BeginTurnBehaviour() override;
 
 protected:
 	
@@ -28,4 +29,6 @@ protected:
 	virtual void Attack() override;
 
 	virtual void MoveToDestination() override;
+
+	virtual void InitFsm() override;
 };

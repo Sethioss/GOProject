@@ -28,11 +28,22 @@ void AEnemyActor::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentNode = SnapToGrid();
+	InitFsm();
 	
 }
 
-void AEnemyActor::Update()
+void AEnemyActor::UpdateBehaviour()
 {
+}
+
+void AEnemyActor::BeginTurnBehaviour()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("I'm beginning my turn!"));
+}
+
+void AEnemyActor::EndTurnBehaviour()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("I'm ending my turn!"));
 }
 
 void AEnemyActor::PatrolStep()
@@ -57,6 +68,11 @@ void AEnemyActor::Attack()
 
 void AEnemyActor::MoveToDestination()
 {
+}
+
+void AEnemyActor::InitFsm()
+{
+
 }
 
 APathActor* AEnemyActor::GetCurrentNode()

@@ -75,8 +75,6 @@ void APathActor::PostEditMove(bool bFinished)
 	{
 		TArray<APathActor*> SurroundingActors;
 
-		UE_LOG(LogTemp, Error, TEXT("Move finished"));
-
 		for (int i = 0; i < 4; ++i)
 		{
 			SurroundingActors.Add(CheckNeighbourNode(i));

@@ -25,7 +25,7 @@ void ACasaPlayerController::OnMouseClick()
 	FVector2D MousePos(MouseX, MouseY);
 
 	// Faites quelque chose avec les coordonnées (par exemple, tracez-les dans la console)
-	UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
+	//UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
 
 	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
 	if (PlayerFinal)
@@ -52,7 +52,7 @@ void ACasaPlayerController::OnMouseClick()
 			{
 				if (Path->GetIsNode())
 				{
-					UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
+					//UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
 
 					if (Path->IsPlayerOnNeighbouringNode())
 					{

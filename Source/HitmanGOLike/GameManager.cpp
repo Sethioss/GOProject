@@ -2,6 +2,7 @@
 
 #include "GameManager.h"
 #include "EnemyActor.h"
+#include "CasaFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "CasaPlayer.h"
 
@@ -57,7 +58,9 @@ void UGameManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	{
 		for (AEnemyActor* Enemy : Enemies)
 		{
-			Enemy->Update();
+			Enemy->Fsm.CurrentState->FStartDelegate.ExecuteIfBound();
+			Enemy->Fsm.CurrentState->FTickDelegate.ExecuteIfBound();
+			Enemy->Fsm.CurrentState->FEndDelegate.ExecuteIfBound();
 		}
 	}
 	Player->TurnFinished = false;
