@@ -22,6 +22,11 @@ AEnemyActor::AEnemyActor()
 	State = EEnemyState::NEUTRAL;
 }
 
+void AEnemyActor::Update()
+{
+	Fsm.CurrentState->FTickDelegate.ExecuteIfBound();
+}
+
 // Called when the game starts or when spawned
 void AEnemyActor::BeginPlay()
 {
@@ -32,48 +37,15 @@ void AEnemyActor::BeginPlay()
 	
 }
 
-void AEnemyActor::UpdateBehaviour()
-{
-}
+void AEnemyActor::InitFsm() {}
 
-void AEnemyActor::BeginTurnBehaviour()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("I'm beginning my turn!"));
-}
+void AEnemyActor::NeutralTurn() {}
 
-void AEnemyActor::EndTurnBehaviour()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("I'm ending my turn!"));
-}
+void AEnemyActor::GetDestination(){}
+void AEnemyActor::MoveToDestination(){}
 
-void AEnemyActor::PatrolStep()
-{
-}
+void AEnemyActor::Attack(){}
 
-void AEnemyActor::AlertedStart()
-{
-}
-
-void AEnemyActor::AlertedStep()
-{
-}
-
-void AEnemyActor::AlertedEnd()
-{
-}
-
-void AEnemyActor::Attack()
-{
-}
-
-void AEnemyActor::MoveToDestination()
-{
-}
-
-void AEnemyActor::InitFsm()
-{
-
-}
 
 APathActor* AEnemyActor::GetCurrentNode()
 {

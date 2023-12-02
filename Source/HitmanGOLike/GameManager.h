@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CasaFSM.h"
 #include "GameManager.generated.h"
 
 
@@ -25,6 +26,16 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class ACasaPlayer* Player;
+	class CasaFSM Fsm;
+
+	void InitFsm();
+
+	void OnAwaitPlayerInput();
+	void OnEnemyTurn();
+	void OnPlayerDeath();
+
+	void BlockPlayerInput();
+	void ReleasePlayerInput();
 
 public:	
 	// Called every frame

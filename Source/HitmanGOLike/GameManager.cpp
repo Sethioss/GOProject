@@ -2,7 +2,6 @@
 
 #include "GameManager.h"
 #include "EnemyActor.h"
-#include "CasaFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "CasaPlayer.h"
 
@@ -44,7 +43,46 @@ void UGameManager::BeginPlay()
 	if (pl != nullptr) {
 		Player = pl;
 	}
-	
+
+	InitFsm();
+}
+
+void UGameManager::BlockPlayerInput()
+{
+	Player->ShouldMove = false;
+}
+
+void UGameManager::ReleasePlayerInput()
+{
+	Player->ShouldMove = true;
+}
+
+void UGameManager::InitFsm()
+{
+	CasaState* AwaitingPlayerInput = new CasaState();
+	AwaitingPlayerInput->Name = "OnAwaitingPlayerInput";
+	AwaitingPlayerInput->SetStartDelegate(this, &UGameManager::ReleasePlayerInput);
+	AwaitingPlayerInput->SetUpdateDelegate(this, &UGameManager::OnAwaitPlayerInput);
+	AwaitingPlayerInput->SetEndDelegate(this, &UGameManager::BlockPlayerInput);
+	Fsm.States.Add(AwaitingPlayerInput);
+	Fsm.ChangeState("OnAwaitingPlayerInput", false);
+
+
+	CasaState* OnEnemyTurn = new CasaState();
+	OnEnemyTurn->Name = "OnEnemyTurn";
+
+	OnEnemyTurn->SetUpdateDelegate(this, &UGameManager::OnEnemyTurn);
+	Fsm.States.Add(OnEnemyTurn);
+
+
+	CasaState* DeathState = new CasaState();
+	DeathState->Name = "OnDeath";
+
+	DeathState->SetStartDelegate(this, &UGameManager::BlockPlayerInput);
+	DeathState->SetUpdateDelegate(this, &UGameManager::OnPlayerDeath);
+	Fsm.States.Add(DeathState);
+
+
 }
 
 
@@ -54,15 +92,31 @@ void UGameManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+	Fsm.CurrentState->FTickDelegate.ExecuteIfBound();
+}
+
+void UGameManager::OnEnemyTurn()
+{
+	for (AEnemyActor* Enemy : Enemies)
+	{
+		Enemy->Update();
+	}
+
+	Player->TurnFinished = false;
+
+	Fsm.ChangeState("OnAwaitingPlayerInput");
+}
+
+void UGameManager::OnAwaitPlayerInput()
+{
 	if (Player->TurnFinished)
 	{
-		for (AEnemyActor* Enemy : Enemies)
-		{
-			Enemy->Fsm.CurrentState->FStartDelegate.ExecuteIfBound();
-			Enemy->Fsm.CurrentState->FTickDelegate.ExecuteIfBound();
-			Enemy->Fsm.CurrentState->FEndDelegate.ExecuteIfBound();
-		}
+		Fsm.ChangeState("OnEnemyTurn");
 	}
-	Player->TurnFinished = false;
+}
+
+void UGameManager::OnPlayerDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
 }
 

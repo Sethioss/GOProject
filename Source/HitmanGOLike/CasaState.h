@@ -23,11 +23,11 @@ public:
 	FEnd FEndDelegate;
 
 	template <typename T>
-	inline void SetStartState(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FStartDelegate.BindUObject(Object, InFunc); }
+	inline void SetStartDelegate(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FStartDelegate.BindUObject(Object, InFunc); }
 	template <typename T>
-	inline void SetUpdateState(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FTickDelegate.BindUObject(Object, InFunc); }
+	inline void SetUpdateDelegate(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FTickDelegate.BindUObject(Object, InFunc); }
 	template <typename T>
-	inline void SetEndState(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FEndDelegate.BindUObject(Object, InFunc); }
+	inline void SetEndDelegate(T* Object, TMemFunPtrType<false, T, void()>::Type InFunc) { FEndDelegate.BindUObject(Object, InFunc); }
 };
 
 

@@ -17,7 +17,11 @@ public:
 
 	class CasaState* CurrentState = nullptr;
 
-	void ChangeState(CasaState* dest);
+	void ChangeState(FString StateName, bool PlayTransition = true);
+
+protected:
+	void ChangeStateTo(CasaState* dest, bool PlayTransition = true);
+	class CasaState* GetState(const FString StateName);
 
 public:
 

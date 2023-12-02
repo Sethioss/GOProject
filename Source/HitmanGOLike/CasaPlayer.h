@@ -28,12 +28,6 @@ protected:
 	class USpringArmComponent* SpringArmComponent = nullptr;
 
 	FVector2D TargetedPosition;
-	void MoveToTarget(FVector2D Target, float speed);
-	bool ShouldMove = false;
-
-	//REMOVE LATER
-	UPROPERTY(EditAnywhere)
-	ASecurityGuardEnemy* SecurityEnemy = nullptr;
 
 
 public:
@@ -42,6 +36,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool TurnFinished = false;
+	bool ShouldMove = true;
 
 protected:
 	// Called when the game starts or when spawned

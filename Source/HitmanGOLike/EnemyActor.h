@@ -39,29 +39,29 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	EEnemyState State;
 
-	virtual void UpdateBehaviour();
-	virtual void BeginTurnBehaviour();
-	virtual void EndTurnBehaviour();
+	virtual void Update();
 
 	CasaFSM Fsm;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void PatrolStep();
-	virtual void AlertedStart();
-	virtual void AlertedStep();
-	virtual void AlertedEnd();
-	virtual void Attack();
-
 	virtual void InitFsm();
 
+	virtual void NeutralTurn();
+
+	virtual void GetDestination();
 	virtual void MoveToDestination();
+
+	virtual void Attack();
+
+
 
 	virtual APathActor* GetCurrentNode();
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
+
+	bool TurnFinished = false;
 
 
 public:
