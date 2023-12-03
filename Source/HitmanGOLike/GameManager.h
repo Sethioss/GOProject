@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CasaFSM.h"
+#include "PathActor.h"
+#include "EnemyActor.h"
 #include "GameManager.generated.h"
 
 
@@ -16,17 +18,17 @@ class HITMANGOLIKE_API UGameManager : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UGameManager();
+	class ACasaPlayer* Player;
+	UPROPERTY(VisibleAnywhere)
+	TArray<class AEnemyActor*> Enemies;
+	int ElementsToRegister = 0;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere)
-	TArray<class AEnemyActor*> Enemies;
 
-	UPROPERTY(VisibleAnywhere)
-	class ACasaPlayer* Player;
-	class CasaFSM Fsm;
+	CasaFSM Fsm;
 
 	void InitFsm();
 
@@ -37,9 +39,18 @@ protected:
 	void BlockPlayerInput();
 	void ReleasePlayerInput();
 
+	static UGameManager* Instance;
+
+	void InitGame();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable, Category= "GameManager singleton")
+	static UGameManager* GetInstance();
+
+	APathActor* GetPlayerNode();
 
 		
 };

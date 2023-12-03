@@ -3,11 +3,12 @@
 
 #include "EnemyActor.h"
 #include "Engine/World.h"
+#include "GameManager.h"
 
 // Sets default values
 AEnemyActor::AEnemyActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -34,18 +35,44 @@ void AEnemyActor::BeginPlay()
 
 	CurrentNode = SnapToGrid();
 	InitFsm();
-	
+	RegisterToManager();
 }
 
-void AEnemyActor::InitFsm() {}
+void AEnemyActor::RegisterToManager()
+{
+	if (RegisteredToManager == false)
+	{
+		UGameManager::GetInstance()->Enemies.Add(this);
+		RegisteredToManager = true;
+		UGameManager::GetInstance()->ElementsToRegister -= 1;
+		Fsm.ChangeState("Neutral");
+	}
+}
+
+void AEnemyActor::InitFsm() {
+
+	CasaState* InitEnemyState = new CasaState();
+	InitEnemyState->Name = "InitEnemy";
+
+	InitEnemyState->SetUpdateDelegate(this, &AEnemyActor::RegisterToManager);
+
+	Fsm.States.Add(InitEnemyState);
+	Fsm.ChangeState("InitEnemy", false);
+
+	CasaState* EnemyNeutralState = new CasaState();
+	EnemyNeutralState->Name = "Neutral";
+
+	EnemyNeutralState->SetUpdateDelegate(this, &AEnemyActor::NeutralTurn);
+
+	Fsm.States.Add(EnemyNeutralState);
+}
 
 void AEnemyActor::NeutralTurn() {}
 
-void AEnemyActor::GetDestination(){}
-void AEnemyActor::MoveToDestination(){}
+void AEnemyActor::GetDestination() {}
+void AEnemyActor::MoveToDestination() {}
 
-void AEnemyActor::Attack(){}
-
+void AEnemyActor::Attack() {}
 
 APathActor* AEnemyActor::GetCurrentNode()
 {
@@ -103,6 +130,5 @@ APathActor* AEnemyActor::SnapToGrid(FVector offset)
 void AEnemyActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

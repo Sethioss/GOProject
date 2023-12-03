@@ -41,6 +41,8 @@ public:
 
 	virtual void Update();
 
+	bool RegisteredToManager = false;
+
 	CasaFSM Fsm;
 
 protected:
@@ -62,6 +64,8 @@ protected:
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
 
 	bool TurnFinished = false;
+
+	void RegisterToManager();
 
 
 public:

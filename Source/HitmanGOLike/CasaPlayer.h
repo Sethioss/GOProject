@@ -36,11 +36,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool TurnFinished = false;
-	bool ShouldMove = true;
+	bool ShouldMove = false;
+
+	bool RegisteredToManager = false;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void RegisterToManager();
 
 public:	
 	// Called every frame

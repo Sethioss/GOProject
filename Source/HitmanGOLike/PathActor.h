@@ -20,14 +20,14 @@ public:
 #if WITH_EDITOR
 	virtual void PostEditMove(bool bFinished) override;
 #endif
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	TArray<APathActor*> NeighbouringNodes;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 
-	UPROPERTY(EditAnywhere, Category = NodeInfo)
-	TArray<APathActor*> NeighbouringNodes;
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool StartingNode = false;
 	UPROPERTY(EditAnywhere, Category = NodeInfo)

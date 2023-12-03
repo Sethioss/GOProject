@@ -90,11 +90,5 @@ void ASecurityGuardEnemy::MoveToDestination()
 
 void ASecurityGuardEnemy::InitFsm()
 {
-	CasaState* EnemyNeutralState = new CasaState();
-	EnemyNeutralState->Name = "Neutral";
-
-	EnemyNeutralState->SetUpdateDelegate(this, &ASecurityGuardEnemy::NeutralTurn);
-
-	Fsm.States.Add(EnemyNeutralState);
-	Fsm.ChangeState("Neutral", false);
+	Super::InitFsm();
 }

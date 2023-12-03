@@ -60,7 +60,14 @@ void ACasaPlayer::BeginPlay()
 	
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	RegisterToManager();
+}
 
+void ACasaPlayer::RegisterToManager()
+{
+	UGameManager::GetInstance()->Player = this;
+	RegisteredToManager = true;
+	UGameManager::GetInstance()->ElementsToRegister -= 1;
 }
 
 // Called every frame
@@ -102,13 +109,15 @@ void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 
-	//TargetedPosition = TargetPosition;
-	//ShouldMove = true;
+	if (ShouldMove)
+	{
+		//TargetedPosition = TargetPosition;
+		//ShouldMove = true;
 
-	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
-	SetActorLocation(NewLocation);
+		FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
+		SetActorLocation(NewLocation);
 
-	TurnFinished = true;
-
+		TurnFinished = true;
+	}
 }
 
