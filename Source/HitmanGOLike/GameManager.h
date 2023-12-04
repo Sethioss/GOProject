@@ -9,7 +9,6 @@
 #include "EnemyActor.h"
 #include "GameManager.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HITMANGOLIKE_API UGameManager : public UActorComponent
 {

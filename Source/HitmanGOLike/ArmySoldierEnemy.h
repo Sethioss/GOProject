@@ -23,15 +23,16 @@ protected:
 
 
 	virtual void NeutralTurn() override;
-	TArray<APathActor*> GetPathTo(APathActor* Dest);
+	TArray<APathActor*> GetPathFromConnector(APathActor* Start, APathActor* Dest, TArray<APathActor*> List);
 
-	virtual void GetDestination() override;
+	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;
 
 	virtual void InitFsm() override;
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<APathActor*> CurrentPath;
+	TArray<APathActor*> VisitedNodes;
 
 	APathActor* GetDestFromPath(TArray<APathActor*> Path);
 };

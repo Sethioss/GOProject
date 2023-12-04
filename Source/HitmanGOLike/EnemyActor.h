@@ -10,12 +10,16 @@
 #include "EnemyActor.generated.h"
 
 UENUM(BlueprintType)
-enum class EEnemyState : uint8 {
-	NEUTRAL = 0 UMETA(DisplayName = "NEUTRAL"),
-	ALERTED = 1 UMETA(DisplayName = "ALERTED"),
-	SEARCHING = 2 UMETA(DisplayName = "SEARCHING"),
-	ATTACKING = 3 UMETA(DisplayName = "ATTACKING"),
-	DEAD = 4 UMETA(DisplayName = "DEAD"),
+enum class EDirectionEnum : uint8 {
+	UP = 0 UMETA(DisplayName = "UP"),
+	RIGHT = 1 UMETA(DisplayName = "RIGHT"),
+	DOWN = 2 UMETA(DisplayName = "DOWN"),
+	LEFT = 3 UMETA(DisplayName = "LEFT"),
+	FORWARDS = 4 UMETA(DisplayName = "FORWARDS"),
+	LOCALRIGHT = 5 UMETA(DisplayName = "LOCALRIGHT"),
+	BACKWARDS = 6 UMETA(DisplayName = "BACKWARDS"),
+	LOCALLEFT = 7 UMETA(DisplayName = "LOCALLEFT"),
+	VALNUM = 8,
 };
 
 UCLASS()
@@ -36,9 +40,6 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	APathActor* Destination;
 
-	UPROPERTY(VisibleAnywhere)
-	EEnemyState State;
-
 	virtual void Update();
 
 	bool RegisteredToManager = false;
@@ -52,7 +53,7 @@ protected:
 
 	virtual void NeutralTurn();
 
-	virtual void GetDestination();
+	virtual APathActor* GetDestination();
 	virtual void MoveToDestination();
 
 	virtual void Attack();
@@ -60,6 +61,8 @@ protected:
 
 
 	virtual APathActor* GetCurrentNode();
+	virtual APathActor* GetNodeAtCardinalDirection(EDirectionEnum Dir);
+	virtual FVector GetNormalizedVectorFromDirection(EDirectionEnum Dir);
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
 

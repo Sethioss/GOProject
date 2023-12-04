@@ -24,7 +24,7 @@ protected:
 
 	virtual void NeutralTurn() override;
 
-	virtual void GetDestination() override;
+	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;
 
 	virtual void InitFsm() override;

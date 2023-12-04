@@ -69,4 +69,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsWalkableNode; }
 
+	bool NodeVisitedForPathfinding = false;
+
 };

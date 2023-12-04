@@ -22,47 +22,28 @@ void ASecurityGuardEnemy::BeginPlay()
 
 void ASecurityGuardEnemy::NeutralTurn()
 {
-	GetDestination();
-	MoveToDestination();
+	Destination = GetDestination();
+	if (Destination != nullptr)
+	{
+		MoveToDestination();
+	}
 }
 
-void ASecurityGuardEnemy::GetDestination()
+APathActor* ASecurityGuardEnemy::GetDestination()
 {
 	FHitResult HitResult;
 
 	FBox ActorBounds = CurrentNode->GetComponentsBoundingBox();
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < static_cast<int>(EDirectionEnum::VALNUM) / 2; i++)
 	{
-		FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * i, 0.0f));
-
-		FVector direction = RotationQuat.RotateVector(GetActorForwardVector());
-
-		FString str = ActorBounds.ToString();
-
-		FVector NextNodePos = direction * ((static_cast<float>(direction.Y) == 0 ? ActorBounds.GetSize().X : ActorBounds.GetSize().Y));
-		FVector vec = GetActorLocation() + NextNodePos;
-		vec.Z = CurrentNode->GetActorLocation().Z - 5;
-
-		GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), vec,
-			ECollisionChannel::ECC_GameTraceChannel1);
-
-		DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::White, true, 50.f);
-
-		if (HitResult.bBlockingHit)
+		APathActor* Path = GetNodeAtCardinalDirection(static_cast<EDirectionEnum>(i + (static_cast<int>(EDirectionEnum::VALNUM) / 2)));
+		if (Path != nullptr)
 		{
-			APathActor* Path = Cast<APathActor>(HitResult.GetActor());
-
-			if (Path)
-			{
-				if (CurrentNode->IsConnectedNode(CurrentNode, Path))
-				{
-					Destination = Path;
-					return;
-				}
-			}
+			return Path;
 		}
 	}
+	return nullptr;
 }
 
 void ASecurityGuardEnemy::MoveToDestination()
