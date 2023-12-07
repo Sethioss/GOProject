@@ -18,7 +18,7 @@ public:
 	ASecurityGuardEnemy();
 
 protected:
-	
+
 	virtual void BeginPlay() override;
 
 

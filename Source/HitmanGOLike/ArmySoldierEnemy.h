@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EnemyActor.h"
+#include "PathActor.h"
 #include "ArmySoldierEnemy.generated.h"
 
 /**
@@ -20,19 +21,21 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-
-
-	virtual void NeutralTurn() override;
-	TArray<APathActor*> GetPathFromConnector(APathActor* Start, APathActor* Dest, TArray<APathActor*> List);
-
 	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;
-
 	virtual void InitFsm() override;
+	virtual void NeutralTurn() override;
+
+	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<APathActor*> TempPath, TArray<int> Checkpoints);
+	void GetBestPathFromConnectors(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints);
+	void GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints);
+	bool IsDeadEnd(APathActor* Node);
+
+
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<APathActor*> CurrentPath;
 	TArray<APathActor*> VisitedNodes;
 
-	APathActor* GetDestFromPath(TArray<APathActor*> Path);
+	TArray<APathActor*> BestPath;
 };

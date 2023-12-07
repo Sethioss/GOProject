@@ -213,12 +213,12 @@ void APathActor::TransferPlayerOwnership(APathActor& OriginTile)
 	OriginTile.PlayerPawn = nullptr;
 }
 
-APathActor* APathActor::CheckNeighbourNode(int direction)
+APathActor* APathActor::CheckNeighbourNode(int Direction, bool GetConnected)
 {
 	FHitResult HitResult;
 	FlushPersistentDebugLines(GetWorld());
 
-	FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * direction, 0.0f));
+	FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * Direction, 0.0f));
 
 	FVector Dest = RotationQuat.RotateVector(FVector(1.0f, 0.0f, 0.0f));
 
@@ -234,10 +234,18 @@ APathActor* APathActor::CheckNeighbourNode(int direction)
 	{
 		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
 
-		if (Path)
+		if (GetConnected)
 		{
-			return Path;
+			for (int i = 0; i < Path->NeighbouringNodes.Num(); ++i)
+			{
+				if (Path == Path->NeighbouringNodes[i])
+				{
+					return Path;
+				}
+			}
 		}
+		else { return Path; }
+
 	}
 
 	return nullptr;

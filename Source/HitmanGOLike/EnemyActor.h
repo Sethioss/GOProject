@@ -10,7 +10,7 @@
 #include "EnemyActor.generated.h"
 
 UENUM(BlueprintType)
-enum class EDirectionEnum : uint8 {
+enum class EEnemyDirectionEnum : uint8 {
 	UP = 0 UMETA(DisplayName = "UP"),
 	RIGHT = 1 UMETA(DisplayName = "RIGHT"),
 	DOWN = 2 UMETA(DisplayName = "DOWN"),
@@ -48,7 +48,7 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void BeginPlay();
 	virtual void InitFsm();
 
 	virtual void NeutralTurn();
@@ -59,10 +59,9 @@ protected:
 	virtual void Attack();
 
 
-
 	virtual APathActor* GetCurrentNode();
-	virtual APathActor* GetNodeAtCardinalDirection(EDirectionEnum Dir);
-	virtual FVector GetNormalizedVectorFromDirection(EDirectionEnum Dir);
+	virtual APathActor* GetNodeAtCardinalDirection(EEnemyDirectionEnum Dir);
+	virtual FVector GetNormalizedVectorFromDirection(EEnemyDirectionEnum Dir);
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
 

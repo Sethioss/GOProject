@@ -29,8 +29,6 @@ AEnemyActor::AEnemyActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	PrimaryActorTick.bCanEverTick = true;
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
@@ -85,7 +83,7 @@ void AEnemyActor::InitFsm() {
 
 void AEnemyActor::NeutralTurn() {}
 
-APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EDirectionEnum::FORWARDS); }
+APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EEnemyDirectionEnum::FORWARDS); }
 void AEnemyActor::MoveToDestination() {}
 
 void AEnemyActor::Attack() {}
@@ -116,7 +114,7 @@ APathActor* AEnemyActor::GetCurrentNode()
 	return CurrentNode;
 }
 
-APathActor* AEnemyActor::GetNodeAtCardinalDirection(EDirectionEnum Dir)
+APathActor* AEnemyActor::GetNodeAtCardinalDirection(EEnemyDirectionEnum Dir)
 {
 	FHitResult HitResult;
 
@@ -146,7 +144,7 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EDirectionEnum Dir)
 	return nullptr;
 }
 
-FVector AEnemyActor::GetNormalizedVectorFromDirection(EDirectionEnum Dir)
+FVector AEnemyActor::GetNormalizedVectorFromDirection(EEnemyDirectionEnum Dir)
 {
 	FVector Vector = FVector(0.0f, 90.0f, 0.0f);
 	FQuat RotationQuat = FQuat(FRotator(0.0f, 0.0f, 0.0f));
@@ -157,7 +155,7 @@ FVector AEnemyActor::GetNormalizedVectorFromDirection(EDirectionEnum Dir)
 		Local = true;
 	}
 
-	switch (static_cast<int>(Dir) % (static_cast<int>(EDirectionEnum::VALNUM)/2))
+	switch (static_cast<int>(Dir) % (static_cast<int>(EEnemyDirectionEnum::VALNUM)/2))
 	{
 		case 0:
 		{ 

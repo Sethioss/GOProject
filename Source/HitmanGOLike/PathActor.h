@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "PathActor.generated.h"
 
+UENUM(BlueprintType)
+enum class EPathDirectionEnum : uint8 {
+	UP = 0 UMETA(DisplayName = "UP"),
+	RIGHT = 1 UMETA(DisplayName = "RIGHT"),
+	DOWN = 2 UMETA(DisplayName = "DOWN"),
+	LEFT = 3 UMETA(DisplayName = "LEFT"),
+	VALNUM = 4,
+};
+
 UCLASS()
 class HITMANGOLIKE_API APathActor : public AActor
 {
@@ -53,7 +62,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
 	bool IsWalkableNode = true;
 
-	APathActor* CheckNeighbourNode(int direction);
+	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
 	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
 
 public:	
@@ -69,6 +78,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsWalkableNode; }
 
-	bool NodeVisitedForPathfinding = false;
+	bool Visited = false;
 
 };

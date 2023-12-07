@@ -2,7 +2,6 @@
 
 
 #include "ArmySoldierEnemy.h"
-#include "EnemyActor.h"
 #include "GameManager.h"
 
 AArmySoldierEnemy::AArmySoldierEnemy()
@@ -36,81 +35,100 @@ APathActor* AArmySoldierEnemy::GetDestination()
 
 	APathActor* Dest = Cast<APathActor>(UGameManager::GetInstance()->GetPlayerNode());
 
-	TArray<TArray<APathActor*>> PathLists;
-
 	if (Dest != nullptr)
 	{
+		TArray<APathActor*> TempPath;
+		TArray<int> Checkpoints;
+
 		for (int i = 0; i < CurrentNode->NeighbouringNodes.Num(); ++i)
 		{
-			//Autre fonction GetBESTPathFromConnector
-			PathLists.Add(GetPathFromConnector(CurrentNode->NeighbouringNodes[i], Dest, CurrentPath));
+			GetBestPathFromConnectors(CurrentNode->NeighbouringNodes[i], Dest, TempPath, Checkpoints);
 		}
 	}
-
-	TArray<APathActor*> FinalPath;
-	int Temp = 0;
-
-	FinalPath.Add(CurrentNode);
-
-	for (int i = 0; i < PathLists.Num(); ++i)
-	{
-		if (PathLists[i].Num() > Temp) { FinalPath = PathLists[i]; }
-	}
-
-	CurrentPath = FinalPath;
 	
 	//return GetDestFromPath(CurrentPath);
 	return nullptr;
 }
 
-APathActor* AArmySoldierEnemy::GetDestFromPath(TArray<APathActor*> Path)
+void AArmySoldierEnemy::GetBestPathFromConnectors(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
 {
-	return SnapToGrid();
+	for (int i = 0; i < Start->NeighbouringNodes.Num(); ++i)
+	{
+		GetBestPath(Start->NeighbouringNodes[i], End, TempPath, Checkpoints);
+	}
 }
 
-TArray<APathActor*> AArmySoldierEnemy::GetPathFromConnector(APathActor* Start, APathActor* Dest, TArray<APathActor*> List)
+void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
 {
-	//Get all next neighbours
-	TArray<APathActor*> Neighbours;
+	Start->Visited = true;
+	int NeighbouringNodesNum = Start->NeighbouringNodes.Num();
+	TempPath.Add(Start);
+	bool FinalPathExists = BestPath.Num() > 0;
 
-	for (int i = 0; i < CurrentNode->NeighbouringNodes.Num(); ++i)
+	//We know TempPath is too long, no need to continue, or it's a dead end. We invalidate the path either way
+	if (FinalPathExists)
 	{
-		//Si noeud actuel n'est pas dans la liste de noeuds visités
-		if (!Start->NodeVisitedForPathfinding)
+		if (TempPath.Num() > BestPath.Num() || (IsDeadEnd(Start) && Start != End))
 		{
-			if (CurrentNode->NeighbouringNodes[i] != Start)
-			{
-				Neighbours.Add(CurrentNode->NeighbouringNodes[i]);
-				Start->NodeVisitedForPathfinding = true;
-			}
+			return;
 		}
 	}
 
-	if (Neighbours.Num() != 0 || Start == Dest)
-	{
-		if (Start != Dest)
-		{
-			// Invalidate path
-			// 
-			//Get All the possible paths starting from this node
-			for (int i = 0; i < Neighbours.Num(); ++i)
-			{
-				GetPathFromConnector(Neighbours[i], Dest, List);
-			}
-		}
-		else 
-		{
-			//Retourner la liste actuelle
-			return List;
-		}
-	}
-	else
-	{
-		List.Add(Start);
-		Dest = Start;
+	//Add current node to Checkpoints list if it has more than two branching paths, so we
+	//know when to stop clearing TempPath later
+	if (NeighbouringNodesNum > 2)
+	{ 
+		Checkpoints.Add(TempPath.Num()); 
 	}
 
-	return Neighbours;
+	for (int i = 0; i < NeighbouringNodesNum; ++i)
+	{
+		if (!Start->NeighbouringNodes[i]->Visited)
+		{
+			GetBestPath(Start->NeighbouringNodes[i], End, TempPath, Checkpoints);
+		}
+	}
+
+	//We reached the target, store this as BestPath and Unregister until checkpoint
+	if (Start == End)
+	{
+		//Code to define if it's the best path
+		TArray<APathActor*> FinalPath;
+
+		if (BestPath.Num() < 1 || TempPath.Num() > BestPath.Num())
+		{
+			FinalPath = TempPath;
+			BestPath = FinalPath;
+			UnregisterVisitedNodesUntilLastCheckpoint(TempPath, Checkpoints);
+
+			return;
+		}
+
+		//Decide on number of angles
+	}
+}
+
+bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
+{
+	for (int i = 0; i < Node->NeighbouringNodes.Num(); ++i)
+	{
+		if (!Node->NeighbouringNodes[i]->Visited) { return false; }
+	}
+	return true;
+}
+
+void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<APathActor*> TempPath, TArray<int> Checkpoints)
+{
+	int LastCheckpointPos = Checkpoints[Checkpoints.Num() - 1];
+
+	for (int i = TempPath.Num(); i > LastCheckpointPos; ++i)
+	{
+		TempPath[i]->Visited = false;
+		TempPath.Remove(TempPath[i]);
+	}
+
+	//Make the connector node revisitable
+	TempPath[TempPath.Num() - 1]->Visited = false;
 }
 
 void AArmySoldierEnemy::MoveToDestination()
