@@ -14,7 +14,7 @@ struct FConnectorInfo
 
 public:
 	/** Default constructor */
-	FConnectorInfo() {};
+	FConnectorInfo() { Direction = EGeneralDirectionEnum::VALNUM; };
 
 public:
 
@@ -22,6 +22,9 @@ public:
 	{
 		return (other.Direction == Direction && other.DestinationNode == DestinationNode);
 	}
+
+	/** Intensity of yaw input as modifier */
+	class APathActor* OriginNode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EGeneralDirectionEnum Direction;
@@ -49,10 +52,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<FConnectorInfo> ConnectorInfo;
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool StartingNode = false;
@@ -80,6 +84,7 @@ protected:
 	bool IsWalkableNode = true;
 
 	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
+	APathActor* CheckNeighbourNode(EGeneralDirectionEnum Dir, bool GetConnected = false);
 	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
 	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);

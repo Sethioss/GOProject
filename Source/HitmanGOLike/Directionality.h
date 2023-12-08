@@ -23,8 +23,5 @@ public:
 	Directionality();
 	~Directionality();
 
-	static bool IsSame(const enum class EGeneralDirectionEnum& og, const enum class EGeneralDirectionEnum& dest)
-	{
-		return static_cast<int>(og) == static_cast<int>(dest);
-	}
+	static EGeneralDirectionEnum GetOpposite(EGeneralDirectionEnum ogDirection);
 };

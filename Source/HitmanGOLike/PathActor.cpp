@@ -26,6 +26,11 @@ void APathActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		ConnectorInfo[i].OriginNode = this;
+	}
+
 	if (StartingNode)
 	{
 		APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
@@ -34,6 +39,14 @@ void APathActor::BeginPlay()
 		Pawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, PlayerLocation.Z));
 
 		PlayerPawn = Cast<ACasaPlayer>(Pawn);
+	}
+}
+
+void APathActor::OnConstruction(const FTransform& Transform)
+{
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		ConnectorInfo[i].OriginNode = this;
 	}
 }
 
@@ -77,7 +90,7 @@ void APathActor::PostEditMove(bool bFinished)
 
 		for (int i = 0; i < 4; ++i)
 		{
-			SurroundingActors.Add(CheckNeighbourNode(i));
+			SurroundingActors.Add(CheckNeighbourNode(static_cast<EGeneralDirectionEnum>(i)));
 		}
 
 		UMaterialInstanceDynamic* DynMat = nullptr;
@@ -88,7 +101,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Up || SurroundingActors[0]->Down)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 1.0f);
-				//AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
+				AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Up, "Up", 1.0f);
@@ -109,8 +122,7 @@ void APathActor::PostEditMove(bool bFinished)
 				if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::DOWN)
 				{
 					DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
-					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode
-->Down, "Down", 0.0f);
+					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Down, "Down", 0.0f);
 				}
 			}
 
@@ -125,7 +137,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Right || SurroundingActors[1]->Left)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 1.0f);
-				//AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
+				AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Right, "Right", 1.0f);
@@ -160,7 +172,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Down || SurroundingActors[0]->Up)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 1.0f);
-				//AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
+				AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Down, "Down", 1.0f);
@@ -196,7 +208,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Left || SurroundingActors[3]->Right)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 1.0f);
-				//AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
+				AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Left, "Left", 1.0f);
@@ -230,13 +242,17 @@ void APathActor::PostEditMove(bool bFinished)
 
 bool APathActor::CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction)
 {
-	for (int i = 0; i < CurNode->ConnectorInfo.Num(); ++i)
+	if (CurNode != nullptr)
 	{
-		if (CurNode->ConnectorInfo[i].Direction == Direction)
+		for (int i = 0; i < CurNode->ConnectorInfo.Num(); ++i)
 		{
-			return true;
+			if (CurNode->ConnectorInfo[i].Direction == Direction)
+			{
+				return true;
+			}
 		}
 	}
+
 	return false;
 }
 
@@ -318,6 +334,49 @@ void APathActor::TransferPlayerOwnership(APathActor& OriginTile)
 {
 	PlayerPawn = OriginTile.PlayerPawn;
 	OriginTile.PlayerPawn = nullptr;
+}
+
+APathActor* APathActor::CheckNeighbourNode(EGeneralDirectionEnum Direction, bool GetConnected)
+{
+	FHitResult HitResult;
+	FlushPersistentDebugLines(GetWorld());
+
+	FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * static_cast<int>(Direction), 0.0f));
+
+	FVector Dest = RotationQuat.RotateVector(FVector(1.0f, 0.0f, 0.0f));
+
+	FVector NextNodePos = Dest * 55;
+	NextNodePos.Z -= 1;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 10), GetActorLocation() + NextNodePos,
+		ECollisionChannel::ECC_GameTraceChannel1);
+
+	DrawDebugLine(GetWorld(), FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 50), GetActorLocation() + NextNodePos, FColor::Blue, true, 50.f);
+
+	if (HitResult.bBlockingHit)
+	{
+		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+		if (Path)
+		{
+			if (GetConnected)
+			{
+				for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
+				{
+					if (Path == ConnectorInfo[i].DestinationNode)
+					{
+						return Path;
+					}
+					return nullptr;
+				}
+			}
+			else { return Path; }
+		}
+
+
+
+	}
+
+	return nullptr;
 }
 
 APathActor* APathActor::CheckNeighbourNode(int Direction, bool GetConnected)

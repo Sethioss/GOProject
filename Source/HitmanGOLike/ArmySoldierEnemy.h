@@ -26,8 +26,8 @@ protected:
 	virtual void InitFsm() override;
 	virtual void NeutralTurn() override;
 
-	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<APathActor*> TempPath, TArray<int> Checkpoints);
-	void GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints);
+	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints);
+	void GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber);
 	bool IsDeadEnd(APathActor* Node);
 
 
@@ -36,5 +36,5 @@ protected:
 	TArray<APathActor*> CurrentPath;
 	TArray<APathActor*> VisitedNodes;
 
-	TArray<APathActor*> BestPath;
+	TArray<FConnectorInfo*> BestPath;
 };

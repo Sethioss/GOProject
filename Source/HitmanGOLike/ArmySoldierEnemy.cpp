@@ -37,28 +37,37 @@ APathActor* AArmySoldierEnemy::GetDestination()
 
 	if (Dest != nullptr)
 	{
-		TArray<APathActor*> TempPath;
+		TArray<FConnectorInfo*> TempPath;
 		TArray<int> Checkpoints;
+		EGeneralDirectionEnum TempDir = EGeneralDirectionEnum::VALNUM;
+		int AnglesNumber = 0;
 
 		for (int i = 0; i < CurrentNode->ConnectorInfo.Num(); ++i)
 		{
-			GetBestPath(CurrentNode->ConnectorInfo[i].DestinationNode, Dest, TempPath, Checkpoints);
+			GetBestPath(&CurrentNode->ConnectorInfo[i], Dest, TempPath, Checkpoints, TempDir, AnglesNumber);
 		}
+
+
 	}
 	
-	//return GetDestFromPath(CurrentPath);
 	return nullptr;
 }
 
-void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
+void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber)
 {
-	Start->Visited = true;
-	int NeighbouringNodesNum = Start->ConnectorInfo.Num();
+	Start->OriginNode->Visited = true;
+	Start->DestinationNode->Visited = true;
+	int NeighbouringNodesNum = Start->DestinationNode->ConnectorInfo.Num();
 
-	if (TempPath.Num() != 0)
+	//Set Angles Number
+	if (TempPath.Num() > 0)
 	{
-
-	}
+		if (TempDir != Start->Direction)
+		{
+			AnglesNumber++;
+		}
+	}	
+	TempDir = Start->Direction;
 
 	TempPath.Add(Start);
 	bool FinalPathExists = BestPath.Num() > 0;
@@ -66,7 +75,7 @@ void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<A
 	//We know TempPath is too long, no need to continue, or it's a dead end. We invalidate the path either way
 	if (FinalPathExists)
 	{
-		if (TempPath.Num() > BestPath.Num() || (IsDeadEnd(Start) && Start != End))
+		if (TempPath.Num() > BestPath.Num() || (IsDeadEnd(Start->DestinationNode) && Start->DestinationNode != End))
 		{
 			return;
 		}
@@ -76,22 +85,23 @@ void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<A
 	//know when to stop clearing TempPath later
 	if (NeighbouringNodesNum > 2)
 	{ 
-		Checkpoints.Add(TempPath.Num()); 
+		Checkpoints.Add(TempPath.Num()-1); 
 	}
 
+	//Recursively check next path
 	for (int i = 0; i < NeighbouringNodesNum; ++i)
 	{
-		if (!Start->ConnectorInfo[i].DestinationNode->Visited)
+		if(!Start->OriginNode->ConnectorInfo[i].DestinationNode->Visited)
 		{
-			GetBestPath(Start->ConnectorInfo[i].DestinationNode, End, TempPath, Checkpoints);
+			GetBestPath(&Start->OriginNode->ConnectorInfo[i], End, TempPath, Checkpoints, TempDir, AnglesNumber);
 		}
 	}
 
 	//We reached the target, store this as BestPath and Unregister until checkpoint
-	if (Start == End)
+	if (Start->DestinationNode == End)
 	{
 		//Code to define if it's the best path
-		TArray<APathActor*> FinalPath;
+		TArray<FConnectorInfo*> FinalPath;
 
 		if (BestPath.Num() < 1 || TempPath.Num() > BestPath.Num())
 		{
@@ -103,6 +113,12 @@ void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<A
 		}
 
 		//Decide on number of angles
+		/*if (FinalPath.AnglesNum != BestPath.AnglesNum)
+		{
+			FinalPath = TempPath.AnglesNum < BestPath.AnglesNum ? TempPath : BestPath;
+			BestPath = FinalPath;
+			return;
+		}*/
 	}
 }
 
@@ -115,18 +131,19 @@ bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 	return true;
 }
 
-void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<APathActor*> TempPath, TArray<int> Checkpoints)
+void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints)
 {
 	int LastCheckpointPos = Checkpoints[Checkpoints.Num() - 1];
 
-	for (int i = TempPath.Num(); i > LastCheckpointPos; ++i)
+	for (int i = TempPath.Num()-1; i > LastCheckpointPos; --i)
 	{
-		TempPath[i]->Visited = false;
+		TempPath[i]->OriginNode->Visited = false;
 		TempPath.Remove(TempPath[i]);
 	}
 
 	//Make the connector node revisitable
-	TempPath[TempPath.Num() - 1]->Visited = false;
+	TempPath[TempPath.Num() - 1]->OriginNode->Visited = false;
+	Checkpoints.Remove(Checkpoints[LastCheckpointPos]);
 }
 
 void AArmySoldierEnemy::MoveToDestination()
