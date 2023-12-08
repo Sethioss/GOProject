@@ -240,6 +240,15 @@ void APathActor::PostEditMove(bool bFinished)
 }
 #endif
 
+float APathActor::ManhattanDistance(FVector A, FVector B)
+{
+	float X = A.X - B.X;
+	float Y = A.Y - B.Y;
+
+	float h = FMath::Abs(X) + FMath::Abs(Y);
+	return h;
+}
+
 bool APathActor::CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction)
 {
 	if (CurNode != nullptr)

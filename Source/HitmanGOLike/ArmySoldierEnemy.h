@@ -27,6 +27,7 @@ protected:
 	virtual void NeutralTurn() override;
 
 	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints);
+	void AStarAlgorithm(APathActor* Start, APathActor* End);
 	void GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber);
 	bool IsDeadEnd(APathActor* Node);
 
@@ -36,5 +37,6 @@ protected:
 	TArray<APathActor*> CurrentPath;
 	TArray<APathActor*> VisitedNodes;
 
-	TArray<FConnectorInfo*> BestPath;
+	float ManhattanDistance(FVector A, FVector B);
+	TArray<APathActor*> BestPath;
 };

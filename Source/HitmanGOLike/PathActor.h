@@ -103,6 +103,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsWalkableNode; }
 
+	float FScore;
+
 	bool Visited = false;
 
 };

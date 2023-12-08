@@ -30,12 +30,6 @@ void UGameManager::BeginPlay()
 
 	}
 
-	// ...
-	TArray<AActor*> EnemiesToFind;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
-	
-	Instance->ElementsToRegister = EnemiesToFind.Num();
-
 	AActor* act;
 	act = UGameplayStatics::GetActorOfClass(GetWorld(), ACasaPlayer::StaticClass());
 
@@ -44,6 +38,12 @@ void UGameManager::BeginPlay()
 	if (pl != nullptr) {
 		Instance->ElementsToRegister += 1;
 	}
+
+	// ...
+	TArray<AActor*> EnemiesToFind;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
+	
+	Instance->ElementsToRegister = EnemiesToFind.Num();
 
 	InitFsm();
 }

@@ -16,14 +16,16 @@ AArmySoldierEnemy::AArmySoldierEnemy()
 void AArmySoldierEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 void AArmySoldierEnemy::NeutralTurn()
 {
-	Destination = GetDestination();
-	if (Destination != nullptr)
+	APathActor* Dest = Cast<APathActor>(UGameManager::GetInstance()->GetPlayerNode());
+
+	if (Dest != nullptr)
 	{
-		MoveToDestination();
+		AStarAlgorithm(GetCurrentNode(), Dest);
 	}
 }
 
@@ -49,13 +51,13 @@ APathActor* AArmySoldierEnemy::GetDestination()
 
 
 	}
-	
+
 	return nullptr;
 }
 
 void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber)
 {
-	Start->OriginNode->Visited = true;
+	/*Start->OriginNode->Visited = true;
 	Start->DestinationNode->Visited = true;
 	int NeighbouringNodesNum = Start->DestinationNode->ConnectorInfo.Num();
 
@@ -66,7 +68,7 @@ void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArr
 		{
 			AnglesNumber++;
 		}
-	}	
+	}
 	TempDir = Start->Direction;
 
 	TempPath.Add(Start);
@@ -84,14 +86,14 @@ void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArr
 	//Add current node to Checkpoints list if it has more than two branching paths, so we
 	//know when to stop clearing TempPath later
 	if (NeighbouringNodesNum > 2)
-	{ 
-		Checkpoints.Add(TempPath.Num()-1); 
+	{
+		Checkpoints.Add(TempPath.Num() - 1);
 	}
 
 	//Recursively check next path
 	for (int i = 0; i < NeighbouringNodesNum; ++i)
 	{
-		if(!Start->OriginNode->ConnectorInfo[i].DestinationNode->Visited)
+		if (!Start->OriginNode->ConnectorInfo[i].DestinationNode->Visited)
 		{
 			GetBestPath(&Start->OriginNode->ConnectorInfo[i], End, TempPath, Checkpoints, TempDir, AnglesNumber);
 		}
@@ -118,8 +120,8 @@ void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArr
 			FinalPath = TempPath.AnglesNum < BestPath.AnglesNum ? TempPath : BestPath;
 			BestPath = FinalPath;
 			return;
-		}*/
-	}
+		}
+	}*/
 }
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
@@ -135,7 +137,7 @@ void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnec
 {
 	int LastCheckpointPos = Checkpoints[Checkpoints.Num() - 1];
 
-	for (int i = TempPath.Num()-1; i > LastCheckpointPos; --i)
+	for (int i = TempPath.Num() - 1; i > LastCheckpointPos; --i)
 	{
 		TempPath[i]->OriginNode->Visited = false;
 		TempPath.Remove(TempPath[i]);
@@ -144,6 +146,53 @@ void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnec
 	//Make the connector node revisitable
 	TempPath[TempPath.Num() - 1]->OriginNode->Visited = false;
 	Checkpoints.Remove(Checkpoints[LastCheckpointPos]);
+}
+
+void AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathActor* End)
+{
+	APathActor* Current = nullptr;
+
+	TArray<APathActor*> OpenList;
+	TArray<APathActor*> ClosedList;
+
+	OpenList.Add(Start);
+
+	for (int i = 0; i < Start->ConnectorInfo.Num(); ++i)
+	{
+		OpenList.Add(Start->ConnectorInfo[i].DestinationNode);
+	}
+
+	while (!OpenList.IsEmpty())
+	{
+		float G = 1;
+
+		float LowestF = 999999;
+		Current = OpenList[0];
+
+		for (int i = 0; i < OpenList.Num(); ++i)
+		{
+			APathActor* CurNode = OpenList[i];
+			float H = ManhattanDistance(Current->GetActorLocation(), End->GetActorLocation());
+			float F = G + H;
+			Current->FScore = F;
+
+			if (LowestF <= Current->FScore) { Current = CurNode; }
+
+			if (Current->GetActorLocation() == End->GetActorLocation()) {
+				break;
+			}
+
+		}
+	}
+}
+
+float AArmySoldierEnemy::ManhattanDistance(FVector A, FVector B)
+{
+	float X = A.X - B.X;
+	float Y = A.Y - B.Y;
+
+	float h = FMath::Abs(X) + FMath::Abs(Y);
+	return h;
 }
 
 void AArmySoldierEnemy::MoveToDestination()
