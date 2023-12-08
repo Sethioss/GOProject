@@ -40,9 +40,9 @@ APathActor* AArmySoldierEnemy::GetDestination()
 		TArray<APathActor*> TempPath;
 		TArray<int> Checkpoints;
 
-		for (int i = 0; i < CurrentNode->NeighbouringNodes.Num(); ++i)
+		for (int i = 0; i < CurrentNode->ConnectorInfo.Num(); ++i)
 		{
-			GetBestPath(CurrentNode->NeighbouringNodes[i], Dest, TempPath, Checkpoints);
+			GetBestPath(CurrentNode->ConnectorInfo[i].DestinationNode, Dest, TempPath, Checkpoints);
 		}
 	}
 	
@@ -53,7 +53,7 @@ APathActor* AArmySoldierEnemy::GetDestination()
 void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
 {
 	Start->Visited = true;
-	int NeighbouringNodesNum = Start->NeighbouringNodes.Num();
+	int NeighbouringNodesNum = Start->ConnectorInfo.Num();
 
 	if (TempPath.Num() != 0)
 	{
@@ -81,9 +81,9 @@ void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<A
 
 	for (int i = 0; i < NeighbouringNodesNum; ++i)
 	{
-		if (!Start->NeighbouringNodes[i]->Visited)
+		if (!Start->ConnectorInfo[i].DestinationNode->Visited)
 		{
-			GetBestPath(Start->NeighbouringNodes[i], End, TempPath, Checkpoints);
+			GetBestPath(Start->ConnectorInfo[i].DestinationNode, End, TempPath, Checkpoints);
 		}
 	}
 
@@ -108,9 +108,9 @@ void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<A
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 {
-	for (int i = 0; i < Node->NeighbouringNodes.Num(); ++i)
+	for (int i = 0; i < Node->ConnectorInfo.Num(); ++i)
 	{
-		if (!Node->NeighbouringNodes[i]->Visited) { return false; }
+		if (!Node->ConnectorInfo[i].DestinationNode->Visited) { return false; }
 	}
 	return true;
 }

@@ -83,7 +83,7 @@ void AEnemyActor::InitFsm() {
 
 void AEnemyActor::NeutralTurn() {}
 
-APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EEnemyDirectionEnum::FORWARDS); }
+APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS); }
 void AEnemyActor::MoveToDestination() {}
 
 void AEnemyActor::Attack() {}
@@ -114,7 +114,7 @@ APathActor* AEnemyActor::GetCurrentNode()
 	return CurrentNode;
 }
 
-APathActor* AEnemyActor::GetNodeAtCardinalDirection(EEnemyDirectionEnum Dir)
+APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir)
 {
 	FHitResult HitResult;
 
@@ -137,14 +137,20 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EEnemyDirectionEnum Dir)
 
 		if (Path != nullptr)
 		{
-			return Path;
+			for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
+			{
+				if (Path->ConnectorInfo[i].DestinationNode == CurrentNode)
+				{
+					return Path;
+				}
+			}
 		}
 	}
 
 	return nullptr;
 }
 
-FVector AEnemyActor::GetNormalizedVectorFromDirection(EEnemyDirectionEnum Dir)
+FVector AEnemyActor::GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir)
 {
 	FVector Vector = FVector(0.0f, 90.0f, 0.0f);
 	FQuat RotationQuat = FQuat(FRotator(0.0f, 0.0f, 0.0f));
@@ -155,7 +161,7 @@ FVector AEnemyActor::GetNormalizedVectorFromDirection(EEnemyDirectionEnum Dir)
 		Local = true;
 	}
 
-	switch (static_cast<int>(Dir) % (static_cast<int>(EEnemyDirectionEnum::VALNUM)/2))
+	switch (static_cast<int>(Dir) % (static_cast<int>(EGeneralDirectionEnum::VALNUM)/2))
 	{
 		case 0:
 		{ 

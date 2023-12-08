@@ -7,20 +7,8 @@
 #include "PathActor.h"
 #include "IBoardElement.h"
 #include "CasaFSM.h"
+#include "Directionality.h"
 #include "EnemyActor.generated.h"
-
-UENUM(BlueprintType)
-enum class EEnemyDirectionEnum : uint8 {
-	UP = 0 UMETA(DisplayName = "UP"),
-	RIGHT = 1 UMETA(DisplayName = "RIGHT"),
-	DOWN = 2 UMETA(DisplayName = "DOWN"),
-	LEFT = 3 UMETA(DisplayName = "LEFT"),
-	FORWARDS = 4 UMETA(DisplayName = "FORWARDS"),
-	LOCALRIGHT = 5 UMETA(DisplayName = "LOCALRIGHT"),
-	BACKWARDS = 6 UMETA(DisplayName = "BACKWARDS"),
-	LOCALLEFT = 7 UMETA(DisplayName = "LOCALLEFT"),
-	VALNUM = 8,
-};
 
 UCLASS()
 class HITMANGOLIKE_API AEnemyActor : public AActor, public IBoardElement
@@ -60,8 +48,8 @@ protected:
 
 
 	virtual APathActor* GetCurrentNode();
-	virtual APathActor* GetNodeAtCardinalDirection(EEnemyDirectionEnum Dir);
-	virtual FVector GetNormalizedVectorFromDirection(EEnemyDirectionEnum Dir);
+	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir);
+	virtual FVector GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir);
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
 

@@ -4,16 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Directionality.h"
 #include "PathActor.generated.h"
-
-UENUM(BlueprintType)
-enum class EPathDirectionEnum : uint8 {
-	UP = 0 UMETA(DisplayName = "UP"),
-	RIGHT = 1 UMETA(DisplayName = "RIGHT"),
-	DOWN = 2 UMETA(DisplayName = "DOWN"),
-	LEFT = 3 UMETA(DisplayName = "LEFT"),
-	VALNUM = 4,
-};
 
 USTRUCT(BlueprintType)
 struct FConnectorInfo
@@ -32,7 +24,7 @@ public:
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EPathDirectionEnum Direction;
+	EGeneralDirectionEnum Direction;
 
 	/** Intensity of yaw input as modifier */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -48,19 +40,11 @@ public:
 	// Sets default values for this actor's properties
 	APathActor();
 
-	inline bool operator==(const APathActor& other) const
-	{
-		return (other.NeighbouringNodes == NeighbouringNodes);
-	}
-
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
 #if WITH_EDITOR
 	virtual void PostEditMove(bool bFinished) override;
 #endif
-
-	UPROPERTY(EditAnywhere, Category = NodeInfo)
-	TArray<APathActor*> NeighbouringNodes;
 
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<FConnectorInfo> ConnectorInfo;
@@ -97,9 +81,9 @@ protected:
 
 	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
 	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
-	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EPathDirectionEnum Direction);
-	void AddConnector(APathActor* CurNode, APathActor* DestNode, EPathDirectionEnum Direction);
-	bool CheckConnectorInfo(APathActor* CurNode, EPathDirectionEnum Direction);
+	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
+	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
+	bool CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction);
 
 public:	
 	// Called every frame

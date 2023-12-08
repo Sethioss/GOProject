@@ -35,9 +35,9 @@ APathActor* ASecurityGuardEnemy::GetDestination()
 
 	FBox ActorBounds = CurrentNode->GetComponentsBoundingBox();
 
-	for (int i = 0; i < static_cast<int>(EEnemyDirectionEnum::VALNUM) / 2; i++)
+	for (int i = 0; i < static_cast<int>(EGeneralDirectionEnum::VALNUM) / 2; i++)
 	{
-		APathActor* Path = GetNodeAtCardinalDirection(static_cast<EEnemyDirectionEnum>(i + (static_cast<int>(EEnemyDirectionEnum::VALNUM) / 2)));
+		APathActor* Path = GetNodeAtCardinalDirection(static_cast<EGeneralDirectionEnum>(i + (static_cast<int>(EGeneralDirectionEnum::VALNUM) / 2)));
 		if (Path != nullptr)
 		{
 			return Path;
