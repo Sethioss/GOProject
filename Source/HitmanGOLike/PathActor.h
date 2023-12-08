@@ -15,6 +15,30 @@ enum class EPathDirectionEnum : uint8 {
 	VALNUM = 4,
 };
 
+USTRUCT(BlueprintType)
+struct FConnectorInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	/** Default constructor */
+	FConnectorInfo() {};
+
+public:
+
+	inline bool operator==(const FConnectorInfo& other) const
+	{
+		return (other.Direction == Direction && other.DestinationNode == DestinationNode);
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EPathDirectionEnum Direction;
+
+	/** Intensity of yaw input as modifier */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class APathActor* DestinationNode;
+};
+
 UCLASS()
 class HITMANGOLIKE_API APathActor : public AActor
 {
@@ -24,13 +48,22 @@ public:
 	// Sets default values for this actor's properties
 	APathActor();
 
+	inline bool operator==(const APathActor& other) const
+	{
+		return (other.NeighbouringNodes == NeighbouringNodes);
+	}
+
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
 #if WITH_EDITOR
 	virtual void PostEditMove(bool bFinished) override;
 #endif
+
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<APathActor*> NeighbouringNodes;
+
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	TArray<FConnectorInfo> ConnectorInfo;
 
 protected:
 	// Called when the game starts or when spawned
@@ -64,6 +97,9 @@ protected:
 
 	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
 	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
+	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EPathDirectionEnum Direction);
+	void AddConnector(APathActor* CurNode, APathActor* DestNode, EPathDirectionEnum Direction);
+	bool CheckConnectorInfo(APathActor* CurNode, EPathDirectionEnum Direction);
 
 public:	
 	// Called every frame

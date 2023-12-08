@@ -27,7 +27,6 @@ protected:
 	virtual void NeutralTurn() override;
 
 	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<APathActor*> TempPath, TArray<int> Checkpoints);
-	void GetBestPathFromConnectors(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints);
 	void GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints);
 	bool IsDeadEnd(APathActor* Node);
 

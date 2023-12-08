@@ -42,7 +42,7 @@ APathActor* AArmySoldierEnemy::GetDestination()
 
 		for (int i = 0; i < CurrentNode->NeighbouringNodes.Num(); ++i)
 		{
-			GetBestPathFromConnectors(CurrentNode->NeighbouringNodes[i], Dest, TempPath, Checkpoints);
+			GetBestPath(CurrentNode->NeighbouringNodes[i], Dest, TempPath, Checkpoints);
 		}
 	}
 	
@@ -50,18 +50,16 @@ APathActor* AArmySoldierEnemy::GetDestination()
 	return nullptr;
 }
 
-void AArmySoldierEnemy::GetBestPathFromConnectors(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
-{
-	for (int i = 0; i < Start->NeighbouringNodes.Num(); ++i)
-	{
-		GetBestPath(Start->NeighbouringNodes[i], End, TempPath, Checkpoints);
-	}
-}
-
 void AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End, TArray<APathActor*> TempPath, TArray<int> Checkpoints)
 {
 	Start->Visited = true;
 	int NeighbouringNodesNum = Start->NeighbouringNodes.Num();
+
+	if (TempPath.Num() != 0)
+	{
+
+	}
+
 	TempPath.Add(Start);
 	bool FinalPathExists = BestPath.Num() > 0;
 
