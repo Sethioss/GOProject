@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CasaPlayer.h"
 #include "PathActor.generated.h"
+
 
 UCLASS()
 class HITMANGOLIKE_API APathActor : public AActor
@@ -14,13 +16,15 @@ class HITMANGOLIKE_API APathActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	APathActor();
-
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* PlaneMesh = nullptr;
+	UPROPERTY()
+	class ACasaPlayer* PlayerPawn;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* PlaneMesh = nullptr;
+	
 	UPROPERTY(EditAnywhere, Category = NodePathParameters)
 	bool IsNode = false;
 	UPROPERTY(EditAnywhere, Category = NodePathParameters)
@@ -34,8 +38,7 @@ protected:
 	bool StartingNode = false;
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool EndingNode = false;
-	UPROPERTY()
-	class ACasaPlayer* PlayerPawn;
+	
 	UFUNCTION()
 	void AddNeighbouringNodes();
 
@@ -49,6 +52,7 @@ public:
 
 	bool IsPlayerOnNeighbouringNode();
 	void TransferPlayerOwnership(APathActor& OriginTile);
+	APathActor* IsForeuseOnNeighbourinNode();
 
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsNode; }

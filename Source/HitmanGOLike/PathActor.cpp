@@ -3,9 +3,6 @@
 
 #include "PathActor.h"
 #include "Components/StaticMeshComponent.h"
-#include "CasaPlayer.h"
-#include "Foreuse.h"
-#include "Otage.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -55,21 +52,6 @@ void APathActor::BeginPlay()
 
 	}
 
-	if (SpawnForeuse) 
-	{
-		SpawnForeuse = !SpawnForeuse;
-		AForeuse* NewForeuse = GetWorld()->SpawnActor<AForeuse>(AForeuse::StaticClass(), GetActorLocation(), GetActorRotation());
-
-		if (NewForeuse)
-		{
-			NewForeuse->Init(this);
-		}
-	}
-	if(SpawnOtage)
-	{
-
-	}
-
 	AddNeighbouringNodes();
 }
 
@@ -79,8 +61,8 @@ void APathActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	
-	if(StartingNode) 
-		UE_LOG(LogTemp, Warning, TEXT("Le start possede : %d noeud enfant"), NeighbouringNodes.Num());
+	//if(StartingNode) 
+		//UE_LOG(LogTemp, Warning, TEXT("Le start possede : %d noeud enfant"), NeighbouringNodes.Num());
 }
 
 bool APathActor::IsPlayerOnNeighbouringNode()
@@ -94,6 +76,22 @@ bool APathActor::IsPlayerOnNeighbouringNode()
 		}
 	}
 	return false;
+}
+
+APathActor* APathActor::IsForeuseOnNeighbourinNode()
+{
+	for (APathActor* Node : NeighbouringNodes) 
+	{
+		if (Node->IsPlayerOnNeighbouringNode()) {
+			FVector TargetPos = GetActorLocation();
+			FVector ForeusePos = Node->GetActorLocation();
+			if((TargetPos.X == ForeusePos.X && ForeusePos.X == Node->PlayerPawn->GetActorLocation().X)|| (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == Node->PlayerPawn->GetActorLocation().Y))
+			{ 
+				return Node;
+			}
+		}
+	}
+	return nullptr;
 }
 
 void APathActor::TransferPlayerOwnership(APathActor& OriginTile)

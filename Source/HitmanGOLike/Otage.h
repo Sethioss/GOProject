@@ -14,4 +14,19 @@ class HITMANGOLIKE_API AOtage : public AItem
 {
 	GENERATED_BODY()
 	
+public:
+	void SetOtageLocation(APathActor* Target);
+	FBox PlacingArea,EffectArea;
+	bool Placable=true;
+
+
+	void BeginPlay();
+	//Call the special effect of the item
+	virtual void ItemEffect() override;
+	virtual void Tick(float DeltaTime) override;
+
+protected:
+
+private:
+
 };

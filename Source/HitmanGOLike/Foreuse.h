@@ -19,12 +19,14 @@ protected:
 	virtual void ItemEffect() override;
 
 public:
-	UPROPERTY()
-	bool IsHeld=false;
+	
 
 	UFUNCTION()
 	void Init(APathActor* Node) { CurrentNode = Node; }
 	
 	AForeuse(APathActor* CurrentNode);
 	AForeuse();
+
+	void SetForeuseLocation(APathActor* NewNode, FVector NodePos);
+
 };

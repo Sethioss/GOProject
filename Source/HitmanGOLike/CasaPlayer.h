@@ -7,6 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "CasaPlayer.generated.h"
 
+
+class AItem;
+
 UCLASS()
 class HITMANGOLIKE_API ACasaPlayer : public APawn
 {
@@ -31,8 +34,11 @@ protected:
 
 
 public:
+
+
 	// Sets default values for this pawn's properties
 	ACasaPlayer();
+	AItem* HeldItem;
 
 protected:
 	// Called when the game starts or when spawned

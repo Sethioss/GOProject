@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Foreuse.h"
+#include "Otage.h"
 #include "PathActor.h"
 
 // Définissez une fonction pour gérer le clic de souris
@@ -52,20 +54,67 @@ void ACasaPlayerController::OnMouseClick()
 			{
 				if (Path->GetIsNode())
 				{
-					UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
+					
 
-					if (Path->IsPlayerOnNeighbouringNode())
-					{
-						FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
-						//MousePosition.X = HitResult.GetActor()->GetActorLocation().X;
-						//MousePosition.Y = HitResult.GetActor()->GetActorLocation().Y;
+					if(PlayerFinal->HeldItem == nullptr){
+						if (Path->IsPlayerOnNeighbouringNode())
+						{
+							FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
+							PlayerFinal->MoveTo(ActorLocation);
+							UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
+						}
+					}
+					else {
+						AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+						if (Foreuse) {
+							UE_LOG(LogTemp, Warning, TEXT("Target X %f Y %f player X %f Y %f"), Path->GetActorLocation().X, Path->GetActorLocation().Y, PlayerFinal->GetActorLocation().X,PlayerFinal->GetActorLocation().Y);
+							if (Path->GetActorLocation().X != PlayerFinal->GetActorLocation().X || Path->GetActorLocation().Y != PlayerFinal->GetActorLocation().Y)
+							{
+								APathActor* NewNodeForPlayer = Path->IsForeuseOnNeighbourinNode();
+								if (NewNodeForPlayer) {
+									UE_LOG(LogTemp, Warning, TEXT("Move"));
+									PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
+									Foreuse->SetForeuseLocation(Path, FVector(NULL, NULL, NULL));
+								}
+								else {
+									if ((Path->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Path->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
+									{
+										if (Path->IsPlayerOnNeighbouringNode())
+										{
+											FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
+											Foreuse->SetForeuseLocation(nullptr, PlayerFinal->GetActorLocation());
+											PlayerFinal->MoveTo(ActorLocation);
 
-						PlayerFinal->MoveTo(ActorLocation);
+										}
+									}
+								}
+							}
+						}
+						else {
+							AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+							if(Otage)
+							{
+								if (Otage->Placable)
+								{
+									if (Otage->PlacingArea.IsInside(Path->GetActorLocation()))
+									{
+										Otage->SetOtageLocation(Path);
+										PlayerFinal->HeldItem = nullptr;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
+			AItem* Item = Cast<AItem>(HitResult.GetActor());
+			if (Item) {
+				UE_LOG(LogTemp, Warning, TEXT("It's an Item"));
+				PlayerFinal->HeldItem = Item;
+				Item->SetIsHeld();
+				UE_LOG(LogTemp, Warning, TEXT("Item equiped"));
+			}
 		}
-
 	}
 
 }
@@ -84,4 +133,22 @@ void ACasaPlayerController::SetupInputComponent()
 
 	// Associez le clic gauche de la souris à la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
+	// Associez la touche "F" à la fonction OnPressF()
+	InputComponent->BindAction("PressF", IE_Pressed, this, &ACasaPlayerController::OnPressF);
+}
+
+void ACasaPlayerController::OnPressF()
+{
+	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
+	// Récupérez l'objet actuellement tenu par le joueur (si disponible)
+	AItem* HeldItem = PlayerFinal->HeldItem;
+
+	// Vérifiez si l'objet est valide
+	if (HeldItem)
+	{
+		// Appellez la fonction SetIsHeld() de l'objet
+		HeldItem->SetIsHeld();
+		PlayerFinal->HeldItem = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("Item unequiped"));
+	}
 }

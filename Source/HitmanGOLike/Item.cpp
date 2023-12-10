@@ -4,7 +4,6 @@
 #include "Item.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
-#include "PathActor.h"
 
 AItem::AItem()
 {
@@ -47,6 +46,18 @@ AItem::AItem(APathActor* CurrentNode)
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation()+ FVector(0, 0, 1), GetActorLocation()+FVector(0,0,-1)*1000,
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		APathActor* Node = Cast<APathActor>(HitResult.GetActor());
+		if(Node)
+		{
+			CurrentNode = Node;
+			SetActorLocation(Node->GetActorLocation());
+		}
+	}
 	
 }
 
@@ -56,7 +67,7 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
+/*
 APathActor* AItem::IsForwardNodeValid()
 {
 	FHitResult ForwardObject;
@@ -68,14 +79,15 @@ APathActor* AItem::IsForwardNodeValid()
 
 	if (Node) return Node;
 
-	/*
-	* ABreakableWall* Wall = Cast<ABreakableWall>(ForwardObject.GetActor());
-	* if (Wall) return Wall;
-	*/
+	
+	// ABreakableWall* Wall = Cast<ABreakableWall>(ForwardObject.GetActor());
+	// if (Wall) return Wall;
+	
 
 	
 	return nullptr;
 }
+*/
 
 
 APathActor* AItem::IsBackwardNodeValid()
@@ -85,4 +97,9 @@ APathActor* AItem::IsBackwardNodeValid()
 
 void AItem::ItemEffect()
 {
+}
+
+void AItem::SetIsHeld() 
+{
+	IsHeld = !IsHeld; 
 }

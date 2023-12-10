@@ -18,6 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	AItem(APathActor* CurrentNode);
 	AItem();
+	void SetIsHeld();
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,13 +36,18 @@ protected:
 	bool OnPlayer;
 
 	//Node en face de l'item permet d'utiliser l'item (avancer la foreuse, pousser l'otage)
-	UFUNCTION()
-	APathActor* IsForwardNodeValid();
+	//UFUNCTION()
+	//APathActor* IsForwardNodeValid();
 	//Node derrière l'item permet d'utiliser l'item (uniquement pour la foreuse -> la reculer)
 	UFUNCTION()
 	APathActor* IsBackwardNodeValid();
 	//Call the special effect of the item
 	virtual void ItemEffect();
+
+	bool IsHeld = false;
+	
+
+
 
 public:	
 	// Called every frame
