@@ -16,7 +16,7 @@ class HITMANGOLIKE_API AOtage : public AItem
 	
 public:
 	void SetOtageLocation(APathActor* Target);
-	FBox PlacingArea,EffectArea;
+	FBox PlacingArea;
 	bool Placable=true;
 
 

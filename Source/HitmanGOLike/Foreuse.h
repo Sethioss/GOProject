@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Item.h"
+#include "Wall.h"
 #include "Foreuse.generated.h"
 
 /**
@@ -15,11 +16,12 @@ class HITMANGOLIKE_API AForeuse : public AItem
 	GENERATED_BODY()
 
 protected:
-	//Call the special effect of the item
-	virtual void ItemEffect() override;
+	
 
 public:
-	
+	//Call the special effect of the item
+	virtual void ItemEffect(AWall* Wall);
+
 
 	UFUNCTION()
 	void Init(APathActor* Node) { CurrentNode = Node; }
@@ -28,5 +30,6 @@ public:
 	AForeuse();
 
 	void SetForeuseLocation(APathActor* NewNode, FVector NodePos);
+	bool Usable = true;
 
 };

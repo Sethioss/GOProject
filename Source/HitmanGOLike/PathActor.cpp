@@ -39,6 +39,7 @@ void APathActor::BeginPlay()
 	Super::BeginPlay();
 
 	AddNeighbouringNodes();
+	
 
 	if (StartingNode)
 	{

@@ -19,6 +19,7 @@ public:
 	AItem(APathActor* CurrentNode);
 	AItem();
 	void SetIsHeld();
+	APathActor* GetCurrentNode() { return CurrentNode; }
 
 protected:
 	// Called when the game starts or when spawned

@@ -8,6 +8,7 @@
 #include "Foreuse.h"
 #include "Otage.h"
 #include "PathActor.h"
+#include "Wall.h"
 
 // Définissez une fonction pour gérer le clic de souris
 FVector	WorldPosition, WorldDirection;
@@ -66,7 +67,7 @@ void ACasaPlayerController::OnMouseClick()
 					}
 					else {
 						AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
-						if (Foreuse) {
+						if (Foreuse&&Foreuse->Usable) {
 							UE_LOG(LogTemp, Warning, TEXT("Target X %f Y %f player X %f Y %f"), Path->GetActorLocation().X, Path->GetActorLocation().Y, PlayerFinal->GetActorLocation().X,PlayerFinal->GetActorLocation().Y);
 							if (Path->GetActorLocation().X != PlayerFinal->GetActorLocation().X || Path->GetActorLocation().Y != PlayerFinal->GetActorLocation().Y)
 							{
@@ -96,10 +97,15 @@ void ACasaPlayerController::OnMouseClick()
 							{
 								if (Otage->Placable)
 								{
-									if (Otage->PlacingArea.IsInside(Path->GetActorLocation()))
+									UE_LOG(LogTemp, Warning, TEXT("PlacingAre minX %f minY %f / Path X %f Y %f / PlacingAre maxX %f maxY %f"), Otage->PlacingArea.Min.X, Otage->PlacingArea.Min.Y, Path->GetActorLocation().X, Path->GetActorLocation().Y, Otage->PlacingArea.Max.X, Otage->PlacingArea.Max.Y);
+									if (Otage->PlacingArea.IsInsideXY(Path->GetActorLocation()))
 									{
+										APathActor* OtageNode = Otage->GetCurrentNode();
+										OtageNode->IsPlayerOnNeighbouringNode();
+										PlayerFinal->SetActorLocation(Otage->GetActorLocation());
 										Otage->SetOtageLocation(Path);
 										PlayerFinal->HeldItem = nullptr;
+										Otage->ItemEffect();
 									}
 								}
 							}
@@ -113,6 +119,27 @@ void ACasaPlayerController::OnMouseClick()
 				PlayerFinal->HeldItem = Item;
 				Item->SetIsHeld();
 				UE_LOG(LogTemp, Warning, TEXT("Item equiped"));
+			}
+			AWall* Wall = Cast<AWall>(HitResult.GetActor());
+			if (Wall)
+			{
+				if (PlayerFinal->HeldItem)
+				{
+					AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+					if (Foreuse&&Foreuse->Usable)
+					{
+						if ((Wall->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Wall->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
+						{
+							APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbourinNode();
+							if (NewNodeForPlayer) {
+								Foreuse->ItemEffect(Wall);
+								PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
+								Foreuse->SetForeuseLocation(Wall->CurrentNode, FVector(NULL, NULL, NULL));
+								PlayerFinal->HeldItem = nullptr;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

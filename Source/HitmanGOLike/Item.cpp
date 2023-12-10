@@ -55,7 +55,7 @@ void AItem::BeginPlay()
 		if(Node)
 		{
 			CurrentNode = Node;
-			SetActorLocation(Node->GetActorLocation());
+			SetActorLocation(FVector(Node->GetActorLocation().X, Node->GetActorLocation().Y,50));
 		}
 	}
 	
