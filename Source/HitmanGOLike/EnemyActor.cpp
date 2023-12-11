@@ -129,7 +129,7 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir)
 	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), vec,
 		ECollisionChannel::ECC_GameTraceChannel1);
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::White, true, 50.f);
+	DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::Blue, true, 50.f);
 
 	if (HitResult.bBlockingHit)
 	{

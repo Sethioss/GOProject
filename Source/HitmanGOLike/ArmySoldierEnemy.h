@@ -37,5 +37,6 @@ protected:
 	TArray<APathActor*> VisitedNodes;
 
 	float ManhattanDistance(FVector A, FVector B);
+	UPROPERTY(VisibleAnywhere)
 	TArray<APathActor*> BestPath;
 };

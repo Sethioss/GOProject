@@ -2,6 +2,7 @@
 
 
 #include "ArmySoldierEnemy.h"
+#include "Algo/Reverse.h"
 #include "GameManager.h"
 
 AArmySoldierEnemy::AArmySoldierEnemy()
@@ -25,7 +26,24 @@ void AArmySoldierEnemy::NeutralTurn()
 
 	if (Dest != nullptr)
 	{
-		AStarAlgorithm(GetCurrentNode(), Dest);
+		TArray<APathActor*> TempPath;
+		TempPath = AStarAlgorithm(GetCurrentNode(), Dest);
+		if (TempPath.Num() > 2)
+		{
+			if (TempPath[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS))
+			{
+				BestPath = TempPath;
+			}
+			else 
+			{
+				TArray<APathActor*> TempPathTwo = AStarAlgorithm(GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS), Dest);
+			}
+		}
+		else 
+		{
+			BestPath = TempPath;
+			return;
+		}
 	}
 }
 
@@ -33,15 +51,11 @@ APathActor* AArmySoldierEnemy::GetDestination()
 {
 	FHitResult HitResult;
 
-	FBox ActorBounds = CurrentNode->GetComponentsBoundingBox();
-
 	APathActor* Dest = Cast<APathActor>(UGameManager::GetInstance()->GetPlayerNode());
 
 	if (Dest != nullptr)
 	{
-		GetBestPath(GetCurrentNode(), Dest);
-
-
+		BestPath = AStarAlgorithm(GetCurrentNode(), Dest);
 	}
 
 	return nullptr;
@@ -154,6 +168,7 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 			}
 		}
 
+		UE_LOG(LogTemp, Warning, TEXT("PATHFINDING: %s"), *Current->GetName());
 		if (Current == End)
 		{
 			break;
@@ -162,21 +177,20 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 		ClosedList.Insert(Current, 0);
 		OpenList.Remove(CurIT);
 
-		int ClosedConnectors = 0;
-
 		for (int i = 0; i < Current->ConnectorInfo.Num(); ++i)
 		{
-			
 			//If node has already been visited, don't add to openlist
-			if (ClosedList.Find(Current->ConnectorInfo[i].DestinationNode))
+			if (ClosedList.Contains(Current->ConnectorInfo[i].DestinationNode))
 			{
-				ClosedConnectors++;
 				continue;
 			}
 
-			Current->PathfindingParent = Current->ConnectorInfo[i].DestinationNode;
+			APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
 			Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+			Successor->PathfindingParent = Current;
+
 			OpenList.Insert(Current->ConnectorInfo[i].DestinationNode, 0);
+
 		}
 	}
 
@@ -186,6 +200,7 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 		Current = Current->PathfindingParent;
 	}
 	//Make path list
+	Algo::Reverse(ListToSend);
 	return ListToSend;
 }
 
