@@ -26,9 +26,8 @@ protected:
 	virtual void InitFsm() override;
 	virtual void NeutralTurn() override;
 
-	void UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints);
-	void AStarAlgorithm(APathActor* Start, APathActor* End);
-	void GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber);
+	TArray<APathActor*> AStarAlgorithm(APathActor* Start, APathActor* End);
+	TArray<TArray<APathActor*>> GetBestPath(APathActor* Start, APathActor* End);
 	bool IsDeadEnd(APathActor* Node);
 
 

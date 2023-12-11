@@ -39,15 +39,7 @@ APathActor* AArmySoldierEnemy::GetDestination()
 
 	if (Dest != nullptr)
 	{
-		TArray<FConnectorInfo*> TempPath;
-		TArray<int> Checkpoints;
-		EGeneralDirectionEnum TempDir = EGeneralDirectionEnum::VALNUM;
-		int AnglesNumber = 0;
-
-		for (int i = 0; i < CurrentNode->ConnectorInfo.Num(); ++i)
-		{
-			GetBestPath(&CurrentNode->ConnectorInfo[i], Dest, TempPath, Checkpoints, TempDir, AnglesNumber);
-		}
+		GetBestPath(GetCurrentNode(), Dest);
 
 
 	}
@@ -55,8 +47,9 @@ APathActor* AArmySoldierEnemy::GetDestination()
 	return nullptr;
 }
 
-void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints, EGeneralDirectionEnum& TempDir, int& AnglesNumber)
+TArray<TArray<APathActor*>> AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End)
 {
+	TArray<TArray<APathActor*>> Dummy;
 	/*Start->OriginNode->Visited = true;
 	Start->DestinationNode->Visited = true;
 	int NeighbouringNodesNum = Start->DestinationNode->ConnectorInfo.Num();
@@ -122,6 +115,7 @@ void AArmySoldierEnemy::GetBestPath(FConnectorInfo* Start, APathActor* End, TArr
 			return;
 		}
 	}*/
+	return Dummy;
 }
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
@@ -133,57 +127,66 @@ bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 	return true;
 }
 
-void AArmySoldierEnemy::UnregisterVisitedNodesUntilLastCheckpoint(TArray<FConnectorInfo*> TempPath, TArray<int> Checkpoints)
-{
-	int LastCheckpointPos = Checkpoints[Checkpoints.Num() - 1];
-
-	for (int i = TempPath.Num() - 1; i > LastCheckpointPos; --i)
-	{
-		TempPath[i]->OriginNode->Visited = false;
-		TempPath.Remove(TempPath[i]);
-	}
-
-	//Make the connector node revisitable
-	TempPath[TempPath.Num() - 1]->OriginNode->Visited = false;
-	Checkpoints.Remove(Checkpoints[LastCheckpointPos]);
-}
-
-void AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathActor* End)
+TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathActor* End)
 {
 	APathActor* Current = nullptr;
 
 	TArray<APathActor*> OpenList;
 	TArray<APathActor*> ClosedList;
 
-	OpenList.Add(Start);
+	TArray<APathActor*> ListToSend;
 
-	for (int i = 0; i < Start->ConnectorInfo.Num(); ++i)
-	{
-		OpenList.Add(Start->ConnectorInfo[i].DestinationNode);
-	}
+	OpenList.Add(Start);
 
 	while (!OpenList.IsEmpty())
 	{
-		float G = 1;
 
-		float LowestF = 999999;
-		Current = OpenList[0];
+		APathActor* CurIT = OpenList[0];
+		Current = CurIT;
 
 		for (int i = 0; i < OpenList.Num(); ++i)
 		{
-			APathActor* CurNode = OpenList[i];
-			float H = ManhattanDistance(Current->GetActorLocation(), End->GetActorLocation());
-			float F = G + H;
-			Current->FScore = F;
+			APathActor* SelectedNode = OpenList[i];
 
-			if (LowestF <= Current->FScore) { Current = CurNode; }
+			if (SelectedNode->FScore <= Current->FScore) {
+				Current = SelectedNode;
+				CurIT = OpenList[i];
+			}
+		}
 
-			if (Current->GetActorLocation() == End->GetActorLocation()) {
-				break;
+		if (Current == End)
+		{
+			break;
+		}
+
+		ClosedList.Insert(Current, 0);
+		OpenList.Remove(CurIT);
+
+		int ClosedConnectors = 0;
+
+		for (int i = 0; i < Current->ConnectorInfo.Num(); ++i)
+		{
+			
+			//If node has already been visited, don't add to openlist
+			if (ClosedList.Find(Current->ConnectorInfo[i].DestinationNode))
+			{
+				ClosedConnectors++;
+				continue;
 			}
 
+			Current->PathfindingParent = Current->ConnectorInfo[i].DestinationNode;
+			Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+			OpenList.Insert(Current->ConnectorInfo[i].DestinationNode, 0);
 		}
 	}
+
+	while (Current != nullptr)
+	{
+		ListToSend.Add(Current);
+		Current = Current->PathfindingParent;
+	}
+	//Make path list
+	return ListToSend;
 }
 
 float AArmySoldierEnemy::ManhattanDistance(FVector A, FVector B)

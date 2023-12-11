@@ -23,6 +23,11 @@ public:
 		return (other.Direction == Direction && other.DestinationNode == DestinationNode);
 	}
 
+	inline bool operator!=(const FConnectorInfo& other) const
+	{
+		return (other.Direction != Direction || other.DestinationNode != DestinationNode);
+	}
+
 	/** Intensity of yaw input as modifier */
 	class APathActor* OriginNode;
 
@@ -89,6 +94,7 @@ protected:
 	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	bool CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction);
+	double ManhattanDistance(FVector StartPos, FVector EndPos);
 
 public:	
 	// Called every frame
@@ -103,7 +109,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsWalkableNode; }
 
-	float FScore;
+	float FScore = 1;
+
+	APathActor* PathfindingParent;
 
 	bool Visited = false;
 
