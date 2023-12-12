@@ -76,6 +76,14 @@ void UGameManager::ReleasePlayerInput()
 	Instance->Player->ShouldMove = true;
 }
 
+void UGameManager::ResetAllPathWeights()
+{
+	for (int i = 0; i < Paths.Num(); ++i)
+	{
+		Paths[i]->FScore = 1;
+	}
+}
+
 void UGameManager::InitFsm()
 {
 	CasaState* InitGame = new CasaState();

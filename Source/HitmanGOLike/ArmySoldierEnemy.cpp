@@ -4,6 +4,9 @@
 #include "ArmySoldierEnemy.h"
 #include "Algo/Reverse.h"
 #include "GameManager.h"
+#include "Containers/Array.h"
+
+UE_DISABLE_OPTIMIZATION
 
 AArmySoldierEnemy::AArmySoldierEnemy()
 {
@@ -22,114 +25,82 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::NeutralTurn()
 {
-	APathActor* Dest = Cast<APathActor>(UGameManager::GetInstance()->GetPlayerNode());
 
-	if (Dest != nullptr)
-	{
-		TArray<APathActor*> TempPath;
-		TempPath = AStarAlgorithm(GetCurrentNode(), Dest);
-		if (TempPath.Num() > 2)
-		{
-			if (TempPath[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS))
-			{
-				BestPath = TempPath;
-			}
-			else 
-			{
-				TArray<APathActor*> TempPathTwo = AStarAlgorithm(GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS), Dest);
-			}
-		}
-		else 
-		{
-			BestPath = TempPath;
-			return;
-		}
-	}
+	Destination = GetDestination();
+	//MoveToDestination();
+	//BestPath = CustomTemp;
+	//return;
 }
 
 APathActor* AArmySoldierEnemy::GetDestination()
 {
-	FHitResult HitResult;
-
 	APathActor* Dest = Cast<APathActor>(UGameManager::GetInstance()->GetPlayerNode());
+
+	TArray<APathActor*> CustomTemp;
 
 	if (Dest != nullptr)
 	{
-		BestPath = AStarAlgorithm(GetCurrentNode(), Dest);
-	}
-
-	return nullptr;
-}
-
-TArray<TArray<APathActor*>> AArmySoldierEnemy::GetBestPath(APathActor* Start, APathActor* End)
-{
-	TArray<TArray<APathActor*>> Dummy;
-	/*Start->OriginNode->Visited = true;
-	Start->DestinationNode->Visited = true;
-	int NeighbouringNodesNum = Start->DestinationNode->ConnectorInfo.Num();
-
-	//Set Angles Number
-	if (TempPath.Num() > 0)
-	{
-		if (TempDir != Start->Direction)
+		if (Dest == GetCurrentNode())
 		{
-			AnglesNumber++;
-		}
-	}
-	TempDir = Start->Direction;
+			TArray<APathActor*> Path;
+			Path.Add(GetCurrentNode());
 
-	TempPath.Add(Start);
-	bool FinalPathExists = BestPath.Num() > 0;
-
-	//We know TempPath is too long, no need to continue, or it's a dead end. We invalidate the path either way
-	if (FinalPathExists)
-	{
-		if (TempPath.Num() > BestPath.Num() || (IsDeadEnd(Start->DestinationNode) && Start->DestinationNode != End))
-		{
-			return;
-		}
-	}
-
-	//Add current node to Checkpoints list if it has more than two branching paths, so we
-	//know when to stop clearing TempPath later
-	if (NeighbouringNodesNum > 2)
-	{
-		Checkpoints.Add(TempPath.Num() - 1);
-	}
-
-	//Recursively check next path
-	for (int i = 0; i < NeighbouringNodesNum; ++i)
-	{
-		if (!Start->OriginNode->ConnectorInfo[i].DestinationNode->Visited)
-		{
-			GetBestPath(&Start->OriginNode->ConnectorInfo[i], End, TempPath, Checkpoints, TempDir, AnglesNumber);
-		}
-	}
-
-	//We reached the target, store this as BestPath and Unregister until checkpoint
-	if (Start->DestinationNode == End)
-	{
-		//Code to define if it's the best path
-		TArray<FConnectorInfo*> FinalPath;
-
-		if (BestPath.Num() < 1 || TempPath.Num() > BestPath.Num())
-		{
-			FinalPath = TempPath;
-			BestPath = FinalPath;
-			UnregisterVisitedNodesUntilLastCheckpoint(TempPath, Checkpoints);
-
-			return;
+			BestPath = Path;
+			return Path[0];
 		}
 
-		//Decide on number of angles
-		/*if (FinalPath.AnglesNum != BestPath.AnglesNum)
+		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			FinalPath = TempPath.AnglesNum < BestPath.AnglesNum ? TempPath : BestPath;
-			BestPath = FinalPath;
-			return;
+			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction) == Dest)
+			{
+				TArray<APathActor*> Path;
+				Path.Add(GetCurrentNode());
+				Path.Add(GetCurrentNode()->ConnectorInfo[i].DestinationNode);
+
+				BestPath = Path;
+				return Path[1];
+			}
 		}
-	}*/
-	return Dummy;
+
+		TArray<TArray<APathActor*>> AllLists;
+		TArray<APathActor*> Blacklisted;
+		TArray<APathActor*> CurList;
+		Blacklisted.Add(GetCurrentNode());
+		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
+		{
+			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction), Dest, Blacklisted);
+			CurList.Insert(GetCurrentNode(), 0);
+
+			if (CurList[CurList.Num() - 1] == Dest)
+			{
+				AllLists.Add(CurList);
+			}
+
+		}
+
+
+		if (AllLists.Num() > 0)
+		{
+			CustomTemp = AllLists[0];
+		}
+		if (AllLists.Num() > 1)
+		{
+			for (int i = 0; i < AllLists.Num(); ++i)
+			{
+				if (CustomTemp.Num() > AllLists[i].Num())
+				{
+					CustomTemp = AllLists[i];
+				}
+				else if (CustomTemp.Num() == AllLists[i].Num())
+				{
+					CustomTemp = CustomTemp[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) ? AllLists[i] : CustomTemp;
+				}
+			}
+		}
+	}
+
+	BestPath = CustomTemp;
+	return CustomTemp[1];
 }
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
@@ -141,20 +112,24 @@ bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 	return true;
 }
 
-TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathActor* End)
+TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes)
 {
 	APathActor* Current = nullptr;
 
 	TArray<APathActor*> OpenList;
 	TArray<APathActor*> ClosedList;
-
 	TArray<APathActor*> ListToSend;
+
+	for (int i = 0; i < BlacklistedNodes.Num(); ++i)
+	{
+		ClosedList.Add(BlacklistedNodes[i]);
+	}
+
 
 	OpenList.Add(Start);
 
 	while (!OpenList.IsEmpty())
 	{
-
 		APathActor* CurIT = OpenList[0];
 		Current = CurIT;
 
@@ -162,9 +137,13 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 		{
 			APathActor* SelectedNode = OpenList[i];
 
-			if (SelectedNode->FScore <= Current->FScore) {
-				Current = SelectedNode;
-				CurIT = OpenList[i];
+			if (SelectedNode->FScore <= Current->FScore)
+			{
+				if (!BlacklistedNodes.Contains(Current))
+				{
+					Current = SelectedNode;
+					CurIT = OpenList[i];
+				}
 			}
 		}
 
@@ -174,7 +153,7 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 			break;
 		}
 
-		ClosedList.Insert(Current, 0);
+		ClosedList.Add(Current);
 		OpenList.Remove(CurIT);
 
 		for (int i = 0; i < Current->ConnectorInfo.Num(); ++i)
@@ -189,18 +168,33 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 			Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
 			Successor->PathfindingParent = Current;
 
-			OpenList.Insert(Current->ConnectorInfo[i].DestinationNode, 0);
+			OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
 
 		}
 	}
 
+	//Make path list
 	while (Current != nullptr)
 	{
 		ListToSend.Add(Current);
 		Current = Current->PathfindingParent;
 	}
-	//Make path list
+
+	for (int i = 0; i < OpenList.Num(); ++i)
+	{
+		OpenList[i]->FScore = 1;
+		OpenList[i]->PathfindingParent = nullptr;
+	}
+
+	for (int i = 0; i < ClosedList.Num(); ++i)
+	{
+		ClosedList[i]->FScore = 1;
+		ClosedList[i]->PathfindingParent = nullptr;
+	}
+
 	Algo::Reverse(ListToSend);
+
+	UGameManager::GetInstance()->ResetAllPathWeights();
 	return ListToSend;
 }
 

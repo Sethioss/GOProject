@@ -21,6 +21,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TArray<class AEnemyActor*> Enemies;
 	int ElementsToRegister = 0;
+	TArray<APathActor*> Paths;
 
 protected:
 	// Called when the game starts
@@ -48,6 +49,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category= "GameManager singleton")
 	static UGameManager* GetInstance();
+
+	void ResetAllPathWeights();
 
 	APathActor* GetPlayerNode();
 

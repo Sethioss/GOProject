@@ -103,18 +103,14 @@ APathActor* AEnemyActor::GetCurrentNode()
 
 		if (Path)
 		{
-			CurrentNode = Path;
-
-			FBox ActorBounds = GetComponentsBoundingBox();
-
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetExtent().Z)));
+			return Path;
 		}
 	}
 
-	return CurrentNode;
+	return nullptr;
 }
 
-APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir)
+APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected)
 {
 	FHitResult HitResult;
 
@@ -135,15 +131,20 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir)
 	{
 		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
 
-		if (Path != nullptr)
+		if (Path)
 		{
-			for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
+			if (GetConnected)
 			{
-				if (Path->ConnectorInfo[i].DestinationNode == CurrentNode)
+				for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
 				{
-					return Path;
+					if (GetCurrentNode() == Path->ConnectorInfo[i].DestinationNode)
+					{
+						return Path;
+					}
+					return nullptr;
 				}
 			}
+			else { return Path; }
 		}
 	}
 

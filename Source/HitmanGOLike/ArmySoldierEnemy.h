@@ -26,15 +26,13 @@ protected:
 	virtual void InitFsm() override;
 	virtual void NeutralTurn() override;
 
-	TArray<APathActor*> AStarAlgorithm(APathActor* Start, APathActor* End);
-	TArray<TArray<APathActor*>> GetBestPath(APathActor* Start, APathActor* End);
+	TArray<APathActor*> AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes);
 	bool IsDeadEnd(APathActor* Node);
 
 
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<APathActor*> CurrentPath;
-	TArray<APathActor*> VisitedNodes;
 
 	float ManhattanDistance(FVector A, FVector B);
 	UPROPERTY(VisibleAnywhere)
