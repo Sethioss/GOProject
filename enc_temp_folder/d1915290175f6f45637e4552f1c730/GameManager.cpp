@@ -45,8 +45,8 @@ void UGameManager::BeginPlay()
 	
 	for (int i = 0; i < EnemiesToFind.Num(); ++i)
 	{
-		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
-		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
+		Enemies.Add(Cast<AEnemyActor>(Enemies[i]));
+		//Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 	}
 	//Instance->ElementsToRegister = EnemiesToFind.Num();
 
@@ -57,6 +57,14 @@ void UGameManager::InitGame()
 {
 	Instance->Fsm->SetNextState("OnAwaitingPlayerInput");
 
+	UE_LOG(LogTemp, Warning, TEXT("I Init"));
+
+	for (int i = 0; i < Enemies.Num(); ++i)
+	{
+		//Enemies.Add(Enemies[i]);
+		//Cast<AEnemyActor>(Enemies[i])->Update();
+	}
+
 	if (IsFSMBarrierEmpty())
 	{
 		Instance->Fsm->GoToNextState();
@@ -65,6 +73,7 @@ void UGameManager::InitGame()
 
 void UGameManager::OnAwaitPlayerInput()
 {
+	UE_LOG(LogTemp, Warning, TEXT("I wait for input"));
 	Instance->Fsm->SetNextState("OnEnemyTurn");
 
 	if (Instance->Player->TurnFinished)

@@ -29,10 +29,12 @@ public:
 	APathActor* Destination;
 
 	virtual void Update();
+	void Init();
 
 	bool RegisteredToManager = false;
 
-	CasaFSM Fsm;
+	CasaFSM* Fsm;
+	bool AllowedToMove = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -45,6 +47,7 @@ protected:
 	virtual void MoveToDestination();
 
 	virtual void Attack();
+	virtual void WaitUntilNextTurn();
 
 
 	virtual APathActor* GetCurrentNode();
@@ -56,7 +59,7 @@ protected:
 	bool TurnFinished = false;
 
 	void RegisterToManager();
-
+	void EndMove();
 
 public:
 	// Called every frame

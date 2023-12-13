@@ -54,19 +54,20 @@ void AEnemyActor::BeginPlay()
 
 void AEnemyActor::Init()
 {
-	UE_LOG(LogTemp, Error, TEXT("I'm initiating!"));
 	InitFsm();
 	UGameManager::GetInstance()->RegisterToBarrier(this);
 }
 
 void AEnemyActor::RegisterToManager()
 {
-	UE_LOG(LogTemp, Error, TEXT("I'm registering to manager!"));
-	UGameManager::GetInstance()->Enemies.Add(this);
-	RegisteredToManager = true;
-	Fsm->GoToNextState();
+	if (RegisteredToManager == false)
+	{
+		UGameManager::GetInstance()->Enemies.Add(this);
+		RegisteredToManager = true;
+		Fsm->GoToNextState();
+	}
 
-	//UGameManager::GetInstance()->ReleaseFromBarrier(this);
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
 void AEnemyActor::InitFsm() {
@@ -189,28 +190,28 @@ FVector AEnemyActor::GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir)
 		Local = true;
 	}
 
-	switch (static_cast<int>(Dir) % (static_cast<int>(EGeneralDirectionEnum::VALNUM) / 2))
+	switch (static_cast<int>(Dir) % (static_cast<int>(EGeneralDirectionEnum::VALNUM)/2))
 	{
-	case 0:
-	{
-		RotationQuat = FQuat(FRotator(0.0f, 90.0f * 0, 0.0f));
-		break;
-	}
-	case 1:
-	{
-		RotationQuat = FQuat(FRotator(0.0f, 90.0f * 1, 0.0f));
-		break;
-	}
-	case 2:
-	{
-		RotationQuat = FQuat(FRotator(0.0f, 90.0f * 2, 0.0f));
-		break;
-	}
-	case 3:
-	{
-		RotationQuat = FQuat(FRotator(0.0f, 90.0f * 3, 0.0f));
-		break;
-	}
+		case 0:
+		{ 
+			RotationQuat = FQuat(FRotator(0.0f, 90.0f * 0, 0.0f));
+			break;
+		}
+		case 1:
+		{
+			RotationQuat = FQuat(FRotator(0.0f, 90.0f * 1, 0.0f));
+			break;
+		}
+		case 2:
+		{
+			RotationQuat = FQuat(FRotator(0.0f, 90.0f * 2, 0.0f));
+			break;
+		}
+		case 3:
+		{
+			RotationQuat = FQuat(FRotator(0.0f, 90.0f * 3, 0.0f));
+			break;
+		}
 	}
 
 	Vector = Local ? RotationQuat.RotateVector(GetActorForwardVector()) : RotationQuat.Vector();

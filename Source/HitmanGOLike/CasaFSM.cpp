@@ -20,12 +20,26 @@ void CasaFSM::ChangeStateTo(CasaState* Dest, bool PlayTransition)
 	}
 }
 
+void CasaFSM::SetNextState(FString Dest)
+{
+	CasaState* St = GetState(Dest);
+	if (St != nullptr)
+	{
+		NextState = St;
+	}
+}
+
+void CasaFSM::GoToNextState()
+{
+	ChangeStateTo(NextState, true);
+}
+
 void CasaFSM::ChangeState(FString StateName, bool PlayTransition)
 {
-	CasaState* AwaitingPlayerInputState = GetState(StateName);
-	if (AwaitingPlayerInputState != nullptr)
+	CasaState* St = GetState(StateName);
+	if (St != nullptr)
 	{
-		ChangeStateTo(AwaitingPlayerInputState, PlayTransition);
+		ChangeStateTo(St, PlayTransition);
 	}
 }
 

@@ -44,7 +44,7 @@ ACasaPlayer::ACasaPlayer()
 
 	//Attach PlayerCamera to springarm
 	PlayerCamera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	
+
 	//Assign SpringArm class variables.
 	SpringArmComponent->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));
 	SpringArmComponent->TargetArmLength = 400.f;
@@ -57,7 +57,7 @@ ACasaPlayer::ACasaPlayer()
 void ACasaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	RegisterToManager();
@@ -77,13 +77,13 @@ void ACasaPlayer::Tick(float DeltaTime)
 
 	/*if (ShouldMove)
 	{
-		if(FVector::Distance(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z), 
+		if(FVector::Distance(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z),
 							 FVector(TargetedPosition.X, TargetedPosition.Y, GetActorLocation().Z))
 			< 0.5f)
 		{
 			ShouldMove = false;
 		}
-		else 
+		else
 		{
 			MoveToTarget(TargetedPosition, Speed);
 		}
@@ -94,7 +94,7 @@ void ACasaPlayer::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	
+
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 
@@ -109,15 +109,12 @@ void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 
-	if (ShouldMove)
-	{
-		//TargetedPosition = TargetPosition;
-		//ShouldMove = true;
+	//TargetedPosition = TargetPosition;
+	//ShouldMove = true;
 
-		FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
-		SetActorLocation(NewLocation);
+	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
+	SetActorLocation(NewLocation);
 
-		TurnFinished = true;
-	}
+	TurnFinished = true;
 }
 

@@ -25,11 +25,12 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::NeutralTurn()
 {
-
 	Destination = GetDestination();
+	UE_LOG(LogTemp, Warning, TEXT("I'm the army soldier enemy and I'm doing my turn!"));
 	//MoveToDestination();
 	//BestPath = CustomTemp;
 	//return;
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
 APathActor* AArmySoldierEnemy::GetDestination()

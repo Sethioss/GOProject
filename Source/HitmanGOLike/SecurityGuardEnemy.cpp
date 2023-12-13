@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "GameManager.h"
 #include "CasaFSM.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -27,6 +28,9 @@ void ASecurityGuardEnemy::NeutralTurn()
 	{
 		MoveToDestination();
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("I'm the Security Guard enemy and I'm doing my turn!"));
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
 APathActor* ASecurityGuardEnemy::GetDestination()

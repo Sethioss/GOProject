@@ -36,7 +36,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool TurnFinished = false;
-	bool ShouldMove = false;
 
 	bool RegisteredToManager = false;
 
