@@ -26,10 +26,11 @@ void AArmySoldierEnemy::BeginPlay()
 void AArmySoldierEnemy::NeutralTurn()
 {
 	Destination = GetDestination();
-	UE_LOG(LogTemp, Warning, TEXT("I'm the army soldier enemy and I'm doing my turn!"));
 	//MoveToDestination();
 	//BestPath = CustomTemp;
 	//return;
+
+	Fsm->SetNextState("Await");
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
@@ -148,7 +149,6 @@ TArray<APathActor*> AArmySoldierEnemy::AStarAlgorithm(APathActor* Start, APathAc
 			}
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("PATHFINDING: %s"), *Current->GetName());
 		if (Current == End)
 		{
 			break;

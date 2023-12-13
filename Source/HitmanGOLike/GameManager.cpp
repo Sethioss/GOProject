@@ -48,7 +48,6 @@ void UGameManager::BeginPlay()
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
 	}
-	//Instance->ElementsToRegister = EnemiesToFind.Num();
 
 	InitFsm();
 }
@@ -83,18 +82,17 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 	if (FSMBarrier::BarrieredObjects.Contains(Act))
 	{
 		FSMBarrier::BarrieredObjects.Remove(Act);
-		UE_LOG(LogTemp, Warning, TEXT("Releasing %s from barrier. New barrier length: %i"), *Act->GetActorNameOrLabel(), FSMBarrier::BarrieredObjects.Num());
 	}
 }
 
 void UGameManager::BlockPlayerInput()
 {
-
+	Instance->Player->TurnFinished = true;
 }
 
 void UGameManager::ReleasePlayerInput()
 {
-
+	Instance->Player->TurnFinished = false;
 }
 
 void UGameManager::ResetAllPathWeights()
@@ -110,23 +108,19 @@ void UGameManager::StartEnemyTurn()
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->AllowedToMove = true;
+		RegisterToBarrier(Enemy);
 	}
 }
 
 void UGameManager::OnEnemyTurn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("I'm doing the enemy turn"));
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Enemy: %s - Current State: %s"), *Enemy->GetActorNameOrLabel(), *Enemy->Fsm->CurrentState->Name);
-		RegisterToBarrier(Enemy);
 		Enemy->Update();
 	}
 
 	if (IsFSMBarrierEmpty())
 	{
-		Instance->Player->TurnFinished = false;
-
 		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 	}
 }

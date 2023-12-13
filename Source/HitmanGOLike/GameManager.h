@@ -59,7 +59,7 @@ public:
 
 	void RegisterToBarrier(AActor* Act);
 	void ReleaseFromBarrier(AActor* Act);
-	inline bool IsFSMBarrierEmpty() { return FSMBarrier::BarrieredObjects.Num() > 0; }
+	inline bool IsFSMBarrierEmpty() { return FSMBarrier::BarrieredObjects.Num() == 0; }
 
 		
 };

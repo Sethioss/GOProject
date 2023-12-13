@@ -54,19 +54,17 @@ void AEnemyActor::BeginPlay()
 
 void AEnemyActor::Init()
 {
-	UE_LOG(LogTemp, Error, TEXT("I'm initiating!"));
 	InitFsm();
 	UGameManager::GetInstance()->RegisterToBarrier(this);
 }
 
 void AEnemyActor::RegisterToManager()
 {
-	UE_LOG(LogTemp, Error, TEXT("I'm registering to manager!"));
 	UGameManager::GetInstance()->Enemies.Add(this);
 	RegisteredToManager = true;
 	Fsm->GoToNextState();
 
-	//UGameManager::GetInstance()->ReleaseFromBarrier(this);
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
 void AEnemyActor::InitFsm() {

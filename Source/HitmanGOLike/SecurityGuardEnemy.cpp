@@ -29,7 +29,7 @@ void ASecurityGuardEnemy::NeutralTurn()
 		MoveToDestination();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("I'm the Security Guard enemy and I'm doing my turn!"));
+	Fsm->ChangeState("Await", true);
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
