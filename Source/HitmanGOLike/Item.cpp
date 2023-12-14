@@ -51,6 +51,7 @@ void AItem::BeginPlay()
 		ECollisionChannel::ECC_GameTraceChannel1);
 	if (HitResult.bBlockingHit)
 	{
+		//Si l'Item n'est pas bien positionner lors du LevelBuilding il sera automatiquement repositionné au centre de la Node
 		APathActor* Node = Cast<APathActor>(HitResult.GetActor());
 		if(Node)
 		{
@@ -67,28 +68,6 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-/*
-APathActor* AItem::IsForwardNodeValid()
-{
-	FHitResult ForwardObject;
-	//Looking for Northern Object
-	GetWorld()->LineTraceSingleByChannel(ForwardObject, CurrentNode->GetActorLocation() + FVector(0, 0, 51), CurrentNode->GetActorLocation() + (GetActorForwardVector() * 1000),
-		ECollisionChannel::ECC_GameTraceChannel1);
-
-	APathActor* Node = Cast<APathActor>(ForwardObject.GetActor());
-
-	if (Node) return Node;
-
-	
-	// ABreakableWall* Wall = Cast<ABreakableWall>(ForwardObject.GetActor());
-	// if (Wall) return Wall;
-	
-
-	
-	return nullptr;
-}
-*/
-
 
 APathActor* AItem::IsBackwardNodeValid()
 {

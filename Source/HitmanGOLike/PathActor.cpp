@@ -22,15 +22,6 @@ APathActor::APathActor()
 void APathActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	if (GetIsNode())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("The node is here"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Vincent aime pas les yoshis noirs :'("));
-	}
 }
 
 // Called when the game starts or when spawned
@@ -43,6 +34,7 @@ void APathActor::BeginPlay()
 
 	if (StartingNode)
 	{
+		//Joueur déplacé au point de départ
 		APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 		FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
@@ -50,28 +42,26 @@ void APathActor::BeginPlay()
 
 		PlayerPawn = Cast<ACasaPlayer>(Pawn);
 
-
 	}
 
-	AddNeighbouringNodes();
+	//Ajout des Noeuds voisins à NeighbouringNodes
+	//AddNeighbouringNodes();
 }
 
 // Called every frame
 void APathActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	
-	//if(StartingNode) 
-		//UE_LOG(LogTemp, Warning, TEXT("Le start possede : %d noeud enfant"), NeighbouringNodes.Num());
 }
 
+//Indique si le Joueur est sur un Node voisin du Node actuel
 bool APathActor::IsPlayerOnNeighbouringNode()
 {
 	for (int i = 0; i < NeighbouringNodes.Num(); ++i)
 	{
 		if (NeighbouringNodes[i]->PlayerPawn != nullptr)
 		{
+			//Le Joueur est voisin du Node
 			TransferPlayerOwnership(*NeighbouringNodes[i]);
 			return true;
 		}
@@ -79,11 +69,13 @@ bool APathActor::IsPlayerOnNeighbouringNode()
 	return false;
 }
 
+//Indique si la Foreuse est sur un Node voisin du Node actuel
 APathActor* APathActor::IsForeuseOnNeighbourinNode()
 {
 	for (APathActor* Node : NeighbouringNodes) 
 	{
-		if (Node->IsPlayerOnNeighbouringNode()) {
+		if (Node->IsPlayerOnNeighbouringNode()) 
+		{
 			FVector TargetPos = GetActorLocation();
 			FVector ForeusePos = Node->GetActorLocation();
 			if((TargetPos.X == ForeusePos.X && ForeusePos.X == Node->PlayerPawn->GetActorLocation().X)|| (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == Node->PlayerPawn->GetActorLocation().Y))
@@ -101,7 +93,9 @@ void APathActor::TransferPlayerOwnership(APathActor& OriginTile)
 	OriginTile.PlayerPawn = nullptr;
 }
 
-TArray<APathActor*> APathActor::ReachNeighbouringPath() {
+//Récupère tout les Nodes voisin de la Node
+TArray<APathActor*> APathActor::ReachNeighbouringPath() 
+{
 
 	FHitResult North, South, East, West;
 	TArray<FHitResult*> HitResults; HitResults.Add(&North); HitResults.Add(&South); HitResults.Add(&East); HitResults.Add(&West);
@@ -120,27 +114,24 @@ TArray<APathActor*> APathActor::ReachNeighbouringPath() {
 	//Looking for Western Object
 	GetWorld()->LineTraceSingleByChannel(West, NodePosition + FVector(0, 0, 51), NodePosition + FVector(0, -51, 0),
 		ECollisionChannel::ECC_GameTraceChannel1);
-		
-	if (North.ImpactPoint != FVector(0,0,0)) DrawDebugLine(GetWorld(), NodePosition + FVector(0, 0, 51), North.ImpactPoint, FColor::Green, true, 50.f);
-	if (South.ImpactPoint != FVector(0, 0, 0)) DrawDebugLine(GetWorld(), NodePosition + FVector(0, 0, 51), South.ImpactPoint, FColor::Green, true, 50.f);
-	if (East.ImpactPoint != FVector(0, 0, 0)) DrawDebugLine(GetWorld(), NodePosition + FVector(0, 0, 51), East.ImpactPoint, FColor::Green, true, 50.f);
-	if (West.ImpactPoint != FVector(0, 0, 0)) DrawDebugLine(GetWorld(), NodePosition + FVector(0, 0, 51), West.ImpactPoint, FColor::Green, true, 50.f);
-
-	UE_LOG(LogTemp, Warning, TEXT("Node Position :%s, Impact Point: %s"), *(NodePosition + FVector(0, 0, 51)).ToString(),*(North.ImpactPoint).ToString());
 
 	//Process HitResult: Nearby object isNode -> add to NeighbouringNodes
-	for (FHitResult* HitResult : HitResults) {
-		if (HitResult->bBlockingHit) {
+	for (FHitResult* HitResult : HitResults) 
+	{
+		if (HitResult->bBlockingHit) 
+		{
 			APathActor* NearbyPath = Cast<APathActor>(HitResult->GetActor());
-			UE_LOG(LogTemp, Warning, TEXT("HitResult Class name : %s"), *(HitResult->GetActor()->GetClass()->GetName()));
-			if (NearbyPath) {
+			if (NearbyPath) 
+			{
 				//Si le voisin est un Node: alors on l'ajoute
-				if (NearbyPath->GetIsNode()) {
+				if (NearbyPath->GetIsNode()) 
+				{
 					Neighbours.Add(NearbyPath);
 				}
 
 				//Si le voisin est un simple connecteur: alors on propage pour avoir acces aux Nodes suivant ce connecteur
-				else {
+				else 
+				{
 					Neighbours.Append(NearbyPath->ReachNeighbouringPath());
 				}
 			}
@@ -150,17 +141,17 @@ TArray<APathActor*> APathActor::ReachNeighbouringPath() {
 	return Neighbours;
 }
 
-void APathActor::AddNeighbouringNodes() {
-
+//Ajoute les noeuds voisins à NeighbouringNodes
+void APathActor::AddNeighbouringNodes() 
+{
 	TArray<APathActor*> Neighbours = ReachNeighbouringPath();
 
-	for (APathActor* Node : Neighbours) {
-		if (Node != this) {
-			UE_LOG(LogTemp, Warning, TEXT("Un Node d'ajouter comme voisin"));
+	for (APathActor* Node : Neighbours) 
+	{
+		if (Node != this) 
+		{
 			(GetNeighbouringNodes()).AddUnique(Node);
 		}
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Ajout des voisins terminer, Ce node possède donc %d voisin"), NeighbouringNodes.Num());
 }
 

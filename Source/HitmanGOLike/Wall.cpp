@@ -50,6 +50,7 @@ void AWall::Tick(float DeltaTime)
 
 }
 
+//Casse le Mur, permet de le traverser
 void AWall::Break() 
 {
 	if (!IsBroken)

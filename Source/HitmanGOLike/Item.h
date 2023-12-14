@@ -9,6 +9,13 @@
 #include "PathActor.h"
 #include "Item.generated.h"
 
+/*
+* Classe Item.
+* Definit les comportements et paramètres commun a tout les items:
+*	- S'il sont tenu
+*	- Mesh
+*/
+
 UCLASS()
 class HITMANGOLIKE_API AItem : public AActor
 {
@@ -20,6 +27,8 @@ public:
 	AItem();
 	void SetIsHeld();
 	APathActor* GetCurrentNode() { return CurrentNode; }
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,9 +41,6 @@ protected:
 	//Node où se situe l'objet
 	UPROPERTY(EditAnywhere)
 	APathActor* CurrentNode = nullptr;
-	//true si le player est sur le meme node que l'item
-	UPROPERTY()
-	bool OnPlayer;
 
 	//Node en face de l'item permet d'utiliser l'item (avancer la foreuse, pousser l'otage)
 	//UFUNCTION()
@@ -46,12 +52,5 @@ protected:
 	virtual void ItemEffect();
 
 	bool IsHeld = false;
-	
-
-
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

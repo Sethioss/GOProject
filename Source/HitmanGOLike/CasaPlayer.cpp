@@ -31,11 +31,6 @@ ACasaPlayer::ACasaPlayer()
 	// creation de la camera du player
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 
-	//On "attache" la camera au player
-	//PlayerCamera->SetupAttachment(RootComponent);
-	//PlayerCamera->SetRelativeLocation(FVector(-250.0f, 0.0f, 250.0f));
-	//PlayerCamera->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
-
 	//Creation Springarmcomponent
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 
@@ -62,53 +57,23 @@ void ACasaPlayer::BeginPlay()
 	
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-
 }
 
 // Called every frame
 void ACasaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	/*if (ShouldMove)
-	{
-		if(FVector::Distance(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z), 
-							 FVector(TargetedPosition.X, TargetedPosition.Y, GetActorLocation().Z))
-			< 0.5f)
-		{
-			ShouldMove = false;
-		}
-		else 
-		{
-			MoveToTarget(TargetedPosition, Speed);
-		}
-	}*/
-
 }
 
 // Called to bind functionality to input
 void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-
 }
 
-/*void ACasaPlayer::MoveToTarget(FVector2D Target, float speed) {
-
-	FVector2D Direction = Target - FVector2D(GetActorLocation().X, GetActorLocation().Y).Normalize();
-
-	AddActorLocalOffset(FVector(Direction.X * Speed * GetWorld()->GetDeltaSeconds(), Direction.Y * Speed * GetWorld()->GetDeltaSeconds(), 0));
-}*/
-
-void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
-
-	//TargetedPosition = TargetPosition;
-	//ShouldMove = true;
-
+void ACasaPlayer::MoveTo(FVector2D TargetPosition) 
+{
 	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
 	SetActorLocation(NewLocation);
-
 }
 

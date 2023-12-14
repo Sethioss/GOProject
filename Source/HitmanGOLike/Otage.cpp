@@ -3,14 +3,16 @@
 #include "EnemyActor.h"
 #include "Otage.h"
 
-void AOtage::BeginPlay() {
+void AOtage::BeginPlay() 
+{
 	Super::BeginPlay();
 	FVector PlacingBoxMin = GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10);
 	FVector PlacingBoxMax = GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100);
 	PlacingArea = FBox(PlacingBoxMin, PlacingBoxMax);
 }
 
-void AOtage::Tick(float DeltaTime) {
+void AOtage::Tick(float DeltaTime) 
+{
 	Super::Tick(DeltaTime);
 	if(IsHeld)
 		DrawDebugBox(GetWorld(), GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10), GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 2) + 1, 100), FColor::Green);
@@ -19,19 +21,20 @@ void AOtage::Tick(float DeltaTime) {
 void AOtage::SetOtageLocation(APathActor* Target)
 {
 	if (IsHeld && Placable)
-	{
+	{	
+		//L'Otage peut être déplacé
 		SetActorLocation(FVector(Target->GetActorLocation().X, Target->GetActorLocation().Y,50));
 		CurrentNode = Target;
 		Placable = false;
 		SetIsHeld();
 		StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
-
-		//ItemEffect();
+		ItemEffect();
 	}
 }
 
+//Cherche les Ennemis a range de cri, et les alertes en leur donnant sa position.
 void AOtage::ItemEffect() {
-	//Cherche les Ennemis a range de cri, et les alertes en leur donnant sa position.
+	
 
 	std::vector<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
@@ -117,6 +120,7 @@ void AOtage::ItemEffect() {
 		}
 	}
 
+	//Après avoir recupérer tous les ennemies à range de cri, les alertes
 	for (AEnemyActor temp : EnemiesArray)
 	{
 		temp.Alert(GetActorLocation());

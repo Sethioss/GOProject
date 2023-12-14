@@ -7,6 +7,11 @@
 #include "Camera/CameraComponent.h"
 #include "CasaPlayer.generated.h"
 
+/*
+* Classe du Joueur.
+* Il peut se deplacer en point and click sur les Noeud Uniquement.
+* Tenir et Utiliser des objets.
+*/
 
 class AItem;
 
@@ -23,24 +28,8 @@ protected:
 	class UAudioComponent* AudioComponent = nullptr;
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* PlayerCamera = nullptr;
-	UPROPERTY(EditAnywhere)
-	float Speed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComponent = nullptr;
-
-	FVector2D TargetedPosition;
-	void MoveToTarget(FVector2D Target, float speed);
-	bool ShouldMove = false;
-
-
-public:
-
-
-	// Sets default values for this pawn's properties
-	ACasaPlayer();
-	AItem* HeldItem;
-
-protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -51,12 +40,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
+	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 50)
 	UFUNCTION()
 	void MoveTo(FVector2D TargetPosition);
 
-	// Input variables
-	UPROPERTY()
-	FVector CurrentVelocity;
+	// Sets default values for this pawn's properties
+	ACasaPlayer();
+	//Objet tenu par le Joueur
+	AItem* HeldItem;
 
 };
