@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Math/UnrealMathUtility.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -31,6 +32,8 @@ ACasaPlayer::ACasaPlayer()
 	// creation de la camera du player
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 
+	MoverComponent = CreateDefaultSubobject<UMoverComponent>(TEXT("Mover"));
+
 	//On "attache" la camera au player
 	//PlayerCamera->SetupAttachment(RootComponent);
 	//PlayerCamera->SetRelativeLocation(FVector(-250.0f, 0.0f, 250.0f));
@@ -41,6 +44,7 @@ ACasaPlayer::ACasaPlayer()
 
 	//Attach springarm to root
 	SpringArmComponent->SetupAttachment(StaticMeshComponent);
+	MoverComponent->SetupAttachment(StaticMeshComponent);
 
 	//Attach PlayerCamera to springarm
 	PlayerCamera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
@@ -68,6 +72,7 @@ void ACasaPlayer::RegisterToManager()
 	UGameManager::GetInstance()->Player = this;
 	RegisteredToManager = true;
 	UGameManager::GetInstance()->ElementsToRegister -= 1;
+	MoverComponent->Setup(FVector(500, 500, 500));
 }
 
 // Called every frame

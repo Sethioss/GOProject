@@ -39,6 +39,8 @@ void UGameManager::BeginPlay()
 		Instance->ElementsToRegister += 1;
 	}
 
+	InitFsm();
+
 	// ...
 	TArray<AActor*> EnemiesToFind;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
@@ -48,51 +50,6 @@ void UGameManager::BeginPlay()
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
 	}
-
-	InitFsm();
-}
-
-void UGameManager::InitGame() 
-{
-	Instance->Fsm->SetNextState("OnAwaitingPlayerInput");
-
-	if (IsFSMBarrierEmpty())
-	{
-		Instance->Fsm->GoToNextState();
-	}
-}
-
-void UGameManager::OnAwaitPlayerInput()
-{
-	Instance->Fsm->SetNextState("OnEnemyTurn");
-
-	if (Instance->Player->TurnFinished)
-	{
-		Instance->Fsm->GoToNextState();
-	}
-}
-
-void UGameManager::RegisterToBarrier(AActor* Act)
-{
-	FSMBarrier::BarrieredObjects.Add(Act);
-}
-
-void UGameManager::ReleaseFromBarrier(AActor* Act)
-{
-	if (FSMBarrier::BarrieredObjects.Contains(Act))
-	{
-		FSMBarrier::BarrieredObjects.Remove(Act);
-	}
-}
-
-void UGameManager::BlockPlayerInput()
-{
-	Instance->Player->TurnFinished = true;
-}
-
-void UGameManager::ReleasePlayerInput()
-{
-	Instance->Player->TurnFinished = false;
 }
 
 void UGameManager::ResetAllPathWeights()
@@ -103,39 +60,12 @@ void UGameManager::ResetAllPathWeights()
 	}
 }
 
-void UGameManager::StartEnemyTurn()
-{
-	for (AEnemyActor* Enemy : Instance->Enemies)
-	{
-		Enemy->AllowedToMove = true;
-		RegisterToBarrier(Enemy);
-	}
-}
-
-void UGameManager::OnEnemyTurn()
-{
-	for (AEnemyActor* Enemy : Instance->Enemies)
-	{
-		Enemy->Update();
-	}
-
-	if (IsFSMBarrierEmpty())
-	{
-		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
-	}
-}
-
-void UGameManager::OnPlayerDeath()
-{
-	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
-}
-
 void UGameManager::InitFsm()
 {
 	Instance->Fsm = new CasaFSM();
 	CasaState* InitGame = new CasaState();
 	InitGame->Name = "InitiatingGame";
-	InitGame->SetUpdateDelegate(this, &UGameManager::InitGame);
+	InitGame->SetUpdateDelegate(this, &UGameManager::OnInitGame);
 	Instance->Fsm->States.Add(InitGame);
 	Instance->Fsm->ChangeState("InitiatingGame", false);
 
@@ -145,12 +75,16 @@ void UGameManager::InitFsm()
 	AwaitingPlayerInput->SetUpdateDelegate(this, &UGameManager::OnAwaitPlayerInput);
 	AwaitingPlayerInput->SetEndDelegate(this, &UGameManager::BlockPlayerInput);
 	Instance->Fsm->States.Add(AwaitingPlayerInput);
-	Instance->Fsm->SetNextState("OnAwaitingPlayerInput");
+
+	CasaState* PrePlayerTurnState = new CasaState();
+	PrePlayerTurnState->Name = "PrePlayerTurn";
+	PrePlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPrePlayerTurn);
+	Instance->Fsm->States.Add(PrePlayerTurnState);
 
 
 	CasaState* OnEnemyTurn = new CasaState();
 	OnEnemyTurn->Name = "OnEnemyTurn";
-	OnEnemyTurn->SetStartDelegate(this, &UGameManager::StartEnemyTurn);
+	OnEnemyTurn->SetStartDelegate(this, &UGameManager::OnStartEnemyTurn);
 	OnEnemyTurn->SetUpdateDelegate(this, &UGameManager::OnEnemyTurn);
 	Instance->Fsm->States.Add(OnEnemyTurn);
 
@@ -198,4 +132,75 @@ APathActor* UGameManager::GetPlayerNode()
 		}
 	}
 	return nullptr;
+}
+
+void UGameManager::RegisterToBarrier(AActor* Act)
+{
+	FSMBarrier::BarrieredObjects.Add(Act);
+}
+
+void UGameManager::ReleaseFromBarrier(AActor* Act)
+{
+	if (FSMBarrier::BarrieredObjects.Contains(Act))
+	{
+		FSMBarrier::BarrieredObjects.Remove(Act);
+	}
+}
+
+void UGameManager::OnInitGame()
+{
+	if (IsFSMBarrierEmpty())
+	{
+		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+	}
+}
+
+void UGameManager::OnAwaitPlayerInput()
+{
+	if (Instance->Player->TurnFinished)
+	{
+		Instance->Fsm->ChangeState("OnEnemyTurn");
+	}
+}
+
+void UGameManager::OnPrePlayerTurn()
+{
+
+}
+
+void UGameManager::BlockPlayerInput()
+{
+	Instance->Player->TurnFinished = true;
+}
+
+void UGameManager::ReleasePlayerInput()
+{
+	Instance->Player->TurnFinished = false;
+}
+
+void UGameManager::OnStartEnemyTurn()
+{
+	for (AEnemyActor* Enemy : Instance->Enemies)
+	{
+		Enemy->AllowedToMove = true;
+		RegisterToBarrier(Enemy);
+	}
+}
+
+void UGameManager::OnEnemyTurn()
+{
+	for (AEnemyActor* Enemy : Instance->Enemies)
+	{
+		Enemy->Update();
+	}
+
+	if (IsFSMBarrierEmpty())
+	{
+		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+	}
+}
+
+void UGameManager::OnPlayerDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
 }

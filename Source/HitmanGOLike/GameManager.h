@@ -30,21 +30,25 @@ protected:
 
 	CasaFSM* Fsm;
 	FSMBarrier* Barrier;
+	CasaState* SavedState;
 
 	void InitFsm();
 
+	void OnInitGame();
+
 	void OnAwaitPlayerInput();
+
+	void OnPrePlayerTurn();
+
 	void OnEnemyTurn();
 	void OnPlayerDeath();
 
-	void StartEnemyTurn();
+	void OnStartEnemyTurn();
 
 	void BlockPlayerInput();
 	void ReleasePlayerInput();
 
 	static UGameManager* Instance;
-
-	void InitGame();
 
 public:	
 	// Called every frame

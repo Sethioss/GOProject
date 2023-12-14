@@ -22,7 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 
-	virtual void NeutralTurn() override;
+	virtual void OnTurn() override;
 
 	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;

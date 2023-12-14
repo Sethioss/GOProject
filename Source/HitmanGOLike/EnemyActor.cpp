@@ -54,64 +54,221 @@ void AEnemyActor::BeginPlay()
 
 void AEnemyActor::Init()
 {
+	AllowedToMove = false;
 	InitFsm();
 	UGameManager::GetInstance()->RegisterToBarrier(this);
-}
-
-void AEnemyActor::RegisterToManager()
-{
-	UGameManager::GetInstance()->Enemies.Add(this);
-	RegisteredToManager = true;
-	Fsm->GoToNextState();
-
-	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
 
 void AEnemyActor::InitFsm() {
 
 	Fsm = new CasaFSM();
 	CasaState* InitEnemyState = new CasaState();
-	InitEnemyState->Name = "InitEnemy";
+	InitEnemyState->Name = "OnEnemyInit";
 
-	InitEnemyState->SetUpdateDelegate(this, &AEnemyActor::RegisterToManager);
+	InitEnemyState->SetUpdateDelegate(this, &AEnemyActor::OnRegisterToManager);
 
 	Fsm->States.Add(InitEnemyState);
-	Fsm->ChangeState("InitEnemy", false);
+	Fsm->ChangeState("OnEnemyInit", false);
 
 	CasaState* EnemyNeutralState = new CasaState();
 	EnemyNeutralState->Name = "Neutral";
-	EnemyNeutralState->SetUpdateDelegate(this, &AEnemyActor::NeutralTurn);
-	EnemyNeutralState->SetEndDelegate(this, &AEnemyActor::EndMove);
+	EnemyNeutralState->SetUpdateDelegate(this, &AEnemyActor::OnTurn);
+	EnemyNeutralState->SetEndDelegate(this, &AEnemyActor::OnEndTurn);
 
 	Fsm->States.Add(EnemyNeutralState);
 
-	Fsm->SetNextState("Neutral");
-
 	CasaState* AwaitState = new CasaState();
 	AwaitState->Name = "Await";
-	AwaitState->SetUpdateDelegate(this, &AEnemyActor::WaitUntilNextTurn);
+	AwaitState->SetUpdateDelegate(this, &AEnemyActor::OnAwait);
 
 	Fsm->States.Add(AwaitState);
 }
 
-void AEnemyActor::WaitUntilNextTurn()
+void AEnemyActor::OnAwait()
 {
-	Fsm->SetNextState("Neutral");
-
-	if (AllowedToMove) { Fsm->GoToNextState(); }
+	if (AllowedToMove) { Fsm->ChangeState("Neutral"); }
 }
 
-void AEnemyActor::EndMove()
+void AEnemyActor::OnEndTurn()
 {
 	AllowedToMove = false;
 }
 
-void AEnemyActor::NeutralTurn() {}
+void AEnemyActor::OnTurn() {}
 
 APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS); }
 void AEnemyActor::MoveToDestination() {}
 
-void AEnemyActor::Attack() {}
+void AEnemyActor::OnAttack() {}
+
+APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath)
+{
+	APathActor* Dest = Cast<APathActor>(DestinationPath);
+
+	TArray<APathActor*> CustomTemp;
+
+	if (Dest != nullptr)
+	{
+		if (Dest == GetCurrentNode())
+		{
+			TArray<APathActor*> Path;
+			Path.Add(GetCurrentNode());
+
+			BestPath = Path;
+			return Path[0];
+		}
+
+		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
+		{
+			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction) == Dest)
+			{
+				TArray<APathActor*> Path;
+				Path.Add(GetCurrentNode());
+				Path.Add(GetCurrentNode()->ConnectorInfo[i].DestinationNode);
+
+				BestPath = Path;
+				return Path[1];
+			}
+		}
+
+		TArray<TArray<APathActor*>> AllLists;
+		TArray<APathActor*> Blacklisted;
+		TArray<APathActor*> CurList;
+		Blacklisted.Add(GetCurrentNode());
+		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
+		{
+			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction), Dest, Blacklisted);
+			CurList.Insert(GetCurrentNode(), 0);
+
+			if (CurList[CurList.Num() - 1] == Dest)
+			{
+				AllLists.Add(CurList);
+			}
+
+		}
+
+
+		if (AllLists.Num() > 0)
+		{
+			CustomTemp = AllLists[0];
+		}
+		if (AllLists.Num() > 1)
+		{
+			for (int i = 0; i < AllLists.Num(); ++i)
+			{
+				if (CustomTemp.Num() > AllLists[i].Num())
+				{
+					CustomTemp = AllLists[i];
+				}
+				else if (CustomTemp.Num() == AllLists[i].Num())
+				{
+					CustomTemp = CustomTemp[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) ? AllLists[i] : CustomTemp;
+				}
+			}
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	BestPath = CustomTemp;
+	return CustomTemp[1];
+}
+
+TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes)
+{
+	APathActor* Current = nullptr;
+
+	TArray<APathActor*> OpenList;
+	TArray<APathActor*> ClosedList;
+	TArray<APathActor*> ListToSend;
+
+	for (int i = 0; i < BlacklistedNodes.Num(); ++i)
+	{
+		ClosedList.Add(BlacklistedNodes[i]);
+	}
+
+
+	OpenList.Add(Start);
+
+	while (!OpenList.IsEmpty())
+	{
+		APathActor* CurIT = OpenList[0];
+		Current = CurIT;
+
+		for (int i = 0; i < OpenList.Num(); ++i)
+		{
+			APathActor* SelectedNode = OpenList[i];
+
+			if (SelectedNode->FScore <= Current->FScore)
+			{
+				if (!BlacklistedNodes.Contains(Current))
+				{
+					Current = SelectedNode;
+					CurIT = OpenList[i];
+				}
+			}
+		}
+
+		if (Current == End)
+		{
+			break;
+		}
+
+		ClosedList.Add(Current);
+		OpenList.Remove(CurIT);
+
+		for (int i = 0; i < Current->ConnectorInfo.Num(); ++i)
+		{
+			//If node has already been visited, don't add to openlist
+			if (ClosedList.Contains(Current->ConnectorInfo[i].DestinationNode))
+			{
+				continue;
+			}
+
+			APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
+			Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+			Successor->PathfindingParent = Current;
+
+			OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+
+		}
+	}
+
+	//Make path list
+	while (Current != nullptr)
+	{
+		ListToSend.Add(Current);
+		Current = Current->PathfindingParent;
+	}
+
+	for (int i = 0; i < OpenList.Num(); ++i)
+	{
+		OpenList[i]->FScore = 1;
+		OpenList[i]->PathfindingParent = nullptr;
+	}
+
+	for (int i = 0; i < ClosedList.Num(); ++i)
+	{
+		ClosedList[i]->FScore = 1;
+		ClosedList[i]->PathfindingParent = nullptr;
+	}
+
+	Algo::Reverse(ListToSend);
+
+	UGameManager::GetInstance()->ResetAllPathWeights();
+	return ListToSend;
+}
+
+float AEnemyActor::ManhattanDistance(FVector A, FVector B)
+{
+	float X = A.X - B.X;
+	float Y = A.Y - B.Y;
+
+	float h = FMath::Abs(X) + FMath::Abs(Y);
+	return h;
+}
 
 APathActor* AEnemyActor::GetCurrentNode()
 {
@@ -247,3 +404,12 @@ void AEnemyActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AEnemyActor::OnRegisterToManager()
+{
+	UGameManager::GetInstance()->Enemies.Add(this);
+	RegisteredToManager = true;
+	AllowedToMove = false;
+	Fsm->ChangeState("Await");
+
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
+}

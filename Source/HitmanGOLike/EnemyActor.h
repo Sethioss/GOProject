@@ -41,13 +41,8 @@ protected:
 	virtual void BeginPlay();
 	virtual void InitFsm();
 
-	virtual void NeutralTurn();
-
 	virtual APathActor* GetDestination();
 	virtual void MoveToDestination();
-
-	virtual void Attack();
-	virtual void WaitUntilNextTurn();
 
 
 	virtual APathActor* GetCurrentNode();
@@ -56,10 +51,21 @@ protected:
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
 
+	virtual APathActor* GetDestinationByPathfinding(APathActor* Target);
+	virtual TArray<APathActor*> AStarAlgorithm(APathActor* Target, APathActor* End, TArray<APathActor*>BlacklistedNodes);
+
 	bool TurnFinished = false;
 
-	void RegisterToManager();
-	void EndMove();
+	void OnRegisterToManager();
+	virtual void OnAwait();
+
+	virtual void OnTurn();
+	virtual void OnAttack();
+	void OnEndTurn();
+
+	float ManhattanDistance(FVector A, FVector B);
+	UPROPERTY(VisibleAnywhere)
+	TArray<APathActor*> BestPath;
 
 public:
 	// Called every frame

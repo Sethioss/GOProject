@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "SecurityGuardEnemy.h"
 #include "GameManager.h"
+#include "MoverComponent.h"
 #include "CasaPlayer.generated.h"
 
 UCLASS()
@@ -28,6 +29,8 @@ protected:
 	class USpringArmComponent* SpringArmComponent = nullptr;
 
 	FVector2D TargetedPosition;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMoverComponent* MoverComponent = nullptr;
 
 
 public:
@@ -55,6 +58,8 @@ public:
 	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
 	UFUNCTION()
 	void MoveTo(FVector2D TargetPosition);
+
+	bool Finished = false;
 
 	// Input variables
 	UPROPERTY()

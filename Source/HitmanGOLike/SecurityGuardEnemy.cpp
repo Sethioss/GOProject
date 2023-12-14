@@ -21,7 +21,7 @@ void ASecurityGuardEnemy::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASecurityGuardEnemy::NeutralTurn()
+void ASecurityGuardEnemy::OnTurn()
 {
 	Destination = GetDestination();
 	if (Destination != nullptr)

@@ -22,6 +22,7 @@ public:
 	void ChangeState(FString StateName, bool PlayTransition = true);
 	void SetNextState(FString Dest);
 	void GoToNextState();
+	void DebugCurrentState();
 
 protected:
 	void ChangeStateTo(CasaState* Dest, bool PlayTransition = true);

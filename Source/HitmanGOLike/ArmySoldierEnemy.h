@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "EnemyActor.h"
-#include "PathActor.h"
 #include "ArmySoldierEnemy.generated.h"
 
 /**
@@ -21,20 +20,14 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;
 	virtual void InitFsm() override;
-	virtual void NeutralTurn() override;
-
-	TArray<APathActor*> AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes);
-	bool IsDeadEnd(APathActor* Node);
-
-
 	
-	UPROPERTY(VisibleAnywhere)
-	TArray<APathActor*> CurrentPath;
+	virtual void OnTurn() override;
 
-	float ManhattanDistance(FVector A, FVector B);
+	bool IsDeadEnd(class APathActor* Node);
+
 	UPROPERTY(VisibleAnywhere)
-	TArray<APathActor*> BestPath;
+	TArray<class APathActor*> CurrentPath;
+
 };
