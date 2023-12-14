@@ -70,36 +70,51 @@ void AEnemyActor::InitFsm() {
 	Fsm->States.Add(InitEnemyState);
 	Fsm->ChangeState("OnEnemyInit", false);
 
-	CasaState* EnemyNeutralState = new CasaState();
-	EnemyNeutralState->Name = "Neutral";
-	EnemyNeutralState->SetUpdateDelegate(this, &AEnemyActor::OnTurn);
-	EnemyNeutralState->SetEndDelegate(this, &AEnemyActor::OnEndTurn);
+	CasaState* OnPreTurnState = new CasaState();
+	OnPreTurnState->Name = "OnPreTurn";
+	OnPreTurnState->SetUpdateDelegate(this, &AEnemyActor::OnPreTurn);
 
-	Fsm->States.Add(EnemyNeutralState);
+	Fsm->States.Add(OnPreTurnState);
 
-	CasaState* AwaitState = new CasaState();
-	AwaitState->Name = "Await";
-	AwaitState->SetUpdateDelegate(this, &AEnemyActor::OnAwait);
+	CasaState* OnTurnState = new CasaState();
+	OnTurnState->Name = "OnTurn";
+	OnTurnState->SetUpdateDelegate(this, &AEnemyActor::OnTurn);
 
-	Fsm->States.Add(AwaitState);
+	Fsm->States.Add(OnTurnState);
+
+	CasaState* OnPostTurnState = new CasaState();
+	OnPostTurnState->Name = "OnPostTurn";
+	OnPostTurnState->SetUpdateDelegate(this, &AEnemyActor::OnPostTurn);
+
+	Fsm->States.Add(OnPostTurnState);
+
+	CasaState* OnAwaitState = new CasaState();
+	OnAwaitState->Name = "OnAwait";
+	OnAwaitState->SetUpdateDelegate(this, &AEnemyActor::OnAwait);
+
+	Fsm->States.Add(OnAwaitState);
+
+	CasaState* OnPreAttackState = new CasaState();
+	OnPreAttackState->Name = "OnPreAttack";
+	OnPreAttackState->SetUpdateDelegate(this, &AEnemyActor::OnPreAttack);
+
+	Fsm->States.Add(OnPreAttackState);
+
+	CasaState* OnAttackState = new CasaState();
+	OnAttackState->Name = "OnAttack";
+	OnAttackState->SetUpdateDelegate(this, &AEnemyActor::OnAttack);
+
+	Fsm->States.Add(OnAttackState);
+
+	CasaState* OnPostAttackState = new CasaState();
+	OnPostAttackState->Name = "OnPostAttack";
+	OnPostAttackState->SetUpdateDelegate(this, &AEnemyActor::OnPostAttack);
+
+	Fsm->States.Add(OnPostAttackState);
 }
-
-void AEnemyActor::OnAwait()
-{
-	if (AllowedToMove) { Fsm->ChangeState("Neutral"); }
-}
-
-void AEnemyActor::OnEndTurn()
-{
-	AllowedToMove = false;
-}
-
-void AEnemyActor::OnTurn() {}
 
 APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS); }
 void AEnemyActor::MoveToDestination() {}
-
-void AEnemyActor::OnAttack() {}
 
 APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath)
 {
@@ -409,7 +424,23 @@ void AEnemyActor::OnRegisterToManager()
 	UGameManager::GetInstance()->Enemies.Add(this);
 	RegisteredToManager = true;
 	AllowedToMove = false;
-	Fsm->ChangeState("Await");
+	Fsm->ChangeState("OnAwait");
 
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
 }
+
+void AEnemyActor::OnAwait()
+{
+	if (AllowedToMove) { Fsm->ChangeState("OnTurn"); }
+}
+
+void AEnemyActor::OnPreTurn() {}
+void AEnemyActor::OnTurn() {}
+void AEnemyActor::OnPostTurn()
+{
+	AllowedToMove = false;
+}
+
+void AEnemyActor::OnPreAttack(){}
+void AEnemyActor::OnAttack(){}
+void AEnemyActor::OnPostAttack(){}

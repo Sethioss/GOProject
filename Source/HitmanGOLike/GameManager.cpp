@@ -64,10 +64,10 @@ void UGameManager::InitFsm()
 {
 	Instance->Fsm = new CasaFSM();
 	CasaState* InitGame = new CasaState();
-	InitGame->Name = "InitiatingGame";
+	InitGame->Name = "OnInitiatingGame";
 	InitGame->SetUpdateDelegate(this, &UGameManager::OnInitGame);
 	Instance->Fsm->States.Add(InitGame);
-	Instance->Fsm->ChangeState("InitiatingGame", false);
+	Instance->Fsm->ChangeState("OnInitiatingGame", false);
 
 	CasaState* AwaitingPlayerInput = new CasaState();
 	AwaitingPlayerInput->Name = "OnAwaitingPlayerInput";
@@ -77,10 +77,29 @@ void UGameManager::InitFsm()
 	Instance->Fsm->States.Add(AwaitingPlayerInput);
 
 	CasaState* PrePlayerTurnState = new CasaState();
-	PrePlayerTurnState->Name = "PrePlayerTurn";
+	PrePlayerTurnState->Name = "OnPrePlayerTurn";
 	PrePlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPrePlayerTurn);
 	Instance->Fsm->States.Add(PrePlayerTurnState);
 
+	CasaState* PlayerRotationState = new CasaState();
+	PlayerRotationState->Name = "OnPlayerRotation";
+	PlayerRotationState->SetUpdateDelegate(this, &UGameManager::OnPlayerRotation);
+	Instance->Fsm->States.Add(PlayerRotationState);
+
+	CasaState* PlayerTranslationState = new CasaState();
+	PlayerTranslationState->Name = "OnPlayerTranslation";
+	PlayerTranslationState->SetUpdateDelegate(this, &UGameManager::OnPlayerTranslation);
+	Instance->Fsm->States.Add(PlayerTranslationState);
+
+	CasaState* PostPlayerTurnState = new CasaState();
+	PostPlayerTurnState->Name = "OnPostPlayerTurn";
+	PostPlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPostPlayerTurn);
+	Instance->Fsm->States.Add(PostPlayerTurnState);
+
+	CasaState* PlayerMoveToDeath = new CasaState();
+	PlayerMoveToDeath->Name = "OnPlayerMoveToDeath";
+	PlayerMoveToDeath->SetUpdateDelegate(this, &UGameManager::OnPlayerMoveToDeath);
+	Instance->Fsm->States.Add(PlayerMoveToDeath);
 
 	CasaState* OnEnemyTurn = new CasaState();
 	OnEnemyTurn->Name = "OnEnemyTurn";
@@ -88,12 +107,51 @@ void UGameManager::InitFsm()
 	OnEnemyTurn->SetUpdateDelegate(this, &UGameManager::OnEnemyTurn);
 	Instance->Fsm->States.Add(OnEnemyTurn);
 
+	CasaState* EnemyAttack = new CasaState();
+	EnemyAttack->Name = "OnEnemyAttack";
+	EnemyAttack->SetUpdateDelegate(this, &UGameManager::OnEnemyAttack);
+	Instance->Fsm->States.Add(EnemyAttack);
 
 	CasaState* DeathState = new CasaState();
 	DeathState->Name = "OnDeath";
 	DeathState->SetStartDelegate(this, &UGameManager::BlockPlayerInput);
 	DeathState->SetUpdateDelegate(this, &UGameManager::OnPlayerDeath);
 	Instance->Fsm->States.Add(DeathState);
+
+	CasaState* GameFailedState = new CasaState();
+	GameFailedState->Name = "OnGameFailed";
+	GameFailedState->SetUpdateDelegate(this, &UGameManager::OnGameFailed);
+	Instance->Fsm->States.Add(GameFailedState);
+
+	CasaState* GameSucceeded = new CasaState();
+	GameSucceeded->Name = "OnGameSucceeded";
+	GameSucceeded->SetUpdateDelegate(this, &UGameManager::OnGameSucceeded);
+	Instance->Fsm->States.Add(GameSucceeded);
+
+	CasaState* GameReward = new CasaState();
+	GameReward->Name = "OnGameReward";
+	GameReward->SetUpdateDelegate(this, &UGameManager::OnGameReward);
+	Instance->Fsm->States.Add(GameReward);
+
+	CasaState* GameRestart = new CasaState();
+	GameRestart->Name = "OnGameRestart";
+	GameRestart->SetUpdateDelegate(this, &UGameManager::OnGameRestart);
+	Instance->Fsm->States.Add(GameRestart);
+
+	CasaState* GameQuit = new CasaState();
+	GameQuit->Name = "OnGameQuit";
+	GameQuit->SetUpdateDelegate(this, &UGameManager::OnGameQuit);
+	Instance->Fsm->States.Add(GameQuit);
+
+	CasaState* GameNextLevel = new CasaState();
+	GameNextLevel->Name = "OnGameNextLevel";
+	GameNextLevel->SetUpdateDelegate(this, &UGameManager::OnGameNextLevel);
+	Instance->Fsm->States.Add(GameNextLevel);
+
+	CasaState* GamePause = new CasaState();
+	GamePause->Name = "OnGamePause";
+	GamePause->SetUpdateDelegate(this, &UGameManager::OnGamePause);
+	Instance->Fsm->States.Add(GamePause);
 }
 
 
@@ -168,6 +226,14 @@ void UGameManager::OnPrePlayerTurn()
 
 }
 
+void UGameManager::OnPlayerRotation() {}
+void UGameManager::OnPlayerTranslation() {}
+void UGameManager::OnPlayerMoveToDeath() {}
+
+void UGameManager::OnPostPlayerTurn() {}
+
+void UGameManager::OnEnemyAttack(){}
+
 void UGameManager::BlockPlayerInput()
 {
 	Instance->Player->TurnFinished = true;
@@ -204,3 +270,12 @@ void UGameManager::OnPlayerDeath()
 {
 	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
 }
+
+void UGameManager::OnGameSucceeded(){}
+void UGameManager::OnGameFailed(){}
+void UGameManager::OnGameRestart(){}
+void UGameManager::OnGameReward(){}
+void UGameManager::OnGameQuit(){}
+void UGameManager::OnGameNextLevel(){}
+
+void UGameManager::OnGamePause() {}

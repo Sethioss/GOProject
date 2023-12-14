@@ -42,8 +42,23 @@ protected:
 
 	void OnEnemyTurn();
 	void OnPlayerDeath();
+	void OnPlayerMoveToDeath();
+
+	void OnPlayerRotation();
+	void OnPlayerTranslation();
+	void OnPostPlayerTurn();
 
 	void OnStartEnemyTurn();
+	void OnEnemyAttack();
+
+	void OnGameFailed();
+	void OnGameSucceeded();
+	void OnGameRestart();
+	void OnGameReward();
+	void OnGameQuit();
+	void OnGameNextLevel();
+
+	void OnGamePause();
 
 	void BlockPlayerInput();
 	void ReleasePlayerInput();

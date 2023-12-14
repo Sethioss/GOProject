@@ -59,9 +59,14 @@ protected:
 	void OnRegisterToManager();
 	virtual void OnAwait();
 
+	virtual void OnPreTurn();
 	virtual void OnTurn();
+	virtual void OnPostTurn();
+
+	virtual void OnPreAttack();
 	virtual void OnAttack();
-	void OnEndTurn();
+	virtual void OnPostAttack();
+
 
 	float ManhattanDistance(FVector A, FVector B);
 	UPROPERTY(VisibleAnywhere)
