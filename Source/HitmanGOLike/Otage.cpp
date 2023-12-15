@@ -1,12 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Otage.h"
 #include "EnemyActor.h"
+#include "Otage.h"
 
 void AOtage::BeginPlay() 
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("%s"), FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10));
 	FVector PlacingBoxMin = GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10);
 	FVector PlacingBoxMax = GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100);
 	PlacingArea = FBox(PlacingBoxMin, PlacingBoxMax);
@@ -34,97 +33,97 @@ void AOtage::SetOtageLocation(APathActor* Target)
 }
 
 //Cherche les Ennemis a range de cri, et les alertes en leur donnant sa position.
-//void AOtage::ItemEffect() {
-//	
-//
-//	std::vector<AEnemyActor*> EnemiesArray;
-//	FHitResult HitResult;
-//
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0,25), GetActorLocation()+FVector(50,0,25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(50, 50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(0, 50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 0, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, -50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(0, -50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 50, 25),
-//		ECollisionChannel::ECC_GameTraceChannel1);
-//	if (HitResult.bBlockingHit)
-//	{
-//		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
-//		if (Enemy)
-//		{
-//			EnemiesArray.push_back(Enemy);
-//		}
-//	}
-//
-//	//Après avoir recupérer tous les ennemies à range de cri, les alertes
-//	for (AEnemyActor temp : EnemiesArray)
-//	{
-//		temp.Alert(GetActorLocation());
-//	}
-//
-//}
+void AOtage::ItemEffect() {
+	
+
+	std::vector<AEnemyActor*> EnemiesArray;
+	FHitResult HitResult;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0,25), GetActorLocation()+FVector(50,0,25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(50, 50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(0, 50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 0, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, -50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(0, -50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 25), GetActorLocation() + FVector(-50, 50, 25),
+		ECollisionChannel::ECC_GameTraceChannel1);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.push_back(Enemy);
+		}
+	}
+
+	//Après avoir recupérer tous les ennemies à range de cri, les alertes
+	for (AEnemyActor temp : EnemiesArray)
+	{
+		temp.Alert(GetActorLocation());
+	}
+
+}

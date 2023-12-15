@@ -8,8 +8,8 @@
 
 /**
  * Classe Otage.
- * Il peut ï¿½tre "lancï¿½" ï¿½ 2 cases de distance.
- * Son cri alerte les ennemies ï¿½ 1 case de distance.
+ * Il peut être "lancé" à 2 cases de distance.
+ * Son cri alerte les ennemies à 1 case de distance.
  */
 
 UCLASS()
@@ -23,10 +23,10 @@ public:
 	FBox PlacingArea;
 	//L'Otage est placable ou non
 	bool Placable=true;
-	//Dï¿½finit les valeur par dï¿½faut fonction de l'emplacement de l'otage.
-	virtual void BeginPlay() override;
+	//Définit les valeur par défaut fonction de l'emplacement de l'otage.
+	void BeginPlay();
 	//Call the special effect of the item
-	//virtual void ItemEffect() override;
+	virtual void ItemEffect() override;
 	virtual void Tick(float DeltaTime) override;
 
 };

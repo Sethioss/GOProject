@@ -5,17 +5,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
-#include "PathActor.h"
 #include "Foreuse.h"
 #include "Otage.h"
+#include "PathActor.h"
 #include "Wall.h"
 
-// Dï¿½finissez une fonction pour gï¿½rer le clic de souris
+// Définissez une fonction pour gérer le clic de souris
 FVector	WorldPosition, WorldDirection;
 
 void ACasaPlayerController::OnMouseClick()
 {
-	// Rï¿½cupï¿½ration des coordonnï¿½es ï¿½cran de la souris
+	// Récupération des coordonnées écran de la souris
 	FVector2D MousePosition;
 	GetMousePosition(MousePosition.X, MousePosition.Y);
 	float MouseX = MousePosition.X;
@@ -31,7 +31,7 @@ void ACasaPlayerController::OnMouseClick()
 
 		if (MyController) 
 		{
-			//LineCast avec conversion des coordonnï¿½es ï¿½cran en coordonnï¿½es world 
+			//LineCast avec conversion des coordonnées écran en coordonnées world 
 			UGameplayStatics::DeprojectScreenToWorld(MyController, MousePos, WorldPosition, WorldDirection);
 			GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 10000,
 				ECollisionChannel::ECC_GameTraceChannel1);
@@ -68,7 +68,7 @@ void ACasaPlayerController::OnMouseClick()
 							//C'est une Foreuse
 							if (Path->GetActorLocation().X != PlayerFinal->GetActorLocation().X || Path->GetActorLocation().Y != PlayerFinal->GetActorLocation().Y)
 							{
-								//Path n'est pas le Node oï¿½ le joueur se trouve
+								//Path n'est pas le Node où le joueur se trouve
 								APathActor* NewNodeForPlayer = Path->IsForeuseOnNeighbourinNode();
 
 								if (NewNodeForPlayer) 
@@ -79,13 +79,13 @@ void ACasaPlayerController::OnMouseClick()
 								}
 								else 
 								{
-									//La Foreuse n'est pas voisine de Path (Deplacement vers l'arriï¿½re ou dï¿½placement non valide ?)
+									//La Foreuse n'est pas voisine de Path (Deplacement vers l'arrière ou déplacement non valide ?)
 									if ((Path->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Path->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
 									{
-										//Le Joueur, La Foreuse et Path sont bien alignï¿½s
+										//Le Joueur, La Foreuse et Path sont bien alignés
 										if (Path->IsPlayerOnNeighbouringNode())
 										{
-											//Le Joueur est voisin de Path (Il s'agit d'un dï¿½placement valide)
+											//Le Joueur est voisin de Path (Il s'agit d'un déplacement valide)
 											FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
 											Foreuse->SetForeuseLocation(nullptr, PlayerFinal->GetActorLocation());
 											PlayerFinal->MoveTo(ActorLocation);
@@ -102,7 +102,7 @@ void ACasaPlayerController::OnMouseClick()
 								//L'item est un Otage
 								if (Otage->Placable)
 								{
-									//L'Otage n'a pas encore ï¿½tï¿½ utilisï¿½
+									//L'Otage n'a pas encore été utilisé
 									if (Otage->PlacingArea.IsInsideXY(Path->GetActorLocation()))
 									{
 										//Path est dans la PlacingArea de l'Otage 
@@ -111,7 +111,7 @@ void ACasaPlayerController::OnMouseClick()
 										PlayerFinal->SetActorLocation(Otage->GetActorLocation());
 										Otage->SetOtageLocation(Path);
 										PlayerFinal->HeldItem = nullptr;
-										//Otage->ItemEffect();
+										Otage->ItemEffect();
 									}
 								}
 							}
@@ -122,12 +122,9 @@ void ACasaPlayerController::OnMouseClick()
 			AItem* Item = Cast<AItem>(HitResult.GetActor());
 			if (Item) 
 			{
-				if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
-				{
-					//L'Objet est un Item on l'ï¿½quipe au Joueur
-					PlayerFinal->HeldItem = Item;
-					Item->SetIsHeld();
-				}
+				//L'Objet est un Item on l'équipe au Joueur
+				PlayerFinal->HeldItem = Item;
+				Item->SetIsHeld();
 			}
 			AWall* Wall = Cast<AWall>(HitResult.GetActor());
 			if (Wall)
@@ -142,11 +139,11 @@ void ACasaPlayerController::OnMouseClick()
 						//C'est une Foreuse et elle est utilisable
 						if ((Wall->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Wall->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
 						{
-							//La Foreuse, Le Wall et le Joueur sont bien alignï¿½s
+							//La Foreuse, Le Wall et le Joueur sont bien alignés
 							APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbourinNode();
 							if (NewNodeForPlayer) 
 							{
-								//La Foreuse est bien ï¿½ cï¿½tï¿½ du Wall
+								//La Foreuse est bien à côté du Wall
 								Foreuse->ItemEffect(Wall);
 								PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
 								Foreuse->SetForeuseLocation(Wall->CurrentNode, FVector(NULL, NULL, NULL));
@@ -161,23 +158,21 @@ void ACasaPlayerController::OnMouseClick()
 
 }
 
-// Associez cette fonction ï¿½ un ï¿½vï¿½nement de clic de souris
+
 ACasaPlayerController::ACasaPlayerController()
 {
-	// Associez la fonction OnMouseClick() ï¿½ l'ï¿½vï¿½nement de clic de souris
-	bShowMouseCursor = true; // Assurez-vous que le curseur de la souris est visible
-	DefaultMouseCursor = EMouseCursor::Crosshairs; // Dï¿½finissez le curseur par dï¿½faut
+	bShowMouseCursor = true;
+	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
 void ACasaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
-	// Associez le clic gauche de la souris ï¿½ la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
+	InputComponent->BindAction("PressF", IE_Pressed, this, &ACasaPlayerController::OnPressF);
 }
 
-//DÃ©sequipe l'objet du Joueur
+//Désequipe l'objet du Joueur
 void ACasaPlayerController::OnPressF()
 {
 	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
@@ -185,7 +180,7 @@ void ACasaPlayerController::OnPressF()
 
 	if (HeldItem)
 	{
-		// Le Joueur possÃ¨de un Objet
+		// Le Joueur possède un Objet
 		HeldItem->SetIsHeld();
 		PlayerFinal->HeldItem = nullptr;
 	}
