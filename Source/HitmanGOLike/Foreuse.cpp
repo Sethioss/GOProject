@@ -17,7 +17,6 @@ void AForeuse::ItemEffect(AWall* Wall)
 {
 	Wall->Break();
 	Usable = false;
-	SetIsHeld();
 	StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
 }
 

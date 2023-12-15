@@ -22,7 +22,7 @@ void UGameManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!Instance)
+	//if (Instance)
 	{
 		Instance = this;
 		// Ensure the instance is not garbage collected
@@ -50,6 +50,11 @@ void UGameManager::BeginPlay()
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
 	}
+}
+
+void UGameManager::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	Instance->RemoveFromRoot();
 }
 
 void UGameManager::ResetAllPathWeights()
