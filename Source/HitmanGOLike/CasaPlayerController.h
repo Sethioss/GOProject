@@ -26,6 +26,8 @@ public:
 	UFUNCTION()
 	void OnPressF();
 
+	void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+
 	UPROPERTY(EditDefaultsOnly, Category=Player)
 	TSubclassOf<ACasaPlayer> CasaPlayer;
 

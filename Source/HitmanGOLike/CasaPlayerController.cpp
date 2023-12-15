@@ -150,6 +150,7 @@ void ACasaPlayerController::OnMouseClick()
 								Foreuse->ItemEffect(Wall);
 								PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
 								Foreuse->SetForeuseLocation(Wall->CurrentNode, FVector(NULL, NULL, NULL));
+								Foreuse->SetIsHeld();
 								PlayerFinal->HeldItem = nullptr;
 							}
 						}
@@ -175,6 +176,11 @@ void ACasaPlayerController::SetupInputComponent()
 
 	// Associez le clic gauche de la souris � la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
+}
+
+void ACasaPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+	InputComponent->ClearActionBindings();
 }
 
 //Désequipe l'objet du Joueur
