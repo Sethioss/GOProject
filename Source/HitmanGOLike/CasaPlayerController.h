@@ -23,6 +23,9 @@ public:
 	UFUNCTION()
 	void SetupInputComponent();
 
+	UFUNCTION()
+	void OnPressF();
+
 	UPROPERTY(EditDefaultsOnly, Category=Player)
 	TSubclassOf<ACasaPlayer> CasaPlayer;
 

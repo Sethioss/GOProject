@@ -55,6 +55,8 @@ ACasaPlayer::ACasaPlayer()
 	SpringArmComponent->bEnableCameraLag = true;
 	SpringArmComponent->CameraLagSpeed = 3.0f;
 
+	HeldItem = nullptr;
+
 }
 
 // Called when the game starts or when spawned

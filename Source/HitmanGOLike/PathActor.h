@@ -39,6 +39,8 @@ public:
 	class APathActor* DestinationNode;
 };
 
+class ACasaPlayer;
+
 UCLASS()
 class HITMANGOLIKE_API APathActor : public AActor
 {
@@ -48,6 +50,12 @@ public:
 	// Sets default values for this actor's properties
 	APathActor();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* PlaneMesh = nullptr;
+	
+	UPROPERTY()
+	class ACasaPlayer* PlayerPawn;
+	
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
 #if WITH_EDITOR
@@ -67,11 +75,12 @@ protected:
 	bool StartingNode = false;
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool EndingNode = false;
-	UPROPERTY()
-	class ACasaPlayer* PlayerPawn;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* PlaneMesh = nullptr;
+	UPROPERTY(EditAnywhere, Category = NodePathParameters)
+    bool IsNode = false;
+
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+    TArray<APathActor*> NeighbouringNodes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
 	bool Up = true;
@@ -95,19 +104,24 @@ protected:
 	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	bool CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction);
 	double ManhattanDistance(FVector StartPos, FVector EndPos);
-
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	bool IsPlayerOnNeighbouringNode();
 	void TransferPlayerOwnership(APathActor& OriginTile);
+	
+	APathActor* IsForeuseOnNeighbourinNode();
 
 	inline UStaticMeshComponent* GetPlaneMesh() { return PlaneMesh; }
 
 
 	UFUNCTION(BlueprintCallable)
 	inline bool GetIsNode(){ return IsWalkableNode; }
+
+    UFUNCTION(BlueprintCallable)
+    inline TArray<APathActor*> GetNeighbouringNodes() { return NeighbouringNodes; }
 
 	float FScore = 1;
 

@@ -81,6 +81,24 @@ bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
 	return false;
 }
 
+//Indique si la Foreuse est sur un Node voisin du Node actuel
+APathActor* APathActor::IsForeuseOnNeighbourinNode()
+{
+	for (APathActor* Node : NeighbouringNodes) 
+	{
+		if (Node->IsPlayerOnNeighbouringNode()) 
+		{
+			FVector TargetPos = GetActorLocation();
+			FVector ForeusePos = Node->GetActorLocation();
+			if((TargetPos.X == ForeusePos.X && ForeusePos.X == Node->PlayerPawn->GetActorLocation().X)|| (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == Node->PlayerPawn->GetActorLocation().Y))
+			{ 
+				return Node;
+			}
+		}
+	}
+	return nullptr;
+}
+
 #if WITH_EDITOR
 void APathActor::PostEditMove(bool bFinished)
 {

@@ -7,8 +7,6 @@
 #include "PathActor.h"
 #include "Containers/Array.h"
 
-UE_DISABLE_OPTIMIZATION
-
 AArmySoldierEnemy::AArmySoldierEnemy()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.

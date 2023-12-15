@@ -6,60 +6,150 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "PathActor.h"
+#include "Foreuse.h"
+#include "Otage.h"
+#include "Wall.h"
 
-// Définissez une fonction pour gérer le clic de souris
+// Dï¿½finissez une fonction pour gï¿½rer le clic de souris
 FVector	WorldPosition, WorldDirection;
 
 void ACasaPlayerController::OnMouseClick()
 {
+	// Rï¿½cupï¿½ration des coordonnï¿½es ï¿½cran de la souris
+	FVector2D MousePosition;
+	GetMousePosition(MousePosition.X, MousePosition.Y);
+	float MouseX = MousePosition.X;
+	float MouseY = MousePosition.Y;
+	FHitResult HitResult;
+	FVector2D MousePos(MouseX, MouseY);
 	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
+
 	if (PlayerFinal)
 	{
-		// Récupérez la position de la souris
-		FVector2D MousePosition;
-		GetMousePosition(MousePosition.X, MousePosition.Y);
-
-		// Maintenant, vous avez les coordonnées X et Y de la souris dans MousePosition
-		float MouseX = MousePosition.X;
-		float MouseY = MousePosition.Y;
-
-		FHitResult HitResult;
-
-		FVector2D MousePos(MouseX, MouseY);
-
-		// Faites quelque chose avec les coordonnées (par exemple, tracez-les dans la console)
-		//UE_LOG(LogTemp, Warning, TEXT("Coordonnées de la souris - X: %f, Y: %f"), MouseX, MouseY);
 
 		ACasaPlayerController* MyController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (MyController) {
+		if (MyController) 
+		{
+			//LineCast avec conversion des coordonnï¿½es ï¿½cran en coordonnï¿½es world 
 			UGameplayStatics::DeprojectScreenToWorld(MyController, MousePos, WorldPosition, WorldDirection);
 			GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 10000,
 				ECollisionChannel::ECC_GameTraceChannel1);
 		}
 
-		//DrawDebugLine(GetWorld(), WorldPosition, WorldPosition + WorldDirection * 10000, FColor::Red, true, 50.f);
-		//DrawDebugLine(GetWorld(), WorldPosition, HitResult.ImpactPoint, FColor::Green, true, 50.f);
-		//DrawDebugSphere(GetWorld(), WorldPosition, 25.f, 16, FColor::Red, true, 50.f);
-
+		//Si le LineCast touche un objet
 		if (HitResult.bBlockingHit)
 		{
-
+			
 			APathActor* Path = Cast<APathActor>(HitResult.GetActor());
 
 			if (Path)
 			{
+				//L'objet est un chemin
 				if (Path->GetIsNode())
 				{
-					//UE_LOG(LogTemp, Warning, TEXT("It's a path with a node"));
-
-					if (Path->IsPlayerOnNeighbouringNode())
+					//Le chemin est un Node
+					if(PlayerFinal->HeldItem == nullptr)
 					{
-						FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
-						//MousePosition.X = HitResult.GetActor()->GetActorLocation().X;
-						//MousePosition.Y = HitResult.GetActor()->GetActorLocation().Y;
+						//Le Joueur ne tient pas d'objet
+						if (Path->IsPlayerOnNeighbouringNode())
+						{
+							//Le Joueur est sur un Node voisin de Path
+							FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
+							PlayerFinal->MoveTo(ActorLocation);
+						}
+					}
+					else 
+					{
+						//Le Joeur tient un item
+						AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+						if (Foreuse&&Foreuse->Usable) 
+						{
+							//C'est une Foreuse
+							if (Path->GetActorLocation().X != PlayerFinal->GetActorLocation().X || Path->GetActorLocation().Y != PlayerFinal->GetActorLocation().Y)
+							{
+								//Path n'est pas le Node oï¿½ le joueur se trouve
+								APathActor* NewNodeForPlayer = Path->IsForeuseOnNeighbourinNode();
 
-						PlayerFinal->MoveTo(ActorLocation);
+								if (NewNodeForPlayer) 
+								{
+									//La Foreuse est sur un Node voisin de Path (Deplacement vers l'avant de la foreuse)
+									PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
+									Foreuse->SetForeuseLocation(Path, FVector(NULL, NULL, NULL));
+								}
+								else 
+								{
+									//La Foreuse n'est pas voisine de Path (Deplacement vers l'arriï¿½re ou dï¿½placement non valide ?)
+									if ((Path->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Path->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
+									{
+										//Le Joueur, La Foreuse et Path sont bien alignï¿½s
+										if (Path->IsPlayerOnNeighbouringNode())
+										{
+											//Le Joueur est voisin de Path (Il s'agit d'un dï¿½placement valide)
+											FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
+											Foreuse->SetForeuseLocation(nullptr, PlayerFinal->GetActorLocation());
+											PlayerFinal->MoveTo(ActorLocation);
+										}
+									}
+								}
+							}
+						}
+						else 
+						{
+							AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+							if(Otage)
+							{
+								//L'item est un Otage
+								if (Otage->Placable)
+								{
+									//L'Otage n'a pas encore ï¿½tï¿½ utilisï¿½
+									if (Otage->PlacingArea.IsInsideXY(Path->GetActorLocation()))
+									{
+										//Path est dans la PlacingArea de l'Otage 
+										APathActor* OtageNode = Otage->GetCurrentNode();
+										OtageNode->IsPlayerOnNeighbouringNode();
+										PlayerFinal->SetActorLocation(Otage->GetActorLocation());
+										Otage->SetOtageLocation(Path);
+										PlayerFinal->HeldItem = nullptr;
+										//Otage->ItemEffect();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			AItem* Item = Cast<AItem>(HitResult.GetActor());
+			if (Item) 
+			{
+				//L'Objet est un Item on l'ï¿½quipe au Joueur
+				PlayerFinal->HeldItem = Item;
+				Item->SetIsHeld();
+			}
+			AWall* Wall = Cast<AWall>(HitResult.GetActor());
+			if (Wall)
+			{
+				//C'est un Wall
+				if (PlayerFinal->HeldItem)
+				{
+					//Le Joueur a un Item
+					AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+					if (Foreuse&&Foreuse->Usable)
+					{
+						//C'est une Foreuse et elle est utilisable
+						if ((Wall->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Wall->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
+						{
+							//La Foreuse, Le Wall et le Joueur sont bien alignï¿½s
+							APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbourinNode();
+							if (NewNodeForPlayer) 
+							{
+								//La Foreuse est bien ï¿½ cï¿½tï¿½ du Wall
+								Foreuse->ItemEffect(Wall);
+								PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
+								Foreuse->SetForeuseLocation(Wall->CurrentNode, FVector(NULL, NULL, NULL));
+								PlayerFinal->HeldItem = nullptr;
+							}
+						}
 					}
 				}
 			}
@@ -68,18 +158,32 @@ void ACasaPlayerController::OnMouseClick()
 
 }
 
-// Associez cette fonction à un événement de clic de souris
+// Associez cette fonction ï¿½ un ï¿½vï¿½nement de clic de souris
 ACasaPlayerController::ACasaPlayerController()
 {
-	// Associez la fonction OnMouseClick() à l'événement de clic de souris
+	// Associez la fonction OnMouseClick() ï¿½ l'ï¿½vï¿½nement de clic de souris
 	bShowMouseCursor = true; // Assurez-vous que le curseur de la souris est visible
-	DefaultMouseCursor = EMouseCursor::Crosshairs; // Définissez le curseur par défaut
+	DefaultMouseCursor = EMouseCursor::Crosshairs; // Dï¿½finissez le curseur par dï¿½faut
 }
 
 void ACasaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// Associez le clic gauche de la souris à la fonction OnMouseClick()
+	// Associez le clic gauche de la souris ï¿½ la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
+}
+
+//DÃ©sequipe l'objet du Joueur
+void ACasaPlayerController::OnPressF()
+{
+	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
+	AItem* HeldItem = PlayerFinal->HeldItem;
+
+	if (HeldItem)
+	{
+		// Le Joueur possÃ¨de un Objet
+		HeldItem->SetIsHeld();
+		PlayerFinal->HeldItem = nullptr;
+	}
 }

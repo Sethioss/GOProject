@@ -8,8 +8,8 @@
 #include "SecurityGuardEnemy.h"
 #include "GameManager.h"
 #include "MoverComponent.h"
+#include "Item.h"
 #include "CasaPlayer.generated.h"
-
 UCLASS()
 class HITMANGOLIKE_API ACasaPlayer : public APawn
 {
@@ -64,5 +64,8 @@ public:
 	// Input variables
 	UPROPERTY()
 	FVector CurrentVelocity;
+
+	//Objet tenu par le Joueur
+	AItem* HeldItem;
 
 };
