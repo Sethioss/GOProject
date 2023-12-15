@@ -122,7 +122,7 @@ void ACasaPlayerController::OnMouseClick()
 			AItem* Item = Cast<AItem>(HitResult.GetActor());
 			if (Item) 
 			{
-				if (PlayerFinal->HeldItem==nullptr && Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
+				if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
 				{
 					//L'Objet est un Item on l'�quipe au Joueur
 					PlayerFinal->HeldItem = Item;
