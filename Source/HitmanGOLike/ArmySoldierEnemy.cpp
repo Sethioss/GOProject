@@ -24,16 +24,17 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::OnTurn()
 {
-	if (IsLookingForHostage)
+	//if (IsLookingForHostage)
+	//{
+	//	Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	//
+	//	if (Destination)
+	//	{
+	//		MoveToDestination();
+	//	}
+	//}
+	//else 
 	{
-		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-
-		if (Destination)
-		{
-			MoveToDestination();
-		}
-	}
-	else {
 		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
 
 		if (Destination)

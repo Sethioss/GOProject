@@ -458,7 +458,7 @@ void AEnemyActor::OnPostTurn()
 	{
 		if (GetCurrentNode() == Hostage->GetCurrentNode())
 		{
-			UGameManager::GetInstance()->UnregisterAllHostages();
+			//UGameManager::GetInstance()->UnregisterAllHostages();
 			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
 		}

@@ -25,7 +25,7 @@ public:
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
 
-	void UnregisterAllHostages();
+	//void UnregisterAllHostages();
 
 protected:
 	// Called when the game starts

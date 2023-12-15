@@ -17,13 +17,13 @@ UGameManager::UGameManager()
 	// ...
 }
 
-void UGameManager::UnregisterAllHostages()
-{
-	for (int i = 0; i < Instance->Enemies.Num(); ++i)
-	{
-		Instance->Enemies[i]->IsLookingForHostage = false;
-	}
-}
+//void UGameManager::UnregisterAllHostages()
+//{
+//	for (int i = 0; i < Instance->Enemies.Num(); ++i)
+//	{
+//		Instance->Enemies[i]->IsLookingForHostage = false;
+//	}
+//}
 
 // Called when the game starts
 void UGameManager::BeginPlay()
