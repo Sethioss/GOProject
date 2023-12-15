@@ -167,7 +167,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		{
 			CustomTemp = AllLists[0];
 		}
-		if (AllLists.Num() > 1)
+		else if (AllLists.Num() > 2)
 		{
 			for (int i = 0; i < AllLists.Num(); ++i)
 			{
@@ -177,7 +177,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 				}
 				else if (CustomTemp.Num() == AllLists[i].Num())
 				{
-					CustomTemp = CustomTemp[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) ? AllLists[i] : CustomTemp;
+					CustomTemp = CustomTemp[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) ? CustomTemp : AllLists[i];
 				}
 			}
 		}
@@ -441,6 +441,6 @@ void AEnemyActor::OnPostTurn()
 	AllowedToMove = false;
 }
 
-void AEnemyActor::OnPreAttack(){}
-void AEnemyActor::OnAttack(){}
-void AEnemyActor::OnPostAttack(){}
+void AEnemyActor::OnPreAttack() {}
+void AEnemyActor::OnAttack() {}
+void AEnemyActor::OnPostAttack() {}
