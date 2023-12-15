@@ -4,13 +4,42 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CasaPlayer.h"
+#include "Directionality.h"
 #include "PathActor.generated.h"
 
-/*
-* Classe des Chemins
-* Un chemin peut être une simple jonction ou un Node où le Joueur pourra se déplacer.
-*/
+USTRUCT(BlueprintType)
+struct FConnectorInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	/** Default constructor */
+	FConnectorInfo() { Direction = EGeneralDirectionEnum::VALNUM; };
+
+public:
+
+	inline bool operator==(const FConnectorInfo& other) const
+	{
+		return (other.Direction == Direction && other.DestinationNode == DestinationNode);
+	}
+
+	inline bool operator!=(const FConnectorInfo& other) const
+	{
+		return (other.Direction != Direction || other.DestinationNode != DestinationNode);
+	}
+
+	/** Intensity of yaw input as modifier */
+	class APathActor* OriginNode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EGeneralDirectionEnum Direction;
+
+	/** Intensity of yaw input as modifier */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class APathActor* DestinationNode;
+};
+
+class ACasaPlayer;
 
 UCLASS()
 class HITMANGOLIKE_API APathActor : public AActor
@@ -20,44 +49,87 @@ class HITMANGOLIKE_API APathActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	APathActor();
-	UPROPERTY(EditAnywhere)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* PlaneMesh = nullptr;
-	//Réference vers le Joueur
+	
 	UPROPERTY()
 	class ACasaPlayer* PlayerPawn;
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	//Indique si le Joueur est sur un Node voisin du Node actuel
-	bool IsPlayerOnNeighbouringNode();
-	void TransferPlayerOwnership(APathActor& OriginTile);
-	//Indique si la Foreuse est sur un Node voisin du Node actuel
-	APathActor* IsForeuseOnNeighbourinNode();
-	UFUNCTION(BlueprintCallable)
-	inline bool GetIsNode() { return IsNode; }
-	UFUNCTION(BlueprintCallable)
-	inline TArray<APathActor*> GetNeighbouringNodes() { return NeighbouringNodes; }
-	//Récupère tout les Nodes voisin de la Node
-	UFUNCTION()
-	TArray<APathActor*> ReachNeighbouringPath();
+	
+	//Put this in a manager
+	bool IsConnectedNode(APathActor* A, APathActor* B);
+#if WITH_EDITOR
+	virtual void PostEditMove(bool bFinished) override;
+#endif
+
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	TArray<FConnectorInfo> ConnectorInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
+	bool IsWalkableNode = true;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	//Le Chemin est un noeud ou non
-	UPROPERTY(EditAnywhere, Category = NodePathParameters)
-	bool IsNode = false;
-	//Noeuds voisins
-	UPROPERTY(EditAnywhere, Category = NodeInfo)
-	TArray<APathActor*> NeighbouringNodes;
-	//Point de départ ou non
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool StartingNode = false;
-	//Point d'arrivé ou non
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool EndingNode = false;
-	//Ajoute les noeuds voisins à NeighbouringNodes
-	UFUNCTION()
-	void AddNeighbouringNodes();
-	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
+	
+	UPROPERTY(EditAnywhere, Category = NodePathParameters)
+    bool IsNode = false;
+
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+    TArray<APathActor*> NeighbouringNodes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Up = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Down = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Right = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Left = true;
+
+	
+
+	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
+	APathActor* CheckNeighbourNode(EGeneralDirectionEnum Dir, bool GetConnected = false);
+	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
+	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
+	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
+	bool CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction);
+	double ManhattanDistance(FVector StartPos, FVector EndPos);
+	
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	bool IsPlayerOnNeighbouringNode();
+	bool IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer();
+	void TransferPlayerOwnership(APathActor& OriginTile);
+	
+	APathActor* IsForeuseOnNeighbourinNode();
+
+	inline UStaticMeshComponent* GetPlaneMesh() { return PlaneMesh; }
+
+
+	UFUNCTION(BlueprintCallable)
+	inline bool GetIsNode(){ return IsWalkableNode; }
+
+    UFUNCTION(BlueprintCallable)
+    inline TArray<APathActor*> GetNeighbouringNodes() { return NeighbouringNodes; }
+
+	float FScore = 1;
+
+	APathActor* PathfindingParent;
+
+	bool Visited = false;
 
 };

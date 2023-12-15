@@ -3,6 +3,8 @@
 
 #include "PathActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "CasaPlayer.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -19,33 +21,33 @@ APathActor::APathActor()
 	RootComponent = PlaneMesh;
 }
 
-void APathActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}
-
 // Called when the game starts or when spawned
 void APathActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AddNeighbouringNodes();
-	
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		ConnectorInfo[i].OriginNode = this;
+	}
 
 	if (StartingNode)
 	{
-		//Joueur déplacé au point de départ
 		APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 		FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
 		Pawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, PlayerLocation.Z));
 
 		PlayerPawn = Cast<ACasaPlayer>(Pawn);
-
 	}
+}
 
-	//Ajout des Noeuds voisins à NeighbouringNodes
-	//AddNeighbouringNodes();
+void APathActor::OnConstruction(const FTransform& Transform)
+{
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		ConnectorInfo[i].OriginNode = this;
+	}
 }
 
 // Called every frame
@@ -54,15 +56,37 @@ void APathActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-//Indique si le Joueur est sur un Node voisin du Node actuel
+bool APathActor::IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer()
+{
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		if (ConnectorInfo[i].DestinationNode->PlayerPawn != nullptr)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool APathActor::IsPlayerOnNeighbouringNode()
 {
-	for (int i = 0; i < NeighbouringNodes.Num(); ++i)
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
 	{
-		if (NeighbouringNodes[i]->PlayerPawn != nullptr)
+		if (ConnectorInfo[i].DestinationNode->PlayerPawn != nullptr)
 		{
-			//Le Joueur est voisin du Node
-			TransferPlayerOwnership(*NeighbouringNodes[i]);
+			TransferPlayerOwnership(*ConnectorInfo[i].DestinationNode);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
+{
+	for (int i = 0; i < A->ConnectorInfo.Num(); ++i)
+	{
+		if (A->ConnectorInfo[i].DestinationNode == B)
+		{
 			return true;
 		}
 	}
@@ -100,71 +124,343 @@ APathActor* APathActor::IsForeuseOnNeighbourinNode()
 	return nullptr;
 }
 
+#if WITH_EDITOR
+void APathActor::PostEditMove(bool bFinished)
+{
+	//if (bFinished)
+	//{
+	//	TArray<APathActor*> SurroundingActors;
+
+	//	for (int i = 0; i < 4; ++i)
+	//	{
+	//		SurroundingActors.Add(CheckNeighbourNode(static_cast<EGeneralDirectionEnum>(i)));
+	//	}
+
+	//	UMaterialInstanceDynamic* DynMat = nullptr;
+
+	//	if (SurroundingActors[0])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
+	//		if (Up || SurroundingActors[0]->Down)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 1.0f);
+	//			//AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Up, "Up", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::DOWN)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Down, "Down", 0.0f);
+	//			}
+	//		}
+
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
+	//	}
+
+	//	if (SurroundingActors[1])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
+	//		if (Right || SurroundingActors[1]->Left)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 1.0f);
+	//			//AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Right, "Right", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::LEFT)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Left, "Left", 0.0f);
+	//			}
+	//		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
+	//	}
+
+	//	if (SurroundingActors[2])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
+	//		if (Down || SurroundingActors[0]->Up)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 1.0f);
+	//			//AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Down, "Down", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::UP)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Up, "Up", 0.0f);
+	//			}
+	//		}
+
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
+	//	}
+
+	//	if (SurroundingActors[3])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
+	//		if (Left || SurroundingActors[3]->Right)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 1.0f);
+	//			//AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Left, "Left", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
+
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::RIGHT)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Right, "Right", 0.0f);
+	//			}
+	//		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
+	//	}
+	//}
+}
+#endif
+
+bool APathActor::CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction)
+{
+	if (CurNode != nullptr)
+	{
+		for (int i = 0; i < CurNode->ConnectorInfo.Num(); ++i)
+		{
+			if (CurNode->ConnectorInfo[i].Direction == Direction)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void APathActor::AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction)
+{
+	if (!CheckConnectorInfo(CurNode, Direction))
+	{
+		FConnectorInfo NewInfo;
+
+		NewInfo.DestinationNode = DestNode;
+		NewInfo.Direction = Direction;
+		CurNode->ConnectorInfo.Add(NewInfo);
+	}
+
+	if (Direction == EGeneralDirectionEnum::UP) { Direction = EGeneralDirectionEnum::DOWN; }
+	else if (Direction == EGeneralDirectionEnum::RIGHT) { Direction = EGeneralDirectionEnum::LEFT; }
+	else if (Direction == EGeneralDirectionEnum::DOWN) { Direction = EGeneralDirectionEnum::UP; }
+	else if (Direction == EGeneralDirectionEnum::LEFT) { Direction = EGeneralDirectionEnum::RIGHT; }
+
+	if (!CheckConnectorInfo(DestNode, Direction))
+	{
+		FConnectorInfo NewInfo;
+
+		NewInfo.DestinationNode = CurNode;
+		NewInfo.Direction = Direction;
+		DestNode->ConnectorInfo.Add(NewInfo);
+	}
+}
+
+void APathActor::RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction)
+{
+	if (CheckConnectorInfo(CurNode, Direction))
+	{
+		for (int i = 0; i < CurNode->ConnectorInfo.Num(); ++i)
+		{
+			if (CurNode->ConnectorInfo[i].DestinationNode == DestNode)
+			{
+				if (CurNode->ConnectorInfo[i].Direction == Direction)
+				{
+					CurNode->ConnectorInfo.Remove(CurNode->ConnectorInfo[i]);
+					return;
+				}
+			}
+		}
+	}
+
+	if (Direction == EGeneralDirectionEnum::UP) { Direction = EGeneralDirectionEnum::DOWN; }
+	else if (Direction == EGeneralDirectionEnum::RIGHT) { Direction = EGeneralDirectionEnum::LEFT; }
+	else if (Direction == EGeneralDirectionEnum::DOWN) { Direction = EGeneralDirectionEnum::UP; }
+	else if (Direction == EGeneralDirectionEnum::LEFT) { Direction = EGeneralDirectionEnum::RIGHT; }
+
+	if (CheckConnectorInfo(DestNode, Direction))
+	{
+		for (int i = 0; i < DestNode->ConnectorInfo.Num(); ++i)
+		{
+			if (DestNode->ConnectorInfo[i].DestinationNode == CurNode)
+			{
+				if (DestNode->ConnectorInfo[i].Direction == Direction)
+				{
+					DestNode->ConnectorInfo.Remove(DestNode->ConnectorInfo[i]);
+					return;
+				}
+			}
+		}
+	}
+}
+
+void APathActor::SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value)
+{
+	boolVal = value == 0 ? false : true;
+
+	if (DynMat)
+	{
+		DynMat->SetScalarParameterValue((TEXT("%s"), *boolValName), value);
+	}
+}
+
 void APathActor::TransferPlayerOwnership(APathActor& OriginTile)
 {
 	PlayerPawn = OriginTile.PlayerPawn;
 	OriginTile.PlayerPawn = nullptr;
 }
 
-//Récupère tout les Nodes voisin de la Node
-TArray<APathActor*> APathActor::ReachNeighbouringPath() 
+APathActor* APathActor::CheckNeighbourNode(EGeneralDirectionEnum Direction, bool GetConnected)
 {
+	FHitResult HitResult;
+	FlushPersistentDebugLines(GetWorld());
 
-	FHitResult North, South, East, West;
-	TArray<FHitResult*> HitResults; HitResults.Add(&North); HitResults.Add(&South); HitResults.Add(&East); HitResults.Add(&West);
-	FVector NodePosition = GetActorLocation();
-	TArray<APathActor*> Neighbours;
+	FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * static_cast<int>(Direction), 0.0f));
 
-	//Looking for Northern Object
-	GetWorld()->LineTraceSingleByChannel(North, NodePosition+FVector(0,0,51), NodePosition + FVector(51, 0, 0),
-		ECollisionChannel::ECC_GameTraceChannel1);
-	//Looking for Southern Object
-	GetWorld()->LineTraceSingleByChannel(South, NodePosition + FVector(0, 0, 51), NodePosition + FVector(-51, 0, 0),
-		ECollisionChannel::ECC_GameTraceChannel1);
-	//Looking for Eastern Object
-	GetWorld()->LineTraceSingleByChannel(East, NodePosition + FVector(0, 0, 51), NodePosition + FVector(0, 51, 0),
-		ECollisionChannel::ECC_GameTraceChannel1);
-	//Looking for Western Object
-	GetWorld()->LineTraceSingleByChannel(West, NodePosition + FVector(0, 0, 51), NodePosition + FVector(0, -51, 0),
+	FVector Dest = RotationQuat.RotateVector(FVector(1.0f, 0.0f, 0.0f));
+
+	FVector NextNodePos = Dest * 55;
+	NextNodePos.Z -= 1;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 10), GetActorLocation() + NextNodePos,
 		ECollisionChannel::ECC_GameTraceChannel1);
 
-	//Process HitResult: Nearby object isNode -> add to NeighbouringNodes
-	for (FHitResult* HitResult : HitResults) 
+	DrawDebugLine(GetWorld(), FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 50), GetActorLocation() + NextNodePos, FColor::Blue, true, 50.f);
+
+	if (HitResult.bBlockingHit)
 	{
-		if (HitResult->bBlockingHit) 
+		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+		if (Path)
 		{
-			APathActor* NearbyPath = Cast<APathActor>(HitResult->GetActor());
-			if (NearbyPath) 
+			if (GetConnected)
 			{
-				//Si le voisin est un Node: alors on l'ajoute
-				if (NearbyPath->GetIsNode()) 
+				for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
 				{
-					Neighbours.Add(NearbyPath);
+					if (Path == ConnectorInfo[i].DestinationNode)
+					{
+						return Path;
+					}
+					return nullptr;
 				}
+			}
+			else { return Path; }
+		}
 
-				//Si le voisin est un simple connecteur: alors on propage pour avoir acces aux Nodes suivant ce connecteur
-				else 
+
+
+	}
+
+	return nullptr;
+}
+
+APathActor* APathActor::CheckNeighbourNode(int Direction, bool GetConnected)
+{
+	FHitResult HitResult;
+	FlushPersistentDebugLines(GetWorld());
+
+	FQuat RotationQuat = FQuat(FRotator(0.0f, 90.0f * Direction, 0.0f));
+
+	FVector Dest = RotationQuat.RotateVector(FVector(1.0f, 0.0f, 0.0f));
+
+	FVector NextNodePos = Dest * 55;
+	NextNodePos.Z -= 1;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 10), GetActorLocation() + NextNodePos,
+		ECollisionChannel::ECC_GameTraceChannel1);
+
+	DrawDebugLine(GetWorld(), FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 50), GetActorLocation() + NextNodePos, FColor::Blue, true, 50.f);
+
+	if (HitResult.bBlockingHit)
+	{
+		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+
+		if (GetConnected)
+		{
+			for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
+			{
+				if (Path == ConnectorInfo[i].DestinationNode)
 				{
-					Neighbours.Append(NearbyPath->ReachNeighbouringPath());
+					return Path;
 				}
 			}
 		}
+		else { return Path; }
+
 	}
 
-	return Neighbours;
+	return nullptr;
 }
 
-//Ajoute les noeuds voisins à NeighbouringNodes
-void APathActor::AddNeighbouringNodes() 
+double APathActor::ManhattanDistance(FVector StartPos, FVector EndPos)
 {
-	TArray<APathActor*> Neighbours = ReachNeighbouringPath();
-
-	for (APathActor* Node : Neighbours) 
-	{
-		if (Node != this) 
-		{
-			(GetNeighbouringNodes()).AddUnique(Node);
-		}
-	}
+	return{ FMath::Abs(StartPos.X - EndPos.X) + FMath::Abs(StartPos.Y - EndPos.Y) };
 }
-

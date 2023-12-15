@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Math/UnrealMathUtility.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -31,15 +32,23 @@ ACasaPlayer::ACasaPlayer()
 	// creation de la camera du player
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 
+	MoverComponent = CreateDefaultSubobject<UMoverComponent>(TEXT("Mover"));
+
+	//On "attache" la camera au player
+	//PlayerCamera->SetupAttachment(RootComponent);
+	//PlayerCamera->SetRelativeLocation(FVector(-250.0f, 0.0f, 250.0f));
+	//PlayerCamera->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
+
 	//Creation Springarmcomponent
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 
 	//Attach springarm to root
 	SpringArmComponent->SetupAttachment(StaticMeshComponent);
+	MoverComponent->SetupAttachment(StaticMeshComponent);
 
 	//Attach PlayerCamera to springarm
 	PlayerCamera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	
+
 	//Assign SpringArm class variables.
 	SpringArmComponent->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));
 	SpringArmComponent->TargetArmLength = 400.f;
@@ -54,26 +63,65 @@ ACasaPlayer::ACasaPlayer()
 void ACasaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	RegisterToManager();
+}
+
+void ACasaPlayer::RegisterToManager()
+{
+	UGameManager::GetInstance()->Player = this;
+	RegisteredToManager = true;
+	UGameManager::GetInstance()->ElementsToRegister -= 1;
+	MoverComponent->Setup(FVector(500, 500, 500));
 }
 
 // Called every frame
 void ACasaPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	/*if (ShouldMove)
+	{
+		if(FVector::Distance(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z),
+							 FVector(TargetedPosition.X, TargetedPosition.Y, GetActorLocation().Z))
+			< 0.5f)
+		{
+			ShouldMove = false;
+		}
+		else
+		{
+			MoveToTarget(TargetedPosition, Speed);
+		}
+	}*/
+
 }
 
 // Called to bind functionality to input
 void ACasaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+
 }
 
-void ACasaPlayer::MoveTo(FVector2D TargetPosition) 
-{
+/*void ACasaPlayer::MoveToTarget(FVector2D Target, float speed) {
+
+	FVector2D Direction = Target - FVector2D(GetActorLocation().X, GetActorLocation().Y).Normalize();
+
+	AddActorLocalOffset(FVector(Direction.X * Speed * GetWorld()->GetDeltaSeconds(), Direction.Y * Speed * GetWorld()->GetDeltaSeconds(), 0));
+}*/
+
+void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
+
+	//TargetedPosition = TargetPosition;
+	//ShouldMove = true;
+
 	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
 	SetActorLocation(NewLocation);
+
+	TurnFinished = true;
 }
 

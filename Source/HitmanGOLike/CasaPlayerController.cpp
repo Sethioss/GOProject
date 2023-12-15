@@ -102,7 +102,7 @@ void ACasaPlayerController::OnMouseClick()
 								//L'item est un Otage
 								if (Otage->Placable)
 								{
-									//L'Otage n'a pas encore �t� utilis�<
+									//L'Otage n'a pas encore �t� utilis�
 									if (Otage->PlacingArea.IsInsideXY(Path->GetActorLocation()))
 									{
 										//Path est dans la PlacingArea de l'Otage 
@@ -122,7 +122,7 @@ void ACasaPlayerController::OnMouseClick()
 			AItem* Item = Cast<AItem>(HitResult.GetActor());
 			if (Item) 
 			{
-				if (PlayerFinal->HeldItem==nullptr && Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
+				if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
 				{
 					//L'Objet est un Item on l'�quipe au Joueur
 					PlayerFinal->HeldItem = Item;
