@@ -254,7 +254,10 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 	//Make path list
 	while (Current != nullptr)
 	{
-		ListToSend.Add(Current);
+		if (Current->IsWalkableNode)
+		{
+			ListToSend.Add(Current);
+		}
 		Current = Current->PathfindingParent;
 	}
 
@@ -315,7 +318,7 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 
 	FBox ActorBounds = CurrentNode->GetComponentsBoundingBox();
 
-	FVector NextNodePos = NormalizedDirection * ActorBounds.GetSize().X;
+	FVector NextNodePos = NormalizedDirection * ActorBounds.GetSize().X * 2;
 	FVector vec = GetActorLocation() + NextNodePos;
 	vec.Z = CurrentNode->GetActorLocation().Z - 5;
 

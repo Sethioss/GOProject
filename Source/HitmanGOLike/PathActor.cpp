@@ -114,159 +114,159 @@ APathActor* APathActor::IsForeuseOnNeighbourinNode()
 #if WITH_EDITOR
 void APathActor::PostEditMove(bool bFinished)
 {
-	if (bFinished)
-	{
-		TArray<APathActor*> SurroundingActors;
+	//if (bFinished)
+	//{
+	//	TArray<APathActor*> SurroundingActors;
 
-		for (int i = 0; i < 4; ++i)
-		{
-			SurroundingActors.Add(CheckNeighbourNode(static_cast<EGeneralDirectionEnum>(i)));
-		}
+	//	for (int i = 0; i < 4; ++i)
+	//	{
+	//		SurroundingActors.Add(CheckNeighbourNode(static_cast<EGeneralDirectionEnum>(i)));
+	//	}
 
-		UMaterialInstanceDynamic* DynMat = nullptr;
+	//	UMaterialInstanceDynamic* DynMat = nullptr;
 
-		if (SurroundingActors[0])
-		{
-			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
-			if (Up || SurroundingActors[0]->Down)
-			{
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 1.0f);
-				//AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
+	//	if (SurroundingActors[0])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
+	//		if (Up || SurroundingActors[0]->Down)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 1.0f);
+	//			//AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Up, "Up", 1.0f);
-			}
-			else
-			{
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
-				//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Up, "Up", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 0.0f);
-			}
-		}
-		else {
-			for (int i = 0; i < ConnectorInfo.Num(); ++i)
-			{
-				if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::DOWN)
-				{
-					DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
-					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Down, "Down", 0.0f);
-				}
-			}
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[0]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::DOWN)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Down, "Down", 0.0f);
+	//			}
+	//		}
 
-			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-			SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
-			//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
-		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Up, "Up", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[0], EGeneralDirectionEnum::UP);
+	//	}
 
-		if (SurroundingActors[1])
-		{
-			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
-			if (Right || SurroundingActors[1]->Left)
-			{
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 1.0f);
-				//AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
+	//	if (SurroundingActors[1])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
+	//		if (Right || SurroundingActors[1]->Left)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 1.0f);
+	//			//AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Right, "Right", 1.0f);
-			}
-			else
-			{
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
-				//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Right, "Right", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 0.0f);
-			}
-		}
-		else {
-			for (int i = 0; i < ConnectorInfo.Num(); ++i)
-			{
-				if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::LEFT)
-				{
-					DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
-					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Left, "Left", 0.0f);
-				}
-			}
-			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-			SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
-			//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
-		}
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[1]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::LEFT)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Left, "Left", 0.0f);
+	//			}
+	//		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Right, "Right", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[1], EGeneralDirectionEnum::RIGHT);
+	//	}
 
-		if (SurroundingActors[2])
-		{
-			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
-			if (Down || SurroundingActors[0]->Up)
-			{
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 1.0f);
-				//AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
+	//	if (SurroundingActors[2])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
+	//		if (Down || SurroundingActors[0]->Up)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 1.0f);
+	//			//AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Down, "Down", 1.0f);
-			}
-			else
-			{
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
-				//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Down, "Down", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 0.0f);
-			}
-		}
-		else {
-			for (int i = 0; i < ConnectorInfo.Num(); ++i)
-			{
-				if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::UP)
-				{
-					DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
-					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Up, "Up", 0.0f);
-				}
-			}
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[2]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::UP)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Up, "Up", 0.0f);
+	//			}
+	//		}
 
-			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-			SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
-			//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
-		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Down, "Down", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[2], EGeneralDirectionEnum::DOWN);
+	//	}
 
-		if (SurroundingActors[3])
-		{
-			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
-			if (Left || SurroundingActors[3]->Right)
-			{
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 1.0f);
-				//AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
+	//	if (SurroundingActors[3])
+	//	{
+	//		DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
+	//		if (Left || SurroundingActors[3]->Right)
+	//		{
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 1.0f);
+	//			//AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Left, "Left", 1.0f);
-			}
-			else
-			{
-				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
-				//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Left, "Left", 1.0f);
+	//		}
+	//		else
+	//		{
+	//			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
+	//			//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
 
-				DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
-				SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 0.0f);
-			}
-		}
-		else {
-			for (int i = 0; i < ConnectorInfo.Num(); ++i)
-			{
-				if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::RIGHT)
-				{
-					DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
-					SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Right, "Right", 0.0f);
-				}
-			}
-			DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
-			SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
-			//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
-		}
-	}
+	//			DynMat = Cast<UMaterialInstanceDynamic>(SurroundingActors[3]->PlaneMesh->GetMaterial(0));
+	//			SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 0.0f);
+	//		}
+	//	}
+	//	else {
+	//		for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	//		{
+	//			if (ConnectorInfo[i].Direction == EGeneralDirectionEnum::RIGHT)
+	//			{
+	//				DynMat = Cast<UMaterialInstanceDynamic>(ConnectorInfo[i].DestinationNode->PlaneMesh->GetMaterial(0));
+	//				SetMaterialBoolParameterValue(DynMat, ConnectorInfo[i].DestinationNode->Right, "Right", 0.0f);
+	//			}
+	//		}
+	//		DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	//		SetMaterialBoolParameterValue(DynMat, Left, "Left", 0.0f);
+	//		//RemoveConnector(this, SurroundingActors[3], EGeneralDirectionEnum::LEFT);
+	//	}
+	//}
 }
 #endif
 

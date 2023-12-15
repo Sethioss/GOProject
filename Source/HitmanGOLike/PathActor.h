@@ -65,6 +65,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	TArray<FConnectorInfo> ConnectorInfo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
+	bool IsWalkableNode = true;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -94,8 +97,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
 	bool Left = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
-	bool IsWalkableNode = true;
+	
 
 	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
 	APathActor* CheckNeighbourNode(EGeneralDirectionEnum Dir, bool GetConnected = false);
