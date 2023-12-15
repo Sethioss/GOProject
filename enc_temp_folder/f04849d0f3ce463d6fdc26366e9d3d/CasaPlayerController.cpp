@@ -122,7 +122,7 @@ void ACasaPlayerController::OnMouseClick()
 			AItem* Item = Cast<AItem>(HitResult.GetActor());
 			if (Item) 
 			{
-				if (PlayerFinal->HeldItem==nullptr && Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
+				if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
 				{
 					//L'Objet est un Item on l'�quipe au Joueur
 					PlayerFinal->HeldItem = Item;
@@ -176,11 +176,6 @@ void ACasaPlayerController::SetupInputComponent()
 
 	// Associez le clic gauche de la souris � la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
-}
-
-void ACasaPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
-{
-	InputComponent->ClearActionBindings();
 }
 
 //Désequipe l'objet du Joueur
