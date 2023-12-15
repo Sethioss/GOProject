@@ -113,7 +113,7 @@ void AEnemyActor::InitFsm() {
 	Fsm->States.Add(OnPostAttackState);
 }
 
-APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS); }
+APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true); }
 void AEnemyActor::MoveToDestination() {}
 
 APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath)
@@ -135,7 +135,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction) == Dest)
+			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, false) == Dest)
 			{
 				TArray<APathActor*> Path;
 				Path.Add(GetCurrentNode());
@@ -152,7 +152,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		Blacklisted.Add(GetCurrentNode());
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction), Dest, Blacklisted);
+			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, false), Dest, Blacklisted);
 			CurList.Insert(GetCurrentNode(), 0);
 
 			if (CurList[CurList.Num() - 1] == Dest)
@@ -328,17 +328,18 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 	{
 		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
 
-		if (Path)
+		if (Path != nullptr)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Path->GetActorNameOrLabel());
 			if (GetConnected)
 			{
 				for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
 				{
+					
 					if (GetCurrentNode() == Path->ConnectorInfo[i].DestinationNode)
 					{
 						return Path;
 					}
-					return nullptr;
 				}
 			}
 			else { return Path; }

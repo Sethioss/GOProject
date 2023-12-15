@@ -6,6 +6,7 @@
 void AOtage::BeginPlay() 
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("%s"), FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10));
 	FVector PlacingBoxMin = GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10);
 	FVector PlacingBoxMax = GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100);
 	PlacingArea = FBox(PlacingBoxMin, PlacingBoxMax);

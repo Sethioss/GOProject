@@ -110,6 +110,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	bool IsPlayerOnNeighbouringNode();
+	bool IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer();
 	void TransferPlayerOwnership(APathActor& OriginTile);
 	
 	APathActor* IsForeuseOnNeighbourinNode();

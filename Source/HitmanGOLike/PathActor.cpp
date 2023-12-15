@@ -56,6 +56,18 @@ void APathActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+bool APathActor::IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer()
+{
+	for (int i = 0; i < ConnectorInfo.Num(); ++i)
+	{
+		if (ConnectorInfo[i].DestinationNode->PlayerPawn != nullptr)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool APathActor::IsPlayerOnNeighbouringNode()
 {
 	for (int i = 0; i < ConnectorInfo.Num(); ++i)
@@ -119,7 +131,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Up || SurroundingActors[0]->Down)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[0]->Down, "Down", 1.0f);
-				AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
+				//AddConnector(SurroundingActors[0], this, EGeneralDirectionEnum::DOWN);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Up, "Up", 1.0f);
@@ -155,7 +167,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Right || SurroundingActors[1]->Left)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[1]->Left, "Left", 1.0f);
-				AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
+				//AddConnector(SurroundingActors[1], this, EGeneralDirectionEnum::LEFT);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Right, "Right", 1.0f);
@@ -190,7 +202,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Down || SurroundingActors[0]->Up)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[2]->Up, "Up", 1.0f);
-				AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
+				//AddConnector(SurroundingActors[2], this, EGeneralDirectionEnum::UP);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Down, "Down", 1.0f);
@@ -226,7 +238,7 @@ void APathActor::PostEditMove(bool bFinished)
 			if (Left || SurroundingActors[3]->Right)
 			{
 				SetMaterialBoolParameterValue(DynMat, SurroundingActors[3]->Right, "Right", 1.0f);
-				AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
+				//AddConnector(SurroundingActors[3], this, EGeneralDirectionEnum::RIGHT);
 
 				DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
 				SetMaterialBoolParameterValue(DynMat, Left, "Left", 1.0f);

@@ -46,7 +46,7 @@ protected:
 
 
 	virtual APathActor* GetCurrentNode();
-	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected = false);
+	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected);
 	virtual FVector GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir);
 
 	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;

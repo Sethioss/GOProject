@@ -24,7 +24,7 @@ public:
 	//L'Otage est placable ou non
 	bool Placable=true;
 	//D�finit les valeur par d�faut fonction de l'emplacement de l'otage.
-	void BeginPlay();
+	virtual void BeginPlay() override;
 	//Call the special effect of the item
 	//virtual void ItemEffect() override;
 	virtual void Tick(float DeltaTime) override;
