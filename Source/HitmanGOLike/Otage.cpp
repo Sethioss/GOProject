@@ -6,9 +6,8 @@
 void AOtage::BeginPlay() 
 {
 	Super::BeginPlay();
-	FVector PlacingBoxMin = GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10);
-	FVector PlacingBoxMax = GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100);
-	PlacingArea = FBox(PlacingBoxMin, PlacingBoxMax);
+	FVector PlacingBoxExtent = FVector(((GetActorScale().X * 50) * 6) + 1, ((GetActorScale().X * 50) * 6) + 1, 100);
+	PlacingArea = FBox::BuildAABB(GetActorLocation(), PlacingBoxExtent);
 	UE_LOG(LogTemp, Warning, TEXT("PlaceArea minX : %f Path X: %f PlaceArea maxX : %f , PlaceArea minY : %f Path Y: %f PlaceArea maxY : %f"), (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).X, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).X, (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).Y, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).Y);
 	
 }
@@ -17,7 +16,7 @@ void AOtage::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if(IsHeld)
-		DrawDebugBox(GetWorld(), GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10), GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 2) + 1, 100), FColor::Green);
+		DrawDebugBox(GetWorld(), GetActorLocation(), FVector(((GetActorScale().X * 50) * 6) + 1, ((GetActorScale().X * 50) * 6) + 1, 100), FColor::Green);
 }
 
 void AOtage::SetOtageLocation(APathActor* Target)
