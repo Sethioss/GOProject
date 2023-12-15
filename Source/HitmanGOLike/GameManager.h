@@ -7,6 +7,7 @@
 #include "CasaFSM.h"
 #include "PathActor.h"
 #include "EnemyActor.h"
+#include "Otage.h"
 #include "GameManager.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -20,8 +21,11 @@ public:
 	class ACasaPlayer* Player;
 	UPROPERTY(VisibleAnywhere)
 	TArray<class AEnemyActor*> Enemies;
+
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
+
+	void UnregisterAllHostages();
 
 protected:
 	// Called when the game starts
@@ -62,6 +66,7 @@ protected:
 
 	void BlockPlayerInput();
 	void ReleasePlayerInput();
+	void OnSaveHostage();
 
 	static UGameManager* Instance;
 

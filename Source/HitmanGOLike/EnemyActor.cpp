@@ -38,6 +38,12 @@ AEnemyActor::AEnemyActor()
 	RootComponent = Mesh;
 }
 
+void AEnemyActor::Alert(AOtage* Otage)
+{
+	IsLookingForHostage = true;
+	Hostage = Otage;
+}
+
 void AEnemyActor::Update()
 {
 	Fsm->CurrentState->FTickDelegate.ExecuteIfBound();
@@ -216,12 +222,15 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 		{
 			APathActor* SelectedNode = OpenList[i];
 
-			if (SelectedNode->FScore <= Current->FScore)
+			if (!SelectedNode->IsObstacle)
 			{
-				if (!BlacklistedNodes.Contains(Current))
+				if (SelectedNode->FScore <= Current->FScore)
 				{
-					Current = SelectedNode;
-					CurIT = OpenList[i];
+					if (!BlacklistedNodes.Contains(Current))
+					{
+						Current = SelectedNode;
+						CurIT = OpenList[i];
+					}
 				}
 			}
 		}
@@ -333,19 +342,22 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 
 		if (Path != nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Path->GetActorNameOrLabel());
-			if (GetConnected)
+			if (!Path->IsObstacle)
 			{
-				for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *Path->GetActorNameOrLabel());
+				if (GetConnected)
 				{
-					
-					if (GetCurrentNode() == Path->ConnectorInfo[i].DestinationNode)
+					for (int i = 0; i < Path->ConnectorInfo.Num(); ++i)
 					{
-						return Path;
+
+						if (GetCurrentNode() == Path->ConnectorInfo[i].DestinationNode)
+						{
+							return Path;
+						}
 					}
 				}
-			}
-			else { return Path; }
+				else { return Path; }
+			}		
 		}
 	}
 
@@ -439,9 +451,19 @@ void AEnemyActor::OnAwait()
 }
 
 void AEnemyActor::OnPreTurn() {}
-void AEnemyActor::OnTurn() {}
+void AEnemyActor::OnTurn() { Fsm->ChangeState("OnPostTurn"); }
 void AEnemyActor::OnPostTurn()
 {
+	if (IsLookingForHostage && Hostage)
+	{
+		if (GetCurrentNode() == Hostage->GetCurrentNode())
+		{
+			UGameManager::GetInstance()->UnregisterAllHostages();
+			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+
+		}
+	}
+
 	AllowedToMove = false;
 }
 

@@ -17,6 +17,14 @@ UGameManager::UGameManager()
 	// ...
 }
 
+void UGameManager::UnregisterAllHostages()
+{
+	for (int i = 0; i < Instance->Enemies.Num(); ++i)
+	{
+		Instance->Enemies[i]->IsLookingForHostage = false;
+	}
+}
+
 // Called when the game starts
 void UGameManager::BeginPlay()
 {
@@ -274,6 +282,14 @@ void UGameManager::OnEnemyTurn()
 void UGameManager::OnPlayerDeath()
 {
 	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
+}
+
+void UGameManager::OnSaveHostage()
+{
+	for (int i = 0; i < Instance->Enemies.Num(); ++i)
+	{
+		Enemies[i]->IsLookingForHostage = false;
+	}
 }
 
 void UGameManager::OnGameSucceeded(){}

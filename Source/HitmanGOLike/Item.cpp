@@ -74,10 +74,6 @@ APathActor* AItem::IsBackwardNodeValid()
 	return nullptr;
 }
 
-void AItem::ItemEffect()
-{
-}
-
 void AItem::SetIsHeld() 
 {
 	IsHeld = !IsHeld; 

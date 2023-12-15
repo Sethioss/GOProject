@@ -23,11 +23,23 @@ void ASecurityGuardEnemy::BeginPlay()
 
 void ASecurityGuardEnemy::OnTurn()
 {
-	Destination = GetDestination();
-	if (Destination != nullptr)
+	if (IsLookingForHostage)
 	{
-		MoveToDestination();
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+
+		if (Destination)
+		{
+			MoveToDestination();
+		}
 	}
+	else 
+	{
+		Destination = GetDestination();
+		if (Destination != nullptr)
+		{
+			MoveToDestination();
+		}
+	}	
 
 	Fsm->ChangeState("OnAwait", true);
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);

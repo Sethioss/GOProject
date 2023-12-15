@@ -38,6 +38,7 @@ void AWall::BeginPlay()
 		if (Node)
 		{
 			CurrentNode = Node;
+			Node->IsObstacle = true;
 			SetActorLocation(FVector(Node->GetActorLocation().X, Node->GetActorLocation().Y, 50));
 		}
 	}

@@ -24,11 +24,22 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::OnTurn()
 {
-	Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
-
-	if (Destination)
+	if (IsLookingForHostage)
 	{
-		MoveToDestination();
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+
+		if (Destination)
+		{
+			MoveToDestination();
+		}
+	}
+	else {
+		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+
+		if (Destination)
+		{
+			MoveToDestination();
+		}
 	}
 
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);

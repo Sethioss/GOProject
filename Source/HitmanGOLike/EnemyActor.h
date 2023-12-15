@@ -8,6 +8,7 @@
 #include "IBoardElement.h"
 #include "CasaFSM.h"
 #include "Directionality.h"
+#include "Otage.h"
 #include "EnemyActor.generated.h"
 
 UCLASS()
@@ -28,9 +29,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	APathActor* Destination;
 
+	void Alert(AOtage* Otage);
+
 	virtual void Update();
 	void Init();
 
+	UPROPERTY(VisibleAnywhere)
+	bool IsLookingForHostage = false;
 	bool RegisteredToManager = false;
 
 	CasaFSM* Fsm;
@@ -41,6 +46,8 @@ protected:
 	virtual void BeginPlay();
 	virtual void InitFsm();
 
+	UPROPERTY(VisibleAnywhere)
+	AOtage* Hostage;
 	virtual APathActor* GetDestination();
 	virtual void MoveToDestination();
 

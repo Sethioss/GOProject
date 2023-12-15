@@ -49,7 +49,6 @@ protected:
 	UFUNCTION()
 	APathActor* IsBackwardNodeValid();
 	//Call the special effect of the item
-	virtual void ItemEffect();
 
 	bool IsHeld = false;
 

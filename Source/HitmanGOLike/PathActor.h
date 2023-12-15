@@ -47,6 +47,8 @@ class HITMANGOLIKE_API APathActor : public AActor
 	GENERATED_BODY()
 	
 public:	
+
+	bool IsObstacle = false;
 	// Sets default values for this actor's properties
 	APathActor();
 
