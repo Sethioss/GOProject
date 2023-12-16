@@ -83,6 +83,7 @@ public:
 
 	APathActor* GetPlayerNode();
 
+	void KillPlayer();
 	void ClearBarrier();
 	void RegisterToBarrier(AActor* Act);
 	void ReleaseFromBarrier(AActor* Act);

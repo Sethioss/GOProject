@@ -21,7 +21,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-
+	virtual void OnPreTurn() override;
 	virtual void OnTurn() override;
 
 	virtual APathActor* GetDestination() override;

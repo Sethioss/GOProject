@@ -51,7 +51,8 @@ protected:
 
 	virtual APathActor* GetDestination();
 	virtual void MoveToDestination();
-
+	virtual void MoveToHalfDestination();
+	void RemoveRightToMove();
 
 	virtual APathActor* GetCurrentNode();
 	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected);

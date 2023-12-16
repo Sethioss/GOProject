@@ -237,6 +237,11 @@ void UGameManager::ClearBarrier()
 	}
 }
 
+void UGameManager::KillPlayer()
+{
+	Instance->Fsm->ChangeState("OnDeath");
+}
+
 void UGameManager::RegisterToBarrier(AActor* Act)
 {
 	if (!FSMBarrier::BarrieredObjects.Contains(Act))

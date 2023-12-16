@@ -45,7 +45,7 @@ void CasaFSM::ChangeState(FString StateName, bool PlayTransition)
 	if (St != nullptr)
 	{
 		FString Dummy = "No state";
-		//UE_LOG(LogTemp, Warning, TEXT("Changing State from : % s To : % s"), CurrentState ? *CurrentState->Name : *Dummy, *StateName);
+		UE_LOG(LogTemp, Warning, TEXT("Changing State from : % s To : % s"), CurrentState ? *CurrentState->Name : *Dummy, *StateName);
 		ChangeStateTo(St, PlayTransition);
 	}
 	else {

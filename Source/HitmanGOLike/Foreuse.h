@@ -22,6 +22,8 @@ class HITMANGOLIKE_API AForeuse : public AItem
 public:
 	//Call the special effect of the item
 	virtual void ItemEffect(AWall* Wall);
+
+	virtual void BeginPlay() override;
 	
 	//Set Default Value
 	UFUNCTION()

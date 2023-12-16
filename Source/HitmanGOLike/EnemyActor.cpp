@@ -96,6 +96,7 @@ void AEnemyActor::InitFsm() {
 
 	CasaState* OnAwaitState = new CasaState();
 	OnAwaitState->Name = "OnAwait";
+	OnAwaitState->SetStartDelegate(this, &AEnemyActor::RemoveRightToMove);
 	OnAwaitState->SetUpdateDelegate(this, &AEnemyActor::OnAwait);
 
 	Fsm->States.Add(OnAwaitState);
@@ -117,6 +118,11 @@ void AEnemyActor::InitFsm() {
 	OnPostAttackState->SetUpdateDelegate(this, &AEnemyActor::OnPostAttack);
 
 	Fsm->States.Add(OnPostAttackState);
+}
+
+void AEnemyActor::RemoveRightToMove()
+{
+	AllowedToMove = false;
 }
 
 APathActor* AEnemyActor::GetDestination() { return GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true); }
@@ -158,13 +164,15 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		Blacklisted.Add(GetCurrentNode());
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
-
-			if (CurList[CurList.Num() - 1] == Dest)
+			if (GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle == false)
 			{
-				AllLists.Add(CurList);
-			}
+				CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
 
+				if (CurList[CurList.Num() - 1] == Dest)
+				{
+					AllLists.Add(CurList);
+				}
+			}
 		}
 
 		for (int i = 0; i < AllLists.Num(); ++i)
@@ -193,6 +201,10 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 				else if (CustomTemp.Num() == AllLists[i].Num())
 				{
 					if (GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) == AllLists[i][0])
+					{
+						CustomTemp = AllLists[i];
+					}
+					else if (GetNodeAtCardinalDirection(EGeneralDirectionEnum::LOCALRIGHT, true) == AllLists[i][0])
 					{
 						CustomTemp = AllLists[i];
 					}
@@ -239,8 +251,6 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 		{
 			APathActor* SelectedNode = OpenList[i];
 
-			if (!SelectedNode->IsObstacle)
-			{
 				if (SelectedNode->FScore <= Current->FScore)
 				{
 					if (!BlacklistedNodes.Contains(Current))
@@ -249,7 +259,6 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 						CurIT = OpenList[i];
 					}
 				}
-			}
 		}
 
 		if (Current == End)
@@ -268,12 +277,15 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 				continue;
 			}
 
-			APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
-			Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
-			Successor->PathfindingParent = Current;
+			if (Current->IsObstacle == false)
+			{
+				APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
+				Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+				if (Current->IsObstacle) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
+				Successor->PathfindingParent = Current;
 
-			OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
-
+				OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+			}
 		}
 	}
 
@@ -464,10 +476,28 @@ void AEnemyActor::OnRegisterToManager()
 
 void AEnemyActor::OnAwait()
 {
-	if (AllowedToMove) { Fsm->ChangeState("OnTurn"); }
+	if (AllowedToMove) { Fsm->ChangeState("OnPreTurn"); }
 }
 
-void AEnemyActor::OnPreTurn() {}
+void AEnemyActor::OnPreTurn() 
+{
+	if (Destination)
+	{
+		if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+		{
+			Fsm->ChangeState("OnAttack");
+		}
+		else 
+		{
+			Fsm->ChangeState("OnTurn");
+		}
+	}
+	else
+	{
+		UGameManager::GetInstance()->ReleaseFromBarrier(this);
+		Fsm->ChangeState("OnAwait");
+	}
+}
 void AEnemyActor::OnTurn() {}
 void AEnemyActor::OnPostTurn()
 {
@@ -489,5 +519,32 @@ void AEnemyActor::OnPostTurn()
 }
 
 void AEnemyActor::OnPreAttack() {}
-void AEnemyActor::OnAttack() {}
+void AEnemyActor::OnAttack()
+{
+	MoveToHalfDestination();
+	UGameManager::GetInstance()->KillPlayer();
+	Fsm->ChangeState("OnAwait");
+}
 void AEnemyActor::OnPostAttack() {}
+
+void AEnemyActor::MoveToHalfDestination() 
+{
+	if (Destination)
+	{
+
+		FVector2D diff = FVector2D(Destination->GetActorLocation().X - GetActorLocation().Y);
+
+		float AngleToRotate = FMath::Atan2(Destination->GetActorLocation().Y - GetActorLocation().Y, Destination->GetActorLocation().X - GetActorLocation().X);
+
+		// Convert the angle from radians to degrees
+		float AngleInDegrees = FMath::RadiansToDegrees(AngleToRotate);
+
+		FQuat RotationQuat = FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AngleInDegrees));
+
+		// Set the new rotation to your object
+		SetActorRotation(RotationQuat.Rotator());
+
+		diff = FVector2D(Destination->GetActorLocation() - GetActorLocation());
+		SetActorLocation(FVector(GetActorLocation().X + (diff.X/2), Destination->GetActorLocation().Y + (diff.Y / 2), GetActorLocation().Z));
+	}
+}

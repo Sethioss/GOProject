@@ -23,26 +23,27 @@ void ASecurityGuardEnemy::BeginPlay()
 
 void ASecurityGuardEnemy::OnTurn()
 {
-	if (IsLookingForHostage && Hostage)
+	if (Destination)
 	{
-		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-	
-		if (Destination)
-		{
-			MoveToDestination();
-		}
+		MoveToDestination();
 	}
-	else 
-	{
-		Destination = GetDestination();
-		if (Destination != nullptr)
-		{
-			MoveToDestination();
-		}
-	}	
 
 	UGameManager::GetInstance()->RegisterToBarrier(this);
 	Fsm->ChangeState("OnPostTurn");
+}
+
+void ASecurityGuardEnemy::OnPreTurn()
+{
+	if (IsLookingForHostage && Hostage)
+	{
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	}
+	else
+	{
+		Destination = GetDestination();
+	}
+
+	Super::OnPreTurn();
 }
 
 APathActor* ASecurityGuardEnemy::GetDestination()
@@ -60,7 +61,7 @@ APathActor* ASecurityGuardEnemy::GetDestination()
 
 void ASecurityGuardEnemy::MoveToDestination()
 {
-	if (Destination) 
+	if (Destination)
 	{
 
 		FVector2f diff = FVector2f(Destination->GetActorLocation().X - GetActorLocation().Y);

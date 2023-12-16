@@ -22,7 +22,7 @@ void ACasaPlayerController::OnMouseClick()
 	float MouseY = MousePosition.Y;
 	FHitResult HitResult;
 	FVector2D MousePos(MouseX, MouseY);
-	ACasaPlayer* PlayerFinal = Cast<ACasaPlayer>(GetPawn());
+	ACasaPlayer* PlayerFinal = UGameManager::GetInstance()->Player;
 
 	if (PlayerFinal)
 	{
@@ -87,7 +87,7 @@ void ACasaPlayerController::OnMouseClick()
 										{
 											//Le Joueur est voisin de Path (Il s'agit d'un d�placement valide)
 											FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
-											Foreuse->SetForeuseLocation(nullptr, PlayerFinal->GetActorLocation());
+											Foreuse->SetForeuseLocation(UGameManager::GetInstance()->GetPlayerNode(), PlayerFinal->GetActorLocation());
 											PlayerFinal->MoveTo(ActorLocation);
 										}
 									}

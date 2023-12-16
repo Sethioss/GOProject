@@ -19,31 +19,29 @@ AArmySoldierEnemy::AArmySoldierEnemy()
 void AArmySoldierEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
-void AArmySoldierEnemy::OnTurn()
+void AArmySoldierEnemy::OnPreTurn()
 {
 	if (IsLookingForHostage)
 	{
 		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-	
-		if (Destination)
-		{
-			MoveToDestination();
-		}
 	}
-	else 
+	else
 	{
 		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
-
-		if (Destination)
-		{
-			MoveToDestination();
-		}
 	}
 
-	UGameManager::GetInstance()->RegisterToBarrier(this);
+	Super::OnPreTurn();
+}
+
+void AArmySoldierEnemy::OnTurn()
+{
+	if (Destination)
+	{
+		MoveToDestination();
+	}
+
 	Fsm->ChangeState("OnPostTurn");
 }
 
@@ -60,7 +58,6 @@ void AArmySoldierEnemy::MoveToDestination()
 {
 	if (Destination)
 	{
-
 		FVector2f diff = FVector2f(Destination->GetActorLocation().X - GetActorLocation().Y);
 
 		float AngleToRotate = FMath::Atan2(Destination->GetActorLocation().Y - GetActorLocation().Y, Destination->GetActorLocation().X - GetActorLocation().X);
