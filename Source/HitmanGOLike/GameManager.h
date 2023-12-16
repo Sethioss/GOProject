@@ -79,7 +79,7 @@ public:
 	static UGameManager* GetInstance();
 
 	void ResetAllPathWeights();
-	void UnregisterAllHostages();
+	void UnregisterHostage(AOtage* Otage);
 
 	APathActor* GetPlayerNode();
 

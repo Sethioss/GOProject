@@ -75,12 +75,16 @@ void UGameManager::BeginPlay()
 	}
 }
 
-void UGameManager::UnregisterAllHostages()
+void UGameManager::UnregisterHostage(AOtage* Otage)
 {
 	for (int i = 0; i < Enemies.Num(); ++i)
 	{
-		Enemies[i]->IsLookingForHostage = false;
-		Enemies[i]->Hostage = nullptr;
+		if (Enemies[i]->Hostage == Otage)
+		{
+			Enemies[i]->ClearBestPath();
+			Enemies[i]->IsLookingForHostage = false;
+			Enemies[i]->Hostage = nullptr;
+		}
 	}
 }
 

@@ -44,6 +44,8 @@ public:
 	CasaFSM* Fsm;
 	bool AllowedToMove = false;
 
+	void ClearBestPath();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay();

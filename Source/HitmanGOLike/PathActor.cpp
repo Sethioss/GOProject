@@ -50,6 +50,12 @@ void APathActor::OnConstruction(const FTransform& Transform)
 	}
 }
 
+void APathActor::SetIsEnemyPath(float value)
+{
+	UMaterialInstanceDynamic* DynMat = Cast<UMaterialInstanceDynamic>(PlaneMesh->GetMaterial(0));
+	AddMaterialFloatParameterValue(DynMat, PartOfEnemyPath, "IsPartOfEnemyPath", value);
+}
+
 // Called every frame
 void APathActor::Tick(float DeltaTime)
 {
@@ -360,6 +366,16 @@ void APathActor::RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGen
 				}
 			}
 		}
+	}
+}
+
+void APathActor::AddMaterialFloatParameterValue(UMaterialInstanceDynamic* DynMat, float& floatVal, FString floatValName, float value)
+{
+	floatVal += value;
+
+	if (DynMat)
+	{
+		DynMat->SetScalarParameterValue((TEXT("%s"), *floatValName), value);
 	}
 }
 

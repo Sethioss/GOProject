@@ -70,6 +70,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters")
 	bool IsWalkableNode = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NodeInfo)
+	float PartOfEnemyPath = 0;
+
+	void SetIsEnemyPath(float value);
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -86,6 +91,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
     TArray<APathActor*> NeighbouringNodes;
+
+	void AddMaterialFloatParameterValue(UMaterialInstanceDynamic* DynMat, float& floatVal, FString floatValName, float value);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
 	bool Up = true;

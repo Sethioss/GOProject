@@ -42,6 +42,7 @@ void AEnemyActor::Alert(AOtage* Otage)
 {
 	IsLookingForHostage = true;
 	Hostage = Otage;
+	GetDestinationByPathfinding(Otage->GetCurrentNode());
 }
 
 void AEnemyActor::Update()
@@ -63,6 +64,17 @@ void AEnemyActor::Init()
 	AllowedToMove = false;
 	InitFsm();
 	UGameManager::GetInstance()->RegisterToBarrier(this);
+}
+
+void AEnemyActor::ClearBestPath()
+{
+	if (BestPath.Num() > 0)
+	{
+		for (int i = 0; i < BestPath.Num(); ++i)
+		{
+			BestPath[i]->SetIsEnemyPath(-1);
+		}
+	}
 }
 
 void AEnemyActor::InitFsm() {
@@ -130,6 +142,15 @@ void AEnemyActor::MoveToDestination() {}
 
 APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath)
 {
+	if (BestPath.Num() > 0)
+	{
+		for (int i = 0; i < BestPath.Num(); ++i)
+		{
+			BestPath[i]->SetIsEnemyPath(-1);
+		}
+	}
+
+
 	APathActor* Dest = Cast<APathActor>(DestinationPath);
 
 	TArray<APathActor*> CustomTemp;
@@ -142,6 +163,10 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 			Path.Add(GetCurrentNode());
 
 			BestPath = Path;
+			for (int i = 0; i < BestPath.Num(); ++i)
+			{
+				BestPath[i]->SetIsEnemyPath(1);
+			}
 			return Path[0];
 		}
 
@@ -154,6 +179,10 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 				Path.Add(GetCurrentNode()->ConnectorInfo[i].DestinationNode);
 
 				BestPath = Path;
+				for (int j = 0; j < BestPath.Num(); ++j)
+				{
+					BestPath[j]->SetIsEnemyPath(1);
+				}
 				return Path[1];
 			}
 		}
@@ -177,10 +206,10 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 
 		for (int i = 0; i < AllLists.Num(); ++i)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
+			//UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
 			for (int j = 0; j < AllLists[i].Num(); ++j)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
+				//UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
 			}
 
 		}
@@ -223,6 +252,16 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 	}
 
 	BestPath = CustomTemp;
+
+	if (BestPath.Num() > 0)
+	{
+		for (int i = 0; i < BestPath.Num(); ++i)
+		{
+			BestPath[i]->SetIsEnemyPath(1);
+		}
+	}
+
+
 	return CustomTemp[0];
 }
 
@@ -507,8 +546,8 @@ void AEnemyActor::OnPostTurn()
 		if (GetCurrentNode() == Hostage->GetCurrentNode())
 		{
 			Hostage->SetActorLocation(FVector(100000, 100000, 100000));
-			UGameManager::GetInstance()->UnregisterAllHostages();
-			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+			UGameManager::GetInstance()->UnregisterHostage(Hostage);
+			//UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
 		}
 	}

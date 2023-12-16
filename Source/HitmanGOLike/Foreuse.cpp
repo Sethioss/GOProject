@@ -25,7 +25,7 @@ void AForeuse::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Making this node an obstacle"));
+	//UE_LOG(LogTemp, Warning, TEXT("Making this node an obstacle"));
 	CurrentNode->IsObstacle = true;
 }
 
