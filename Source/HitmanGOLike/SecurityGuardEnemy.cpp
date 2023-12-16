@@ -42,7 +42,7 @@ void ASecurityGuardEnemy::OnTurn()
 	}	
 
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
-	Fsm->ChangeState("Await");
+	Fsm->ChangeState("OnAwait");
 }
 
 APathActor* ASecurityGuardEnemy::GetDestination()

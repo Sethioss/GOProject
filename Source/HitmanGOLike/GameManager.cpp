@@ -52,11 +52,25 @@ void UGameManager::BeginPlay()
 	// ...
 	TArray<AActor*> EnemiesToFind;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
-	
+
 	for (int i = 0; i < EnemiesToFind.Num(); ++i)
 	{
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
+	}
+
+	TArray<AActor*> paths;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), paths);
+
+	for (int i = 0; i < paths.Num(); ++i)
+	{
+		for (int j = 0; j < Cast<APathActor>(paths[i])->ConnectorInfo.Num(); ++j)
+		{
+			if (Cast<APathActor>(paths[i])->ConnectorInfo[j].Direction == EGeneralDirectionEnum::VALNUM || Cast<APathActor>(paths[i])->ConnectorInfo[j].DestinationNode == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Error on node %s. One or multiple connectors have VALNUM direction, or has a nullptr destination node!"), *Cast<APathActor>(paths[i])->GetActorNameOrLabel());
+			}
+		}
 	}
 }
 

@@ -44,7 +44,7 @@ void AArmySoldierEnemy::OnTurn()
 	}
 
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
-	Fsm->ChangeState("Await");
+	Fsm->ChangeState("OnAwait");
 }
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)

@@ -141,7 +141,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, false) == Dest)
+			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, true) == Dest)
 			{
 				TArray<APathActor*> Path;
 				Path.Add(GetCurrentNode());
@@ -159,7 +159,6 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
 			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, false), Dest, Blacklisted);
-			CurList.Insert(GetCurrentNode(), 0);
 
 			if (CurList[CurList.Num() - 1] == Dest)
 			{
@@ -168,13 +167,23 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 
 		}
 
+		for (int i = 0; i < AllLists.Num(); ++i)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
+			for (int j = 0; j < AllLists[i].Num(); ++j)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
+			}
 
-		if (AllLists.Num() > 0)
+		}
+
+		if (AllLists.Num() == 1)
 		{
 			CustomTemp = AllLists[0];
 		}
-		else if (AllLists.Num() > 2)
+		else if (AllLists.Num() > 1)
 		{
+			CustomTemp = AllLists[0];
 			for (int i = 0; i < AllLists.Num(); ++i)
 			{
 				if (CustomTemp.Num() > AllLists[i].Num())
@@ -183,8 +192,16 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 				}
 				else if (CustomTemp.Num() == AllLists[i].Num())
 				{
-					CustomTemp = CustomTemp[1] == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) ? CustomTemp : AllLists[i];
+					if (GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true) == AllLists[i][0])
+					{
+						CustomTemp = AllLists[i];
+					}
 				}
+			}
+
+			for (int j = 0; j < CustomTemp.Num(); ++j)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Custom temp: %s"), *CustomTemp[j]->GetActorNameOrLabel());
 			}
 		}
 		else
@@ -194,7 +211,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 	}
 
 	BestPath = CustomTemp;
-	return CustomTemp[1];
+	return CustomTemp[0];
 }
 
 TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes)
@@ -357,7 +374,7 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 					}
 				}
 				else { return Path; }
-			}		
+			}
 		}
 	}
 
@@ -407,7 +424,7 @@ APathActor* AEnemyActor::SnapToGrid(FVector offset)
 {
 	FHitResult HitResult;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), -GetActorUpVector() * 1000, ECollisionChannel::ECC_GameTraceChannel1);
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), -(GetActorUpVector() * 1000), ECollisionChannel::ECC_GameTraceChannel1);
 
 	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() - (GetActorUpVector() * 1000), FColor::Green, true, 50.f);
 
