@@ -24,16 +24,16 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::OnTurn()
 {
-	//if (IsLookingForHostage)
-	//{
-	//	Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-	//
-	//	if (Destination)
-	//	{
-	//		MoveToDestination();
-	//	}
-	//}
-	//else 
+	if (IsLookingForHostage)
+	{
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	
+		if (Destination)
+		{
+			MoveToDestination();
+		}
+	}
+	else 
 	{
 		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
 
@@ -43,8 +43,8 @@ void AArmySoldierEnemy::OnTurn()
 		}
 	}
 
-	UGameManager::GetInstance()->ReleaseFromBarrier(this);
-	Fsm->ChangeState("OnAwait");
+	UGameManager::GetInstance()->RegisterToBarrier(this);
+	Fsm->ChangeState("OnPostTurn");
 }
 
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)

@@ -23,16 +23,16 @@ void ASecurityGuardEnemy::BeginPlay()
 
 void ASecurityGuardEnemy::OnTurn()
 {
-	//if (IsLookingForHostage)
-	//{
-	//	Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-	//
-	//	if (Destination)
-	//	{
-	//		MoveToDestination();
-	//	}
-	//}
-	//else 
+	if (IsLookingForHostage && Hostage)
+	{
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	
+		if (Destination)
+		{
+			MoveToDestination();
+		}
+	}
+	else 
 	{
 		Destination = GetDestination();
 		if (Destination != nullptr)
@@ -41,8 +41,8 @@ void ASecurityGuardEnemy::OnTurn()
 		}
 	}	
 
-	UGameManager::GetInstance()->ReleaseFromBarrier(this);
-	Fsm->ChangeState("OnAwait");
+	UGameManager::GetInstance()->RegisterToBarrier(this);
+	Fsm->ChangeState("OnPostTurn");
 }
 
 APathActor* ASecurityGuardEnemy::GetDestination()

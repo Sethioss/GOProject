@@ -48,6 +48,7 @@ void UGameManager::BeginPlay()
 	}
 
 	InitFsm();
+	ClearBarrier();
 
 	// ...
 	TArray<AActor*> EnemiesToFind;
@@ -71,6 +72,15 @@ void UGameManager::BeginPlay()
 				UE_LOG(LogTemp, Error, TEXT("Error on node %s. One or multiple connectors have VALNUM direction, or has a nullptr destination node!"), *Cast<APathActor>(paths[i])->GetActorNameOrLabel());
 			}
 		}
+	}
+}
+
+void UGameManager::UnregisterAllHostages()
+{
+	for (int i = 0; i < Enemies.Num(); ++i)
+	{
+		Enemies[i]->IsLookingForHostage = false;
+		Enemies[i]->Hostage = nullptr;
 	}
 }
 
@@ -219,9 +229,21 @@ APathActor* UGameManager::GetPlayerNode()
 	return nullptr;
 }
 
+void UGameManager::ClearBarrier()
+{
+	for (int i = 0; i < Instance->Barrier->BarrieredObjects.Num(); ++i)
+	{
+		Instance->ReleaseFromBarrier(Instance->Barrier->BarrieredObjects[i]);
+	}
+}
+
 void UGameManager::RegisterToBarrier(AActor* Act)
 {
-	FSMBarrier::BarrieredObjects.Add(Act);
+	if (!FSMBarrier::BarrieredObjects.Contains(Act))
+	{
+		FSMBarrier::BarrieredObjects.Add(Act);
+		//UE_LOG(LogTemp, Warning, TEXT("Registering %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
+	}
 }
 
 void UGameManager::ReleaseFromBarrier(AActor* Act)
@@ -229,6 +251,7 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 	if (FSMBarrier::BarrieredObjects.Contains(Act))
 	{
 		FSMBarrier::BarrieredObjects.Remove(Act);
+		//UE_LOG(LogTemp, Warning, TEXT("Releasing %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
 	}
 }
 

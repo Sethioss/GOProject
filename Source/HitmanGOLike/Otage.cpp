@@ -6,7 +6,7 @@
 void AOtage::BeginPlay() 
 {
 	Super::BeginPlay();
-	FVector PlacingBoxExtent = FVector(((GetActorScale().X * 50) * 6) + 1, ((GetActorScale().X * 50) * 6) + 1, 100);
+	FVector PlacingBoxExtent = FVector(((GetActorScale().X * 50) * 8) + 1, ((GetActorScale().X * 50) * 8) + 1, 100);
 	PlacingArea = FBox::BuildAABB(GetActorLocation(), PlacingBoxExtent);
 	UE_LOG(LogTemp, Warning, TEXT("PlaceArea minX : %f Path X: %f PlaceArea maxX : %f , PlaceArea minY : %f Path Y: %f PlaceArea maxY : %f"), (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).X, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).X, (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).Y, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).Y);
 	
@@ -16,7 +16,7 @@ void AOtage::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if(IsHeld)
-		DrawDebugBox(GetWorld(), GetActorLocation(), FVector(((GetActorScale().X * 50) * 6) + 1, ((GetActorScale().X * 50) * 6) + 1, 100), FColor::Green);
+		DrawDebugBox(GetWorld(), GetActorLocation(), FVector(((GetActorScale().X * 50) * 8) + 1, ((GetActorScale().X * 50) * 8) + 1, 100), FColor::Green);
 }
 
 void AOtage::SetOtageLocation(APathActor* Target)
@@ -39,7 +39,6 @@ void AOtage::ItemEffect() {
 	TArray<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
 
-	UE_LOG(LogTemp, Warning, TEXT("A"));
 	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0, -15), GetActorLocation()+FVector(200,0, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)

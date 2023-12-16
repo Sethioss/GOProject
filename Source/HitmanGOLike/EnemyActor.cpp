@@ -141,7 +141,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			if (GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, true) == Dest)
+			if (GetCurrentNode()->ConnectorInfo[i].DestinationNode == Dest)
 			{
 				TArray<APathActor*> Path;
 				Path.Add(GetCurrentNode());
@@ -158,7 +158,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		Blacklisted.Add(GetCurrentNode());
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			CurList = AStarAlgorithm(GetNodeAtCardinalDirection(GetCurrentNode()->ConnectorInfo[i].Direction, false), Dest, Blacklisted);
+			CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
 
 			if (CurList[CurList.Num() - 1] == Dest)
 			{
@@ -468,20 +468,24 @@ void AEnemyActor::OnAwait()
 }
 
 void AEnemyActor::OnPreTurn() {}
-void AEnemyActor::OnTurn() { Fsm->ChangeState("OnPostTurn"); }
+void AEnemyActor::OnTurn() {}
 void AEnemyActor::OnPostTurn()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Post turn"));
 	if (IsLookingForHostage && Hostage)
 	{
 		if (GetCurrentNode() == Hostage->GetCurrentNode())
 		{
-			//UGameManager::GetInstance()->UnregisterAllHostages();
+			Hostage->SetActorLocation(FVector(100000, 100000, 100000));
+			UGameManager::GetInstance()->UnregisterAllHostages();
 			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
 		}
 	}
 
 	AllowedToMove = false;
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
+	Fsm->ChangeState("OnAwait");
 }
 
 void AEnemyActor::OnPreAttack() {}

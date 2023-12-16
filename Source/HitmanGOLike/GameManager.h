@@ -79,9 +79,11 @@ public:
 	static UGameManager* GetInstance();
 
 	void ResetAllPathWeights();
+	void UnregisterAllHostages();
 
 	APathActor* GetPlayerNode();
 
+	void ClearBarrier();
 	void RegisterToBarrier(AActor* Act);
 	void ReleaseFromBarrier(AActor* Act);
 	inline bool IsFSMBarrierEmpty() { return FSMBarrier::BarrieredObjects.Num() == 0; }

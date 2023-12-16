@@ -22,7 +22,7 @@ void CasaFSM::ChangeStateTo(CasaState* Dest, bool PlayTransition)
 
 void CasaFSM::DebugCurrentState()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Current State: %s"), *CurrentState->Name);
+	//UE_LOG(LogTemp, Warning, TEXT("Current State: %s"), *CurrentState->Name);
 }
 
 void CasaFSM::SetNextState(FString Dest)

@@ -36,6 +36,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsLookingForHostage = false;
+	UPROPERTY(VisibleAnywhere)
+	AOtage* Hostage;
+
 	bool RegisteredToManager = false;
 
 	CasaFSM* Fsm;
@@ -46,8 +49,6 @@ protected:
 	virtual void BeginPlay();
 	virtual void InitFsm();
 
-	UPROPERTY(VisibleAnywhere)
-	AOtage* Hostage;
 	virtual APathActor* GetDestination();
 	virtual void MoveToDestination();
 
