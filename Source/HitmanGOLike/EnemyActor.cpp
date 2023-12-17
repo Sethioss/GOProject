@@ -524,6 +524,7 @@ void AEnemyActor::OnPreTurn()
 	{
 		if (Destination == UGameManager::GetInstance()->GetPlayerNode())
 		{
+			UGameManager::GetInstance()->RegisterToBarrier(this);
 			Fsm->ChangeState("OnAttack");
 		}
 		else 
@@ -537,6 +538,11 @@ void AEnemyActor::OnPreTurn()
 		Fsm->ChangeState("OnAwait");
 	}
 }
+
+void AEnemyActor::OnStandby() {
+
+}
+
 void AEnemyActor::OnTurn() {}
 void AEnemyActor::OnPostTurn()
 {
@@ -547,7 +553,7 @@ void AEnemyActor::OnPostTurn()
 		{
 			Hostage->SetActorLocation(FVector(100000, 100000, 100000));
 			UGameManager::GetInstance()->UnregisterHostage(Hostage);
-			//UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
 		}
 	}

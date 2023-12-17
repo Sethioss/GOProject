@@ -53,7 +53,7 @@ void ACasaPlayerController::OnMouseClick()
 						if (PlayerFinal->HeldItem == nullptr)
 						{
 							APathActor* Target = Path->IsPlayerOnNeighbouringNode();
-							if (Target)
+							if (Target && !Target->HasObjectOnIt)
 							{
 								PlayerFinal->InitiateMovement(Target);
 							}
@@ -68,25 +68,58 @@ void ACasaPlayerController::OnMouseClick()
 								if (Path->GetActorLocation().X != PlayerFinal->GetActorLocation().X || Path->GetActorLocation().Y != PlayerFinal->GetActorLocation().Y)
 								{
 									//Path n'est pas le Node o� le joueur se trouve
-									APathActor* NewNodeForPlayer = Path->IsForeuseOnNeighbourinNode();
+									APathActor* NewNodeForPlayer = Path->IsForeuseOnNeighbouringNode();
 
 									if (NewNodeForPlayer)
 									{
-										//La Foreuse est sur un Node voisin de Path (Deplacement vers l'avant de la foreuse)
-										PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
-										Foreuse->SetForeuseLocation(Path, FVector(NULL, NULL, NULL));
+										APathActor* Target = NewNodeForPlayer->IsPlayerOnNeighbouringNode();
+										if (Target)
+										{
+											//La Foreuse est sur un Node voisin de Path (Deplacement vers l'avant de la foreuse)
+											//Foreuse->SetForeuseLocation(Path, FVector(NULL, NULL, NULL));
+											PlayerFinal->InitiateMovementWithDrill(NewNodeForPlayer, Path);
+										}
+
 									}
 									else
 									{
 										//La Foreuse n'est pas voisine de Path (Deplacement vers l'arri�re ou d�placement non valide ?)
-										if ((Path->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Path->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
+										APathActor* Targ = Path->IsForeuseOnNeighbouringNode();
+										if (!Targ)
 										{
 											//Le Joueur, La Foreuse et Path sont bien align�s
 											APathActor* Target = Path->IsPlayerOnNeighbouringNode();
 											if (Target)
 											{
-												Foreuse->SetForeuseLocation(UGameManager::GetInstance()->GetPlayerNode(), PlayerFinal->GetActorLocation());
-												PlayerFinal->InitiateMovement(Target);
+												//Recuperer la direction foreuse->player
+												APathActor* PlayerNode = UGameManager::GetInstance()->Player->CurrentNode;
+
+												for (int i = 0; i < Foreuse->CurrentNode->ConnectorInfo.Num(); ++i)
+												{
+													if (Foreuse->CurrentNode->ConnectorInfo[i].DestinationNode == PlayerNode)
+													{
+														//UE_LOG(LogTemp, Error, TEXT("Found direction between foreuse and player"));
+
+														//Recuperer la direction player->path
+														for (int j = 0; j < PlayerNode->ConnectorInfo.Num(); ++j)
+														{
+															if (PlayerNode->ConnectorInfo[j].DestinationNode == Target)
+															{
+																//UE_LOG(LogTemp, Error, TEXT("Found direction between player and path"));
+
+																//Si c'est la même direction que foreuse->player
+																if (PlayerNode->ConnectorInfo[j].Direction == Foreuse->CurrentNode->ConnectorInfo[i].Direction)
+																{
+																	PlayerFinal->InitiateMovementWithDrill(Target, PlayerNode);
+																}
+															}
+														}
+													}
+												}
+
+												
+												//Foreuse->SetForeuseLocation(UGameManager::GetInstance()->GetPlayerNode(), PlayerFinal->GetActorLocation());
+												//PlayerFinal->InitiateMovement(Target);
 											}
 										}
 									}
@@ -130,6 +163,7 @@ void ACasaPlayerController::OnMouseClick()
 					if (HeldItem)
 					{
 						// Le Joueur possède un Objet
+						UE_LOG(LogTemp, Error, TEXT("Unequipping foreuse!"));
 						HeldItem->SetIsHeld();
 						PlayerFinal->HeldItem = nullptr;
 					}
@@ -137,6 +171,7 @@ void ACasaPlayerController::OnMouseClick()
 					else if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
 					{
 						//L'Objet est un Item on l'�quipe au Joueur
+						UE_LOG(LogTemp, Error, TEXT("Equipping foreuse!"));
 						PlayerFinal->HeldItem = Item;
 						Item->SetIsHeld();
 					}
@@ -155,15 +190,15 @@ void ACasaPlayerController::OnMouseClick()
 							if ((Wall->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Wall->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
 							{
 								//La Foreuse, Le Wall et le Joueur sont bien align�s
-								APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbourinNode();
+								APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbouringNode();
 								if (NewNodeForPlayer)
 								{
 									//La Foreuse est bien � c�t� du Wall
-									Foreuse->ItemEffect(Wall);
-									PlayerFinal->MoveTo(FVector2D(NewNodeForPlayer->GetActorLocation().X, NewNodeForPlayer->GetActorLocation().Y));
 									Foreuse->SetForeuseLocation(Wall->CurrentNode, FVector(NULL, NULL, NULL));
 									Foreuse->SetIsHeld();
 									PlayerFinal->HeldItem = nullptr;
+									Foreuse->ItemEffect(Wall);
+									PlayerFinal->InitiateMovement(NewNodeForPlayer);
 								}
 							}
 						}

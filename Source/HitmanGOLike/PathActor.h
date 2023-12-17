@@ -124,7 +124,8 @@ public:
 	bool IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer();
 	void TransferPlayerOwnership(APathActor& OriginTile);
 	
-	APathActor* IsForeuseOnNeighbourinNode();
+	bool HasObjectOnIt = false;
+	APathActor* IsForeuseOnNeighbouringNode();
 
 	inline UStaticMeshComponent* GetPlaneMesh() { return PlaneMesh; }
 

@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "PathActor.h"
+#include "IBoardElement.h"
 #include "Item.generated.h"
 
 /*
@@ -17,7 +18,7 @@
 */
 
 UCLASS()
-class HITMANGOLIKE_API AItem : public AActor
+class HITMANGOLIKE_API AItem : public AActor, public IBoardElement
 {
 	GENERATED_BODY()
 	
@@ -30,6 +31,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//Node où se situe l'objet
+	UPROPERTY(EditAnywhere)
+	APathActor* CurrentNode = nullptr;
+
+	APathActor* NextNode = nullptr;
+
+	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,9 +47,6 @@ protected:
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
 	UPROPERTY()
 	class UAudioComponent* AudioComponent = nullptr;
-	//Node où se situe l'objet
-	UPROPERTY(EditAnywhere)
-	APathActor* CurrentNode = nullptr;
 
 	//Node en face de l'item permet d'utiliser l'item (avancer la foreuse, pousser l'otage)
 	//UFUNCTION()

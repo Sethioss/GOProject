@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "PathActor.h"
+#include "IBoardElement.h"
 #include "Wall.generated.h"
 
 /*
@@ -16,7 +17,7 @@
 */
 
 UCLASS()
-class HITMANGOLIKE_API AWall : public AActor
+class HITMANGOLIKE_API AWall : public AActor, public IBoardElement
 {
 	GENERATED_BODY()
 	
@@ -30,6 +31,8 @@ public:
 	APathActor* CurrentNode;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
 
 protected:
 	// Called when the game starts or when spawned

@@ -99,33 +99,25 @@ bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
 }
 
 //Indique si la Foreuse est sur un Node voisin du Node actuel
-APathActor* APathActor::IsForeuseOnNeighbourinNode()
+APathActor* APathActor::IsForeuseOnNeighbouringNode()
 {
+	AForeuse* Foreuse = Cast<AForeuse>(UGameManager::GetInstance()->Player->HeldItem);
+
 	for (int i = 0; i < ConnectorInfo.Num(); ++i)
 	{
-		if (ConnectorInfo[i].DestinationNode->IsPlayerOnNeighbouringNode())
+		if (ConnectorInfo[i].DestinationNode == Foreuse->CurrentNode)
 		{
-			FVector TargetPos = GetActorLocation();
-			FVector ForeusePos = ConnectorInfo[i].DestinationNode->GetActorLocation();
-			if ((TargetPos.X == ForeusePos.X && ForeusePos.X == ConnectorInfo[i].DestinationNode->PlayerPawn->GetActorLocation().X) || (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == ConnectorInfo[i].DestinationNode->PlayerPawn->GetActorLocation().Y))
-			{
-				return ConnectorInfo[i].DestinationNode;
-			}
+			Foreuse->NextNode = ConnectorInfo[i].OriginNode;
+			return ConnectorInfo[i].DestinationNode;
+
+			//FVector TargetPos = GetActorLocation();
+			//FVector ForeusePos = ConnectorInfo[i].DestinationNode->GetActorLocation();
+			//if ((TargetPos.X == ForeusePos.X && ForeusePos.X == ConnectorInfo[i].DestinationNode->PlayerPawn->GetActorLocation().X) || (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == ConnectorInfo[i].DestinationNode->PlayerPawn->GetActorLocation().Y))
+			//{
+			// return ConnectorInfo[i].DestinationNode;
+			//}
 		}
 	}
-	/*for (FConnectorInfo* Node: ConnectorInfo) 
-	{
-		if (Node->IsPlayerOnNeighbouringNode()) 
-		{
-			FVector TargetPos = GetActorLocation();
-			FVector ForeusePos = Node->GetActorLocation();
-			if((TargetPos.X == ForeusePos.X && ForeusePos.X == Node->PlayerPawn->GetActorLocation().X)|| (TargetPos.Y == ForeusePos.Y && ForeusePos.Y == Node->PlayerPawn->GetActorLocation().Y))
-			{ 
-				return Node;
-			}
-		}
-	}
-	*/
 	return nullptr;
 }
 

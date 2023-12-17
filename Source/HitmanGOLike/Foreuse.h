@@ -36,4 +36,6 @@ public:
 	//Definit si la Foreuse est utilisable ou non
 	bool Usable = true;
 
+	void Remove();
+
 };

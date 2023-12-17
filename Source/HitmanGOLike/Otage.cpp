@@ -25,7 +25,9 @@ void AOtage::SetOtageLocation(APathActor* Target)
 	{	
 		//L'Otage peut être déplacé
 		SetActorLocation(FVector(Target->GetActorLocation().X, Target->GetActorLocation().Y,50));
+		CurrentNode->HasObjectOnIt = false;
 		CurrentNode = Target;
+		CurrentNode->HasObjectOnIt = true;
 		Placable = false;
 		SetIsHeld();
 		StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);

@@ -8,6 +8,7 @@
 #include "PathActor.h"
 #include "EnemyActor.h"
 #include "Otage.h"
+#include "Foreuse.h"
 #include "GameManager.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -48,6 +49,7 @@ protected:
 
 	void OnPrePlayerTurn();
 	void OnPlayerTurn();
+	void OnPlayerMoveWithDrill();
 
 	void OnEnemyTurn();
 	void OnPlayerDeath();

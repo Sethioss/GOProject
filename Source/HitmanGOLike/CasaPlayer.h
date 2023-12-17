@@ -9,7 +9,9 @@
 #include "GameManager.h"
 #include "MoverComponent.h"
 #include "Item.h"
+#include "Foreuse.h"
 #include "CasaPlayer.generated.h"
+
 UCLASS()
 class HITMANGOLIKE_API ACasaPlayer : public APawn, public IBoardElement
 {
@@ -65,6 +67,7 @@ public:
 	void MoveTo(APathActor* TargetPosition);
 
 	void InitiateMovement(APathActor* Target);
+	void InitiateMovementWithDrill(APathActor* Target, APathActor* ForeuseTarget);
 
 	bool Finished = false;
 

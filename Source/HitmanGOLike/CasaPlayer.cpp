@@ -145,6 +145,13 @@ void ACasaPlayer::InitiateMovement(APathActor* Target)
 	UGameManager::GetInstance()->GetFsm()->ChangeState("OnPrePlayerTurn");
 }
 
+void ACasaPlayer::InitiateMovementWithDrill(APathActor* Target, APathActor* ForeuseTarget)
+{
+	UGameManager::GetInstance()->PlayerNextNode = Target;
+	UGameManager::GetInstance()->Player->HeldItem->NextNode = ForeuseTarget;
+	UGameManager::GetInstance()->GetFsm()->ChangeState("OnPrePlayerTurn");
+}
+
 APathActor* ACasaPlayer::SnapToGrid(FVector offset)
 {
 	FHitResult HitResult;

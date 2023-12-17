@@ -29,19 +29,7 @@ AWall::AWall()
 void AWall::BeginPlay()
 {
 	Super::BeginPlay();
-	FHitResult HitResult;
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 1), GetActorLocation() + FVector(0, 0, -1) * 1000,
-		ECollisionChannel::ECC_GameTraceChannel1);
-	if (HitResult.bBlockingHit)
-	{
-		APathActor* Node = Cast<APathActor>(HitResult.GetActor());
-		if (Node)
-		{
-			CurrentNode = Node;
-			Node->IsObstacle = true;
-			SetActorLocation(FVector(Node->GetActorLocation().X, Node->GetActorLocation().Y, 50));
-		}
-	}
+	CurrentNode = SnapToGrid();
 }
 
 // Called every frame
@@ -57,8 +45,40 @@ void AWall::Break()
 	if (!IsBroken)
 	{
 		IsBroken = true;
+		CurrentNode->HasObjectOnIt = false;
 		//static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //Modification du Mesh
 		//StaticMeshComponent->SetStaticMesh(meshFinder.Object);
+
+		//TEMPORARY - SAFELY REMOVE FROM BOARD
+		SetActorLocation(FVector(10000, 10000, 10000));
 		StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
 	}
+}
+
+APathActor* AWall::SnapToGrid(FVector offset)
+{
+	FHitResult HitResult;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), -(GetActorUpVector() * 1000), ECollisionChannel::ECC_GameTraceChannel1);
+
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() - (GetActorUpVector() * 1000), FColor::Green, true, 50.f);
+
+	if (HitResult.bBlockingHit)
+	{
+
+		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+
+		if (Path)
+		{
+			CurrentNode = Path;
+
+			FBox ActorBounds = GetComponentsBoundingBox();
+
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+			CurrentNode->HasObjectOnIt = true;
+			CurrentNode->IsObstacle = true;
+		}
+	}
+
+	return CurrentNode;
 }

@@ -82,6 +82,7 @@ void UGameManager::UnregisterHostage(AOtage* Otage)
 		if (Enemies[i]->Hostage == Otage)
 		{
 			Enemies[i]->ClearBestPath();
+			Otage->CurrentNode->HasObjectOnIt = false;
 			Enemies[i]->IsLookingForHostage = false;
 			Enemies[i]->Hostage = nullptr;
 		}
@@ -136,6 +137,11 @@ void UGameManager::InitFsm()
 	PlayerTurnState->Name = "OnPlayerTurn";
 	PlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPlayerTurn);
 	Instance->Fsm->States.Add(PlayerTurnState);
+
+	CasaState* PlayerMoveWithDrillState = new CasaState();
+	PlayerMoveWithDrillState->Name = "OnPlayerMoveWithDrill";
+	PlayerMoveWithDrillState->SetUpdateDelegate(this, &UGameManager::OnPlayerMoveWithDrill);
+	Instance->Fsm->States.Add(PlayerMoveWithDrillState);
 
 	CasaState* PostPlayerTurnState = new CasaState();
 	PostPlayerTurnState->Name = "OnPlayerPostTurn";
@@ -295,16 +301,48 @@ void UGameManager::OnPrePlayerTurn()
 		}
 	}
 
+	if (Instance->Player->HeldItem)
+	{
+		AForeuse* Foreuse = Cast<AForeuse>(Instance->Player->HeldItem);
+
+		if (Foreuse)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("I must move with the drill"));
+			Instance->Fsm->ChangeState("OnPlayerMoveWithDrill");
+			return;
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("I must move with the drill"));
 	Instance->Fsm->ChangeState("OnPlayerTurn");
 
+}
+
+void UGameManager::OnPlayerMoveWithDrill()
+{
+	if (PlayerNextNode)
+	{
+
+		//Move Drill to that node
+		AForeuse* Foreuse = Cast<AForeuse>(Instance->Player->HeldItem);
+
+		if (Foreuse)
+		{
+			Foreuse->SetForeuseLocation(Foreuse->NextNode, FVector(NULL, NULL, NULL));
+		}
+
+
+		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
+		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+	}
+
+	Instance->Fsm->ChangeState("OnPlayerPostTurn");
 }
 
 void UGameManager::OnPlayerTurn()
 {
 	if (PlayerNextNode)
 	{
-		//Player->MoveTo(PlayerNextNode);
-		UE_LOG(LogTemp, Error, TEXT("I'm supposed to move"));
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
 		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
 	}
@@ -315,7 +353,7 @@ void UGameManager::OnPlayerTurn()
 void UGameManager::OnPlayerRotation() {}
 void UGameManager::OnPlayerTranslation() {}
 
-void UGameManager::OnPlayerMoveToDeath() 
+void UGameManager::OnPlayerMoveToDeath()
 {
 	if (PlayerNextNode)
 	{
@@ -329,8 +367,8 @@ void UGameManager::OnPlayerMoveToDeath()
 
 }
 
-void UGameManager::OnPostPlayerTurn() 
-{ 
+void UGameManager::OnPostPlayerTurn()
+{
 	//Check if it's the end node, change state to win state if yes
 
 	Instance->Fsm->ChangeState("OnEnemyTurn");
@@ -338,7 +376,7 @@ void UGameManager::OnPostPlayerTurn()
 
 }
 
-void UGameManager::OnEnemyAttack(){}
+void UGameManager::OnEnemyAttack() {}
 
 void UGameManager::BlockPlayerInput()
 {
@@ -386,11 +424,11 @@ void UGameManager::OnSaveHostage()
 	}
 }
 
-void UGameManager::OnGameSucceeded(){}
-void UGameManager::OnGameFailed(){}
-void UGameManager::OnGameRestart(){}
-void UGameManager::OnGameReward(){}
-void UGameManager::OnGameQuit(){}
-void UGameManager::OnGameNextLevel(){}
+void UGameManager::OnGameSucceeded() {}
+void UGameManager::OnGameFailed() {}
+void UGameManager::OnGameRestart() {}
+void UGameManager::OnGameReward() {}
+void UGameManager::OnGameQuit() {}
+void UGameManager::OnGameNextLevel() {}
 
 void UGameManager::OnGamePause() {}

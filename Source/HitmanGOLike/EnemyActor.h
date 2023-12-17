@@ -70,6 +70,8 @@ protected:
 	void OnRegisterToManager();
 	virtual void OnAwait();
 
+	virtual void OnStandby();
+
 	virtual void OnPreTurn();
 	virtual void OnTurn();
 	virtual void OnPostTurn();
