@@ -307,6 +307,7 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 						CurIT = OpenList[i];
 					}
 				}
+				//Check if the score corresponds to 5555, set back to 1 if that's the case
 		}
 
 		if (Current == End)
@@ -330,7 +331,8 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 				APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
 				Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
 				if (Current->IsObstacle) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
-				if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
+				if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 88888; }
+				//Set a specific FScore to the node that is in the direction of a wall if it is (Like 55555)
 				Successor->PathfindingParent = Current;
 
 				OpenList.Add(Current->ConnectorInfo[i].DestinationNode);

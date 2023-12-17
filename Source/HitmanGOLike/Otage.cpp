@@ -41,6 +41,16 @@ void AOtage::ItemEffect() {
 	TArray<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
 
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 10), GetActorLocation() + FVector(0, 0, -100),
+		ECollisionChannel::ECC_Visibility);
+	if (HitResult.bBlockingHit)
+	{
+		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
+		if (Enemy)
+		{
+			EnemiesArray.Add(Enemy);
+		}
+	}
 	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0, -15), GetActorLocation()+FVector(200,0, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
