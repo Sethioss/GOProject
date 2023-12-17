@@ -41,8 +41,10 @@ AEnemyActor::AEnemyActor()
 void AEnemyActor::Alert(AOtage* Otage)
 {
 	IsLookingForHostage = true;
+	Stunned = true;
 	Hostage = Otage;
 	GetDestinationByPathfinding(Otage->GetCurrentNode());
+	Fsm->ChangeState("OnPostTurn");
 }
 
 void AEnemyActor::Update()
@@ -328,6 +330,7 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 				APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
 				Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
 				if (Current->IsObstacle) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
+				if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
 				Successor->PathfindingParent = Current;
 
 				OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
@@ -533,22 +536,25 @@ void AEnemyActor::OnAwait()
 
 void AEnemyActor::OnPreTurn() 
 {
-	if (Destination)
+	if (!Stunned)
 	{
-		if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+		if (Destination)
 		{
-			UGameManager::GetInstance()->RegisterToBarrier(this);
-			Fsm->ChangeState("OnPreAttack");
+			if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+			{
+				UGameManager::GetInstance()->RegisterToBarrier(this);
+				Fsm->ChangeState("OnPreAttack");
+			}
+			else
+			{
+				Fsm->ChangeState("OnTurn");
+			}
 		}
-		else 
+		else
 		{
-			Fsm->ChangeState("OnTurn");
+			UGameManager::GetInstance()->ReleaseFromBarrier(this);
+			Fsm->ChangeState("OnAwait");
 		}
-	}
-	else
-	{
-		UGameManager::GetInstance()->ReleaseFromBarrier(this);
-		Fsm->ChangeState("OnAwait");
 	}
 }
 
@@ -559,17 +565,22 @@ void AEnemyActor::OnStandby() {
 void AEnemyActor::OnTurn() {}
 void AEnemyActor::OnPostTurn()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Post turn"));
-	if (IsLookingForHostage && Hostage)
+	if (!Stunned)
 	{
-		if (GetCurrentNode() == Hostage->GetCurrentNode())
+		//UE_LOG(LogTemp, Warning, TEXT("Post turn"));
+		if (IsLookingForHostage && Hostage)
 		{
-			Hostage->SetActorLocation(FVector(100000, 100000, 100000));
-			UGameManager::GetInstance()->UnregisterHostage(Hostage);
-			UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+			if (GetCurrentNode() == Hostage->GetCurrentNode())
+			{
+				Hostage->SetActorLocation(FVector(100000, 100000, 100000));
+				UGameManager::GetInstance()->UnregisterHostage(Hostage);
+				UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
+			}
 		}
 	}
+
+	if (Stunned) { Stunned = false; }
 
 	AllowedToMove = false;
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);

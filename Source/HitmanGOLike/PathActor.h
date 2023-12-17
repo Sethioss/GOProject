@@ -57,6 +57,9 @@ public:
 	
 	UPROPERTY()
 	class ACasaPlayer* PlayerPawn;
+
+	UPROPERTY(EditAnywhere)
+	bool PathSecondary = false;
 	
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
