@@ -584,6 +584,6 @@ void AEnemyActor::MoveToHalfDestination()
 		SetActorRotation(RotationQuat.Rotator());
 
 		diff = FVector2D(Destination->GetActorLocation() - GetActorLocation());
-		SetActorLocation(FVector(GetActorLocation().X + (diff.X/2), Destination->GetActorLocation().Y + (diff.Y / 2), GetActorLocation().Z));
+		SetActorLocation(FVector(Destination->GetActorLocation().X - (diff.X/2), Destination->GetActorLocation().Y - (diff.Y / 2), GetActorLocation().Z));
 	}
 }

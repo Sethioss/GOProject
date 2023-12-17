@@ -11,7 +11,7 @@
 #include "Item.h"
 #include "CasaPlayer.generated.h"
 UCLASS()
-class HITMANGOLIKE_API ACasaPlayer : public APawn
+class HITMANGOLIKE_API ACasaPlayer : public APawn, public IBoardElement
 {
 	GENERATED_BODY()
 
@@ -32,11 +32,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMoverComponent* MoverComponent = nullptr;
 
+	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
+
 
 public:
 	// Sets default values for this pawn's properties
 	ACasaPlayer();
 
+	APathActor* CurrentNode;
 	UPROPERTY(VisibleAnywhere)
 	bool TurnFinished = false;
 
@@ -58,6 +61,10 @@ public:
 	//Change la position du CasaPlayer au coordonnees donnees par le FVector2D (Z par defaut 0)
 	UFUNCTION()
 	void MoveTo(FVector2D TargetPosition);
+
+	void MoveTo(APathActor* TargetPosition);
+
+	void InitiateMovement(APathActor* Target);
 
 	bool Finished = false;
 

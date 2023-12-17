@@ -25,6 +25,10 @@ public:
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
 
+	inline CasaFSM* GetFsm() { return Instance->Fsm; }
+
+	APathActor* PlayerNextNode;
+
 	//void UnregisterAllHostages();
 
 protected:
@@ -33,8 +37,8 @@ protected:
 
 
 	CasaFSM* Fsm;
-	FSMBarrier* Barrier;
 	CasaState* SavedState;
+	FSMBarrier* Barrier;
 
 	void InitFsm();
 
@@ -43,6 +47,7 @@ protected:
 	void OnAwaitPlayerInput();
 
 	void OnPrePlayerTurn();
+	void OnPlayerTurn();
 
 	void OnEnemyTurn();
 	void OnPlayerDeath();

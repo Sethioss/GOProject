@@ -132,8 +132,13 @@ void UGameManager::InitFsm()
 	PlayerTranslationState->SetUpdateDelegate(this, &UGameManager::OnPlayerTranslation);
 	Instance->Fsm->States.Add(PlayerTranslationState);
 
+	CasaState* PlayerTurnState = new CasaState();
+	PlayerTurnState->Name = "OnPlayerTurn";
+	PlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPlayerTurn);
+	Instance->Fsm->States.Add(PlayerTurnState);
+
 	CasaState* PostPlayerTurnState = new CasaState();
-	PostPlayerTurnState->Name = "OnPostPlayerTurn";
+	PostPlayerTurnState->Name = "OnPlayerPostTurn";
 	PostPlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPostPlayerTurn);
 	Instance->Fsm->States.Add(PostPlayerTurnState);
 
@@ -155,7 +160,6 @@ void UGameManager::InitFsm()
 
 	CasaState* DeathState = new CasaState();
 	DeathState->Name = "OnDeath";
-	DeathState->SetStartDelegate(this, &UGameManager::BlockPlayerInput);
 	DeathState->SetUpdateDelegate(this, &UGameManager::OnPlayerDeath);
 	Instance->Fsm->States.Add(DeathState);
 
@@ -251,7 +255,7 @@ void UGameManager::RegisterToBarrier(AActor* Act)
 	if (!FSMBarrier::BarrieredObjects.Contains(Act))
 	{
 		FSMBarrier::BarrieredObjects.Add(Act);
-		//UE_LOG(LogTemp, Warning, TEXT("Registering %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
+		UE_LOG(LogTemp, Warning, TEXT("Registering %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
 	}
 }
 
@@ -260,7 +264,7 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 	if (FSMBarrier::BarrieredObjects.Contains(Act))
 	{
 		FSMBarrier::BarrieredObjects.Remove(Act);
-		//UE_LOG(LogTemp, Warning, TEXT("Releasing %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
+		UE_LOG(LogTemp, Warning, TEXT("Releasing %s from Barrier. New barrier size: % i"), *Act->GetActorNameOrLabel(), Instance->Barrier->BarrieredObjects.Num());
 	}
 }
 
@@ -282,14 +286,57 @@ void UGameManager::OnAwaitPlayerInput()
 
 void UGameManager::OnPrePlayerTurn()
 {
+	for (int i = 0; i < Enemies.Num(); ++i)
+	{
+		if (PlayerNextNode == Enemies[i]->CurrentNode)
+		{
+			Instance->Fsm->ChangeState("OnPlayerMoveToDeath");
+			return;
+		}
+	}
 
+	Instance->Fsm->ChangeState("OnPlayerTurn");
+
+}
+
+void UGameManager::OnPlayerTurn()
+{
+	if (PlayerNextNode)
+	{
+		//Player->MoveTo(PlayerNextNode);
+		UE_LOG(LogTemp, Error, TEXT("I'm supposed to move"));
+		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
+		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+	}
+
+	Instance->Fsm->ChangeState("OnPlayerPostTurn");
 }
 
 void UGameManager::OnPlayerRotation() {}
 void UGameManager::OnPlayerTranslation() {}
-void UGameManager::OnPlayerMoveToDeath() {}
 
-void UGameManager::OnPostPlayerTurn() {}
+void UGameManager::OnPlayerMoveToDeath() 
+{
+	if (PlayerNextNode)
+	{
+		FVector2D diff = FVector2D(PlayerNextNode->GetActorLocation().X - Player->GetActorLocation().Y);
+
+		diff = FVector2D(PlayerNextNode->GetActorLocation() - Player->GetActorLocation());
+		Player->SetActorLocation(FVector(Player->GetActorLocation().X + (diff.X / 2), PlayerNextNode->GetActorLocation().Y + (diff.Y / 2), Player->GetActorLocation().Z));
+	}
+
+	Instance->Fsm->ChangeState("OnDeath");
+
+}
+
+void UGameManager::OnPostPlayerTurn() 
+{ 
+	//Check if it's the end node, change state to win state if yes
+
+	Instance->Fsm->ChangeState("OnEnemyTurn");
+	Instance->Player->TurnFinished = true;
+
+}
 
 void UGameManager::OnEnemyAttack(){}
 
@@ -327,6 +374,7 @@ void UGameManager::OnEnemyTurn()
 
 void UGameManager::OnPlayerDeath()
 {
+	Instance->ClearBarrier();
 	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
 }
 

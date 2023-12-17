@@ -52,12 +52,10 @@ void ACasaPlayerController::OnMouseClick()
 						//Le chemin est un Node
 						if (PlayerFinal->HeldItem == nullptr)
 						{
-							//Le Joueur ne tient pas d'objet
-							if (Path->IsPlayerOnNeighbouringNode())
+							APathActor* Target = Path->IsPlayerOnNeighbouringNode();
+							if (Target)
 							{
-								//Le Joueur est sur un Node voisin de Path
-								FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
-								PlayerFinal->MoveTo(ActorLocation);
+								PlayerFinal->InitiateMovement(Target);
 							}
 						}
 						else
@@ -84,12 +82,11 @@ void ACasaPlayerController::OnMouseClick()
 										if ((Path->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Path->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
 										{
 											//Le Joueur, La Foreuse et Path sont bien align�s
-											if (Path->IsPlayerOnNeighbouringNode())
+											APathActor* Target = Path->IsPlayerOnNeighbouringNode();
+											if (Target)
 											{
-												//Le Joueur est voisin de Path (Il s'agit d'un d�placement valide)
-												FVector2D ActorLocation(HitResult.GetActor()->GetActorLocation().X, HitResult.GetActor()->GetActorLocation().Y);
 												Foreuse->SetForeuseLocation(UGameManager::GetInstance()->GetPlayerNode(), PlayerFinal->GetActorLocation());
-												PlayerFinal->MoveTo(ActorLocation);
+												PlayerFinal->InitiateMovement(Target);
 											}
 										}
 									}
@@ -108,7 +105,11 @@ void ACasaPlayerController::OnMouseClick()
 										{
 											//Path est dans la PlacingArea de l'Otage 
 											APathActor* OtageNode = Otage->GetCurrentNode();
-											OtageNode->IsPlayerOnNeighbouringNode();
+											APathActor* Target = OtageNode->IsPlayerOnNeighbouringNode();
+											if (Target)
+											{
+												PlayerFinal->InitiateMovement(Target);
+											}
 											PlayerFinal->SetActorLocation(Otage->GetActorLocation());
 											Otage->SetOtageLocation(Path);
 											PlayerFinal->HeldItem = nullptr;
@@ -123,7 +124,17 @@ void ACasaPlayerController::OnMouseClick()
 				AItem* Item = Cast<AItem>(HitResult.GetActor());
 				if (Item)
 				{
-					if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
+					PlayerFinal = Cast<ACasaPlayer>(GetPawn());
+					AItem* HeldItem = PlayerFinal->HeldItem;
+
+					if (HeldItem)
+					{
+						// Le Joueur possède un Objet
+						HeldItem->SetIsHeld();
+						PlayerFinal->HeldItem = nullptr;
+					}
+
+					else if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
 					{
 						//L'Objet est un Item on l'�quipe au Joueur
 						PlayerFinal->HeldItem = Item;
@@ -178,6 +189,7 @@ void ACasaPlayerController::SetupInputComponent()
 
 	// Associez le clic gauche de la souris � la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
+	InputComponent->BindAction("PressF", IE_Pressed, this, &ACasaPlayerController::OnPressF);
 }
 
 void ACasaPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)

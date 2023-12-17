@@ -120,7 +120,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool IsPlayerOnNeighbouringNode();
+	APathActor* IsPlayerOnNeighbouringNode();
 	bool IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer();
 	void TransferPlayerOwnership(APathActor& OriginTile);
 	

@@ -59,6 +59,7 @@ ACasaPlayer::ACasaPlayer()
 
 }
 
+
 // Called when the game starts or when spawned
 void ACasaPlayer::BeginPlay()
 {
@@ -66,6 +67,8 @@ void ACasaPlayer::BeginPlay()
 
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	CurrentNode = SnapToGrid();
+
 	RegisterToManager();
 }
 
@@ -119,9 +122,52 @@ void ACasaPlayer::MoveTo(FVector2D TargetPosition) {
 	//TargetedPosition = TargetPosition;
 	//ShouldMove = true;
 
-	FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
-	SetActorLocation(NewLocation);
+	//FVector NewLocation(TargetPosition.X, TargetPosition.Y, GetActorLocation().Z);
+	//SetActorLocation(NewLocation);
 
-	TurnFinished = true;
+	//TurnFinished = true;
+}
+
+void ACasaPlayer::MoveTo(APathActor* TargetPosition) {
+
+	//TargetedPosition = TargetPosition;
+	//ShouldMove = true;
+
+	//FVector NewLocation(TargetPosition->GetActorLocation().X, TargetPosition->GetActorLocation().Y, GetActorLocation().Z);
+	//SetActorLocation(NewLocation);
+
+	//TurnFinished = true;
+}
+
+void ACasaPlayer::InitiateMovement(APathActor* Target)
+{
+	UGameManager::GetInstance()->PlayerNextNode = Target;
+	UGameManager::GetInstance()->GetFsm()->ChangeState("OnPrePlayerTurn");
+}
+
+APathActor* ACasaPlayer::SnapToGrid(FVector offset)
+{
+	FHitResult HitResult;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), -(GetActorUpVector() * 1000), ECollisionChannel::ECC_GameTraceChannel1);
+
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() - (GetActorUpVector() * 1000), FColor::Green, true, 50.f);
+
+	if (HitResult.bBlockingHit)
+	{
+
+		APathActor* Path = Cast<APathActor>(HitResult.GetActor());
+
+		if (Path)
+		{
+			CurrentNode = Path;
+
+			FBox ActorBounds = GetComponentsBoundingBox();
+
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+		}
+	}
+
+	return CurrentNode;
 }
 

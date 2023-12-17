@@ -74,17 +74,16 @@ bool APathActor::IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer()
 	return false;
 }
 
-bool APathActor::IsPlayerOnNeighbouringNode()
+APathActor* APathActor::IsPlayerOnNeighbouringNode()
 {
 	for (int i = 0; i < ConnectorInfo.Num(); ++i)
 	{
 		if (ConnectorInfo[i].DestinationNode->PlayerPawn != nullptr)
 		{
-			TransferPlayerOwnership(*ConnectorInfo[i].DestinationNode);
-			return true;
+			return ConnectorInfo[i].OriginNode;
 		}
 	}
-	return false;
+	return nullptr;
 }
 
 bool APathActor::IsConnectedNode(APathActor* A, APathActor* B)
@@ -393,6 +392,7 @@ void APathActor::TransferPlayerOwnership(APathActor& OriginTile)
 {
 	PlayerPawn = OriginTile.PlayerPawn;
 	OriginTile.PlayerPawn = nullptr;
+	PlayerPawn->CurrentNode = this;
 }
 
 APathActor* APathActor::CheckNeighbourNode(EGeneralDirectionEnum Direction, bool GetConnected)
