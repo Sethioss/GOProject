@@ -587,9 +587,10 @@ void AEnemyActor::OnPostTurn()
 	Fsm->ChangeState("OnAwait");
 }
 
-void AEnemyActor::OnPreAttack() { Fsm->ChangeState("OnAttack"); }
+void AEnemyActor::OnPreAttack() { UE_LOG(LogTemp, Warning, TEXT("I'm pre-attacking")); Fsm->ChangeState("OnAttack"); }
 void AEnemyActor::OnAttack()
 {
+	UE_LOG(LogTemp, Warning, TEXT("I'm attacking"));
 	MoveToHalfDestination();
 	UGameManager::GetInstance()->KillPlayer();
 	Fsm->ChangeState("OnAwait");

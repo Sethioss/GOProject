@@ -340,13 +340,11 @@ void UGameManager::OnPrePlayerTurn()
 
 		if (Foreuse)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("I must move with the drill"));
 			Instance->Fsm->ChangeState("OnPlayerMoveWithDrill");
 			return;
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("I must move with the drill"));
 	Instance->Fsm->ChangeState("OnPlayerTurn");
 
 }

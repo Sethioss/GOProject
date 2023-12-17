@@ -23,6 +23,7 @@ protected:
 
 	virtual void OnPreTurn() override;
 	virtual void OnTurn() override;
+	virtual void OnPostTurn() override;
 
 	virtual APathActor* GetDestination() override;
 	virtual void MoveToDestination() override;
