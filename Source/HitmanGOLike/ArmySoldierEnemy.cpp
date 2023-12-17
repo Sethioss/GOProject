@@ -23,15 +23,6 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::OnPreTurn()
 {
-	if (IsLookingForHostage)
-	{
-		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
-	}
-	else
-	{
-		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
-	}
-
 	Super::OnPreTurn();
 }
 
@@ -45,6 +36,25 @@ void AArmySoldierEnemy::OnTurn()
 	Fsm->ChangeState("OnPostTurn");
 }
 
+void AArmySoldierEnemy::OnPostTurn()
+{
+	if (IsLookingForHostage)
+	{
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	}
+	else
+	{
+		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+	}
+	Super::OnPostTurn();
+}
+
+void AArmySoldierEnemy::OnPreAttack()
+{
+	ClearBestPath();
+	Super::OnPreAttack();
+}
+
 bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 {
 	for (int i = 0; i < Node->ConnectorInfo.Num(); ++i)
@@ -52,6 +62,17 @@ bool AArmySoldierEnemy::IsDeadEnd(APathActor* Node)
 		if (!Node->ConnectorInfo[i].DestinationNode->Visited) { return false; }
 	}
 	return true;
+}
+
+void AArmySoldierEnemy::Init()
+{
+	Super::Init();
+}
+
+void AArmySoldierEnemy::OnStartGame()
+{
+	Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+	Super::OnStartGame();
 }
 
 void AArmySoldierEnemy::MoveToDestination()

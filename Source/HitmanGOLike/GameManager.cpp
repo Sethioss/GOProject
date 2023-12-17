@@ -44,7 +44,7 @@ void UGameManager::BeginPlay()
 	ACasaPlayer* pl = Cast<ACasaPlayer>(act);
 
 	if (pl != nullptr) {
-		Instance->ElementsToRegister += 1;
+		InitPlayer(pl);
 	}
 
 	InitFsm();
@@ -70,6 +70,25 @@ void UGameManager::BeginPlay()
 			if (Cast<APathActor>(paths[i])->ConnectorInfo[j].Direction == EGeneralDirectionEnum::VALNUM || Cast<APathActor>(paths[i])->ConnectorInfo[j].DestinationNode == nullptr)
 			{
 				UE_LOG(LogTemp, Error, TEXT("Error on node %s. One or multiple connectors have VALNUM direction, or has a nullptr destination node!"), *Cast<APathActor>(paths[i])->GetActorNameOrLabel());
+			}
+		}
+	}
+}
+
+void UGameManager::InitPlayer(ACasaPlayer* pl)
+{
+	pl->RegisterToManager();
+	TArray<AActor*> paths;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), paths);
+
+	for (int i = 0; i < paths.Num(); ++i)
+	{
+		APathActor* CastPath = Cast<APathActor>(paths[i]);
+		if (CastPath)
+		{
+			if (CastPath->StartingNode)
+			{
+				Instance->Player->CurrentNode = CastPath;
 			}
 		}
 	}
@@ -110,6 +129,11 @@ void UGameManager::InitFsm()
 	InitGame->SetUpdateDelegate(this, &UGameManager::OnInitGame);
 	Instance->Fsm->States.Add(InitGame);
 	Instance->Fsm->ChangeState("OnInitiatingGame", false);
+
+	CasaState* StartGame = new CasaState();
+	StartGame->Name = "OnStartGame";
+	StartGame->SetUpdateDelegate(this, &UGameManager::OnStartGame);
+	Instance->Fsm->States.Add(StartGame);
 
 	CasaState* AwaitingPlayerInput = new CasaState();
 	AwaitingPlayerInput->Name = "OnAwaitingPlayerInput";
@@ -278,8 +302,17 @@ void UGameManager::OnInitGame()
 {
 	if (IsFSMBarrierEmpty())
 	{
-		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+		Instance->Fsm->ChangeState("OnStartGame");
 	}
+}
+
+void UGameManager::OnStartGame()
+{
+	for (AEnemyActor* Enemy : Instance->Enemies)
+	{
+		Enemy->Update();
+	}
+	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 
 void UGameManager::OnAwaitPlayerInput()

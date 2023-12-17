@@ -46,12 +46,11 @@ public:
 	bool TurnFinished = false;
 
 	bool RegisteredToManager = false;
+	void RegisterToManager();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	void RegisterToManager();
 
 public:	
 	// Called every frame

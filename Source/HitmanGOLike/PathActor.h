@@ -75,15 +75,16 @@ public:
 
 	void SetIsEnemyPath(float value);
 
+	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	bool StartingNode = false;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
-	UPROPERTY(EditAnywhere, Category = NodeInfo)
-	bool StartingNode = false;
-	UPROPERTY(EditAnywhere, Category = NodeInfo)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NodeInfo)
 	bool EndingNode = false;
 	
 	UPROPERTY(EditAnywhere, Category = NodePathParameters)

@@ -88,6 +88,13 @@ void AEnemyActor::InitFsm() {
 	Fsm->States.Add(InitEnemyState);
 	Fsm->ChangeState("OnEnemyInit", false);
 
+	CasaState* StartGame = new CasaState();
+	StartGame->Name = "OnStartGame";
+
+	StartGame->SetUpdateDelegate(this, &AEnemyActor::OnStartGame);
+
+	Fsm->States.Add(StartGame);
+
 	CasaState* OnPreTurnState = new CasaState();
 	OnPreTurnState->Name = "OnPreTurn";
 	OnPreTurnState->SetUpdateDelegate(this, &AEnemyActor::OnPreTurn);
@@ -508,9 +515,15 @@ void AEnemyActor::OnRegisterToManager()
 	UGameManager::GetInstance()->Enemies.Add(this);
 	RegisteredToManager = true;
 	AllowedToMove = false;
-	Fsm->ChangeState("OnAwait");
-
 	UGameManager::GetInstance()->ReleaseFromBarrier(this);
+
+	Fsm->ChangeState("OnStartGame");
+
+}
+
+void AEnemyActor::OnStartGame()
+{
+	Fsm->ChangeState("OnAwait");
 }
 
 void AEnemyActor::OnAwait()
@@ -525,7 +538,7 @@ void AEnemyActor::OnPreTurn()
 		if (Destination == UGameManager::GetInstance()->GetPlayerNode())
 		{
 			UGameManager::GetInstance()->RegisterToBarrier(this);
-			Fsm->ChangeState("OnAttack");
+			Fsm->ChangeState("OnPreAttack");
 		}
 		else 
 		{
@@ -563,7 +576,7 @@ void AEnemyActor::OnPostTurn()
 	Fsm->ChangeState("OnAwait");
 }
 
-void AEnemyActor::OnPreAttack() {}
+void AEnemyActor::OnPreAttack() { Fsm->ChangeState("OnAttack"); }
 void AEnemyActor::OnAttack()
 {
 	MoveToHalfDestination();

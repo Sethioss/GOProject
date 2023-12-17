@@ -67,7 +67,6 @@ void ACasaPlayer::BeginPlay()
 
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-	CurrentNode = SnapToGrid();
 
 	RegisterToManager();
 }
@@ -76,6 +75,7 @@ void ACasaPlayer::RegisterToManager()
 {
 	UGameManager::GetInstance()->Player = this;
 	RegisteredToManager = true;
+	CurrentNode = SnapToGrid();
 	UGameManager::GetInstance()->ElementsToRegister -= 1;
 	MoverComponent->Setup(FVector(500, 500, 500));
 }

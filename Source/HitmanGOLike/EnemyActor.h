@@ -32,7 +32,7 @@ public:
 	void Alert(AOtage* Otage);
 
 	virtual void Update();
-	void Init();
+	virtual void Init();
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsLookingForHostage = false;
@@ -67,7 +67,8 @@ protected:
 
 	bool TurnFinished = false;
 
-	void OnRegisterToManager();
+	virtual void OnRegisterToManager();
+	virtual void OnStartGame();
 	virtual void OnAwait();
 
 	virtual void OnStandby();

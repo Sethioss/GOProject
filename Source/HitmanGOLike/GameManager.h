@@ -30,6 +30,8 @@ public:
 
 	APathActor* PlayerNextNode;
 
+	void InitPlayer(ACasaPlayer* pl);
+
 	//void UnregisterAllHostages();
 
 protected:
@@ -44,6 +46,7 @@ protected:
 	void InitFsm();
 
 	void OnInitGame();
+	void OnStartGame();
 
 	void OnAwaitPlayerInput();
 

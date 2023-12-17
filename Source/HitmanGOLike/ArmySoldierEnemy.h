@@ -23,8 +23,13 @@ protected:
 	virtual void MoveToDestination() override;
 	virtual void InitFsm() override;
 	
+	virtual void Init() override;
+	virtual void OnStartGame() override;
 	virtual void OnPreTurn() override;
 	virtual void OnTurn() override;
+	virtual void OnPostTurn() override;
+
+	virtual void OnPreAttack() override;
 
 	bool IsDeadEnd(class APathActor* Node);
 
