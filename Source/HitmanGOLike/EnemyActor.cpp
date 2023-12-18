@@ -261,6 +261,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 	}
 
 	BestPath = CustomTemp;
+	BestPath.Insert(GetCurrentNode(), 0);
 
 	if (BestPath.Num() > 0)
 	{

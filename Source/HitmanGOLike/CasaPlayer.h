@@ -24,8 +24,6 @@ protected:
 	UPROPERTY()
 	class UAudioComponent* AudioComponent = nullptr;
 	UPROPERTY(EditAnywhere)
-	class UCameraComponent* PlayerCamera = nullptr;
-	UPROPERTY(EditAnywhere)
 	float Speed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComponent = nullptr;
@@ -47,6 +45,12 @@ public:
 
 	bool RegisteredToManager = false;
 	void RegisterToManager();
+
+	UPROPERTY(EditAnywhere)
+	class USoundWave* MySound = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* PlayerCamera = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

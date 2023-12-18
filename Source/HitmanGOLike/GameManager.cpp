@@ -4,6 +4,9 @@
 #include "EnemyActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "CasaPlayer.h"
+#include "Sound/SoundWave.h"
+#include "CasaGameInstance.h"
+#include "Engine/Level.h"
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -24,6 +27,14 @@ UGameManager::UGameManager()
 //		Instance->Enemies[i]->IsLookingForHostage = false;
 //	}
 //}
+
+void UGameManager::PlaySound(FString const AudioName)
+{
+	if (AudioData[AudioName])
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AudioData[AudioName], Instance->Player->PlayerCamera->GetComponentLocation());
+	}
+}
 
 // Called when the game starts
 void UGameManager::BeginPlay()
@@ -74,6 +85,7 @@ void UGameManager::BeginPlay()
 		}
 	}
 }
+
 
 void UGameManager::InitPlayer(ACasaPlayer* pl)
 {
@@ -300,6 +312,9 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 
 void UGameManager::OnInitGame()
 {
+	InitiateGameDataFromCasaInstance();
+	InitiateSceneDataFromCasaInstance();
+
 	if (IsFSMBarrierEmpty())
 	{
 		Instance->Fsm->ChangeState("OnStartGame");
@@ -325,6 +340,14 @@ void UGameManager::OnAwaitPlayerInput()
 
 void UGameManager::OnPrePlayerTurn()
 {
+	PlaySound("SND_Step");
+
+	//LEVEL CHANGE - SEE HOW IT WORKS IN BUILDS
+	//UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);
+
+
+
+
 	for (int i = 0; i < Enemies.Num(); ++i)
 	{
 		if (PlayerNextNode == Enemies[i]->CurrentNode)
@@ -452,6 +475,53 @@ void UGameManager::OnSaveHostage()
 	for (int i = 0; i < Instance->Enemies.Num(); ++i)
 	{
 		Enemies[i]->IsLookingForHostage = false;
+	}
+}
+
+void UGameManager::InitiateGameDataFromCasaInstance()
+{
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	if (CasaGI)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("I got my game instance!"));
+
+		AudioData = CasaGI->AudioData;
+
+		if (!CasaGI->InitiatedGame)
+		{
+			CasaGI->InitiatedGame = true;
+
+			UWorld* MyWorld = GetWorld();
+			FString CurrentMapName = MyWorld->GetMapName();
+
+			if (&CasaGI->LevelList[FirstLevelID])
+			{
+				if (CasaGI->LevelList[FirstLevelID] != CurrentMapName)
+				{
+					UGameplayStatics::OpenLevel(GetWorld(), FName(CasaGI->LevelList[FirstLevelID]));
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("LevelLoader: Couldn't load level %s"), &CasaGI->LevelList[FirstLevelID]);
+			}
+		}
+	}
+}
+
+void UGameManager::InitiateSceneDataFromCasaInstance()
+{
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	if (CasaGI)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("I got my game instance!"));
+
+		AudioData = CasaGI->AudioData;
+
+#if WITH_EDITOR
+		PlaySound("SND_Debug");
+#endif
 	}
 }
 

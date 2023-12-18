@@ -9,6 +9,7 @@
 #include "EnemyActor.h"
 #include "Otage.h"
 #include "Foreuse.h"
+#include "Containers/Map.h"
 #include "GameManager.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,7 +33,13 @@ public:
 
 	void InitPlayer(ACasaPlayer* pl);
 
-	//void UnregisterAllHostages();
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
+	int FirstLevelID = 1;
+
+	TMap<FString, class USoundWave*> AudioData;
+
+	FName NextLevel;
+
 
 protected:
 	// Called when the game starts
@@ -80,6 +87,9 @@ protected:
 
 	static UGameManager* Instance;
 
+	void InitiateGameDataFromCasaInstance();
+	void InitiateSceneDataFromCasaInstance();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -98,6 +108,8 @@ public:
 	void RegisterToBarrier(AActor* Act);
 	void ReleaseFromBarrier(AActor* Act);
 	inline bool IsFSMBarrierEmpty() { return FSMBarrier::BarrieredObjects.Num() == 0; }
+
+	void PlaySound(FString const AudioName );
 
 		
 };
