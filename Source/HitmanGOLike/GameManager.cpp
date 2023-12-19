@@ -284,6 +284,7 @@ void UGameManager::ClearBarrier()
 void UGameManager::KillPlayer()
 {
 	Instance->Fsm->ChangeState("OnDeath");
+	PlaySound("SND_GameOver");
 }
 
 void UGameManager::RegisterToBarrier(AActor* Act)
@@ -358,7 +359,7 @@ void UGameManager::OnAwaitPlayerInput()
 
 void UGameManager::OnPrePlayerTurn()
 {
-	//PlaySound("SND_Step");
+	PlaySound("SND_Step");
 
 	//LEVEL CHANGE - SEE HOW IT WORKS IN BUILDS
 	//UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);
@@ -406,6 +407,7 @@ void UGameManager::OnPlayerMoveWithDrill()
 
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
 		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+		PlaySound("SND_ForeuseDeplacement");
 	}
 
 	Instance->Fsm->ChangeState("OnPlayerPostTurn");
@@ -417,6 +419,7 @@ void UGameManager::OnPlayerTurn()
 	{
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
 		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+		PlaySound("SND_Step");
 	}
 
 	Instance->Fsm->ChangeState("OnPlayerPostTurn");
@@ -433,6 +436,7 @@ void UGameManager::OnPlayerMoveToDeath()
 
 		diff = FVector2D(PlayerNextNode->GetActorLocation() - Player->GetActorLocation());
 		Player->SetActorLocation(FVector(Player->GetActorLocation().X + (diff.X / 2), PlayerNextNode->GetActorLocation().Y + (diff.Y / 2), Player->GetActorLocation().Z));
+		
 	}
 
 	Instance->Fsm->ChangeState("OnDeath");
@@ -474,8 +478,9 @@ void UGameManager::OnEnemyTurn()
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->Update();
+		
 	}
-
+	PlaySound("SND_DeplacementAgentHostile");
 	if (IsFSMBarrierEmpty())
 	{
 		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
@@ -486,6 +491,7 @@ void UGameManager::OnPlayerDeath()
 {
 	Instance->ClearBarrier();
 	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
+	PlaySound("SND_GameOver");
 }
 
 void UGameManager::OnSaveHostage()
@@ -494,6 +500,7 @@ void UGameManager::OnSaveHostage()
 	{
 		Enemies[i]->IsLookingForHostage = false;
 	}
+	PlaySound("SND_OtageDetresse");
 }
 
 void UGameManager::InitiateGameDataFromCasaInstance()
@@ -543,10 +550,10 @@ void UGameManager::InitiateSceneDataFromCasaInstance()
 	}
 }
 
-void UGameManager::OnGameSucceeded() {}
-void UGameManager::OnGameFailed() {}
+void UGameManager::OnGameSucceeded() { PlaySound("SND_Win"); }
+void UGameManager::OnGameFailed() { PlaySound("SND_GameOver"); }
 void UGameManager::OnGameRestart() {}
-void UGameManager::OnGameReward() {}
+void UGameManager::OnGameReward() { PlaySound("SND_ContratValide"); }
 void UGameManager::OnGameQuit() {}
 void UGameManager::OnGameNextLevel() {}
 
