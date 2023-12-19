@@ -48,7 +48,7 @@ void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)
 		if(NewNode)
 		{
 			//On appelle la fonction en donnant un Node
-			SetActorLocation(FVector(NewNode->GetActorLocation().X, NewNode->GetActorLocation().Y,50));
+			SetActorLocation(FVector(NewNode->GetActorLocation().X, NewNode->GetActorLocation().Y, NewNode->GetActorLocation().Z));
 			CurrentNode->IsObstacle = false;
 			CurrentNode->HasObjectOnIt = false;
 			CurrentNode = NewNode;
@@ -58,7 +58,7 @@ void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)
 		if(NodePos != FVector(NULL,NULL,NULL))
 		{
 			//On appelle la fonction en donnant un FVector
-			SetActorLocation(FVector(NodePos.X, NodePos.Y,50));
+			SetActorLocation(FVector(NodePos.X, NodePos.Y, NewNode->GetActorLocation().Z));
 			CurrentNode->IsObstacle = false;
 			CurrentNode->HasObjectOnIt = false;
 			CurrentNode = NewNode;

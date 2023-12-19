@@ -24,7 +24,7 @@ void AOtage::SetOtageLocation(APathActor* Target)
 	if (IsHeld && Placable)
 	{	
 		//L'Otage peut être déplacé
-		SetActorLocation(FVector(Target->GetActorLocation().X, Target->GetActorLocation().Y,50));
+		SetActorLocation(FVector(Target->GetActorLocation().X, Target->GetActorLocation().Y, Target->GetActorLocation().Z));
 		CurrentNode->HasObjectOnIt = false;
 		CurrentNode = Target;
 		CurrentNode->HasObjectOnIt = true;
@@ -41,7 +41,7 @@ void AOtage::ItemEffect() {
 	TArray<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 10), GetActorLocation() + FVector(0, 0, -100),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 0, -100),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -51,7 +51,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0, -15), GetActorLocation()+FVector(200,0, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0,0, 80), GetActorLocation()+FVector(220,0, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -61,7 +61,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(200, 200, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(220, 220, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -71,7 +71,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(0, 200, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 220, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -81,7 +81,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(-200, 100, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(-220, 100, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -91,10 +91,10 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(-200, 0, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(-220, 0, -15),
 		ECollisionChannel::ECC_Visibility);
 	FString Vec = FVector(GetActorLocation() + FVector(0, 0, -15)).ToString();
-	DrawDebugLine(GetWorld(), GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(0, -200, -15), FColor::Red, true, 99999.f);
+	DrawDebugLine(GetWorld(), GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, -220, -15), FColor::Red, true, 99999.f);
 	if (HitResult.bBlockingHit)
 	{
 		AEnemyActor* Enemy = Cast<AEnemyActor>(HitResult.GetActor());
@@ -103,7 +103,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(-200, -200, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(-220, -220, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -113,7 +113,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(0, -200, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, -220, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{
@@ -123,7 +123,7 @@ void AOtage::ItemEffect() {
 			EnemiesArray.Add(Enemy);
 		}
 	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, -15), GetActorLocation() + FVector(-200, 200, -15),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(-220, 220, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{

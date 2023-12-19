@@ -412,10 +412,12 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 	FVector vec = GetActorLocation() + NextNodePos;
 	vec.Z = CurrentNode->GetActorLocation().Z - 5;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), vec,
+	FVector OriginVec = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 25);
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, OriginVec, vec,
 		ECollisionChannel::ECC_GameTraceChannel1);
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::Blue, true, 50.f);
+	DrawDebugLine(GetWorld(), OriginVec, vec, FColor::Blue, true, 50.f);
 
 	if (HitResult.bBlockingHit)
 	{
@@ -503,7 +505,7 @@ APathActor* AEnemyActor::SnapToGrid(FVector offset)
 
 			FBox ActorBounds = GetComponentsBoundingBox();
 
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
 		}
 	}
 

@@ -34,11 +34,14 @@ void APathActor::BeginPlay()
 	if (StartingNode)
 	{
 		APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-		FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+		if (Pawn)
+		{
+			FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
-		Pawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, PlayerLocation.Z));
+			Pawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, Pawn->GetActorLocation().Z));
 
-		PlayerPawn = Cast<ACasaPlayer>(Pawn);
+			PlayerPawn = Cast<ACasaPlayer>(Pawn);
+		}
 	}
 }
 

@@ -23,6 +23,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
 
+	USceneComponent* Holder;
+
 	UPROPERTY(VisibleAnywhere)
 	APathActor* CurrentNode;
 

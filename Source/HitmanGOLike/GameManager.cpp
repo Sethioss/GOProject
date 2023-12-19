@@ -41,27 +41,18 @@ void UGameManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (Instance)
-	{
-		Instance = this;
-		// Ensure the instance is not garbage collected
-		Instance->AddToRoot();
+	Instance = this;
+	// Ensure the instance is not garbage collected
+	Instance->AddToRoot();
 
-	}
+	/*APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	AActor* act;
-	act = UGameplayStatics::GetActorOfClass(GetWorld(), ACasaPlayer::StaticClass());
-
-	ACasaPlayer* pl = Cast<ACasaPlayer>(act);
+	ACasaPlayer* pl = Cast<ACasaPlayer>(Pawn);
 
 	if (pl != nullptr) {
 		InitPlayer(pl);
 	}
 
-	InitFsm();
-	ClearBarrier();
-
-	// ...
 	TArray<AActor*> EnemiesToFind;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
 
@@ -69,7 +60,7 @@ void UGameManager::BeginPlay()
 	{
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
-	}
+	}*/
 
 	TArray<AActor*> paths;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), paths);
@@ -84,6 +75,9 @@ void UGameManager::BeginPlay()
 			}
 		}
 	}
+
+	InitFsm();
+	ClearBarrier();
 }
 
 
@@ -312,12 +306,36 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 
 void UGameManager::OnInitGame()
 {
+
 	InitiateGameDataFromCasaInstance();
 	InitiateSceneDataFromCasaInstance();
 
-	if (IsFSMBarrierEmpty())
+	APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+	ACasaPlayer* pl = Cast<ACasaPlayer>(Pawn);
+
+	if (pl != nullptr) {
+		InitPlayer(pl);
+	}
+
+	if (pl != nullptr)
 	{
-		Instance->Fsm->ChangeState("OnStartGame");
+		TArray<AActor*> EnemiesToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
+
+		if (EnemiesToFind.Num() > 0)
+		{
+			for (int i = 0; i < EnemiesToFind.Num(); ++i)
+			{
+				Cast<AEnemyActor>(EnemiesToFind[i])->Init();
+				Cast<AEnemyActor>(EnemiesToFind[i])->Update();
+			}		
+		}
+
+		if (IsFSMBarrierEmpty())
+		{
+			Instance->Fsm->ChangeState("OnStartGame");
+		}
+
 	}
 }
 
@@ -340,7 +358,7 @@ void UGameManager::OnAwaitPlayerInput()
 
 void UGameManager::OnPrePlayerTurn()
 {
-	PlaySound("SND_Step");
+	//PlaySound("SND_Step");
 
 	//LEVEL CHANGE - SEE HOW IT WORKS IN BUILDS
 	//UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);
@@ -488,24 +506,24 @@ void UGameManager::InitiateGameDataFromCasaInstance()
 
 		AudioData = CasaGI->AudioData;
 
-		if (!CasaGI->InitiatedGame)
-		{
-			CasaGI->InitiatedGame = true;
-
-			UWorld* MyWorld = GetWorld();
-			FString CurrentMapName = MyWorld->GetMapName();
-
-			if (&CasaGI->LevelList[FirstLevelID])
-			{
-				if (CasaGI->LevelList[FirstLevelID] != CurrentMapName)
-				{
-					UGameplayStatics::OpenLevel(GetWorld(), FName(CasaGI->LevelList[FirstLevelID]));
-				}
-			}
-			else {
-				UE_LOG(LogTemp, Error, TEXT("LevelLoader: Couldn't load level %s"), &CasaGI->LevelList[FirstLevelID]);
-			}
-		}
+		//if (!CasaGI->InitiatedGame)
+		//{
+		//	CasaGI->InitiatedGame = true;
+		//
+		//	//UWorld* MyWorld = GetWorld();
+		//	//FString CurrentMapName = MyWorld->GetMapName();
+		//
+		//	//if (&CasaGI->LevelList[FirstLevelID])
+		//	//{
+		//	//	if (CasaGI->LevelList[FirstLevelID] != CurrentMapName)
+		//	//	{
+		//	//		UGameplayStatics::OpenLevel(GetWorld(), FName(CasaGI->LevelList[FirstLevelID]));
+		//	//	}
+		//	//}
+		//	//else {
+		//	//	UE_LOG(LogTemp, Error, TEXT("LevelLoader: Couldn't load level %s"), &CasaGI->LevelList[FirstLevelID]);
+		//	//}
+		//}
 	}
 }
 
@@ -520,7 +538,7 @@ void UGameManager::InitiateSceneDataFromCasaInstance()
 		AudioData = CasaGI->AudioData;
 
 #if WITH_EDITOR
-		PlaySound("SND_Debug");
+		//PlaySound("SND_Debug");
 #endif
 	}
 }

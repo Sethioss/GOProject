@@ -174,7 +174,7 @@ APathActor* ACasaPlayer::SnapToGrid(FVector offset)
 
 			FBox ActorBounds = GetComponentsBoundingBox();
 
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
 		}
 	}
 
