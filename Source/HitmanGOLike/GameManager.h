@@ -27,6 +27,11 @@ public:
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
 
+	TArray<AItem*> Items;
+
+	UPROPERTY(EditAnywhere)
+	FName NextLevel;
+
 	inline CasaFSM* GetFsm() { return Instance->Fsm; }
 
 	APathActor* PlayerNextNode;
@@ -36,9 +41,8 @@ public:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
 	int FirstLevelID = 1;
 
+	UPROPERTY(VisibleAnywhere)
 	TMap<FString, class USoundWave*> AudioData;
-
-	FName NextLevel;
 
 
 protected:

@@ -121,7 +121,7 @@ void UGameManager::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void UGameManager::ResetAllPathWeights()
 {
-	for (int i = 0; i < Paths.Num(); ++i)
+	for (int i = 0; i < Instance->Paths.Num(); ++i)
 	{
 		Paths[i]->FScore = 1;
 	}
@@ -321,6 +321,17 @@ void UGameManager::OnInitGame()
 		UE_LOG(LogTemp, Error, TEXT("Couldn't find player"));
 	}
 
+	TArray<AActor*> PathsToFind;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), PathsToFind);
+
+	if (PathsToFind.Num() > 0)
+	{
+		for (int i = 0; i < PathsToFind.Num(); ++i)
+		{
+			Instance->Paths.Add(Cast<APathActor>(PathsToFind[i]));
+		}
+	}
+
 	if (pl != nullptr)
 	{
 		TArray<AActor*> EnemiesToFind;
@@ -335,6 +346,17 @@ void UGameManager::OnInitGame()
 			}		
 		}
 
+		TArray<AActor*> ItemsToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem::StaticClass(), ItemsToFind);
+
+		if (ItemsToFind.Num() > 0)
+		{
+			for (int i = 0; i < ItemsToFind.Num(); ++i)
+			{
+				Instance->Items.Add(Cast<AItem>(ItemsToFind[i]));
+			}
+		}
+
 		if (IsFSMBarrierEmpty())
 		{
 			Instance->Fsm->ChangeState("OnStartGame");
@@ -345,10 +367,35 @@ void UGameManager::OnInitGame()
 
 void UGameManager::OnStartGame()
 {
+	//Places the elements on the grid if they were late to register
+	for (int i = 0; i < Items.Num(); ++i)
+	{
+		if (Items[i]->CurrentNode)
+		{
+			Instance->Items[i]->SetActorLocation(FVector(Items[i]->CurrentNode->GetActorLocation().X, Items[i]->CurrentNode->GetActorLocation().Y, Items[i]->CurrentNode->GetActorLocation().Z));
+		}
+	}
+
+	for (int i = 0; i < Instance->Paths.Num(); ++i)
+	{
+		if (Paths[i]->StartingNode)
+		{
+			Instance->Player->SetActorLocation(FVector(Paths[i]->GetActorLocation().X, Paths[i]->GetActorLocation().Y, Paths[i]->GetActorLocation().Z));
+			APathActor* PotentialNode = Instance->GetPlayerNode();
+			if (PotentialNode)
+			{
+				PotentialNode = nullptr;
+			}
+
+			Paths[i]->PlayerPawn = UGameManager::GetInstance()->Player;
+		}
+	}
+
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->Update();
 	}
+
 	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 
@@ -366,9 +413,6 @@ void UGameManager::OnPrePlayerTurn()
 
 	//LEVEL CHANGE - SEE HOW IT WORKS IN BUILDS
 	//UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);
-
-
-
 
 	for (int i = 0; i < Enemies.Num(); ++i)
 	{

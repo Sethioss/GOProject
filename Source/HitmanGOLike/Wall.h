@@ -28,6 +28,8 @@ public:
 	bool IsBroken = false;
 	//Casse le Mur, permet de le traverser
 	void Break();
+
+	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	APathActor* CurrentNode;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

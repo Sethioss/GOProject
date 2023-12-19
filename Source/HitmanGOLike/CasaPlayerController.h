@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category=Player)
 	TSubclassOf<ACasaPlayer> CasaPlayer;
 
+	void OnReload();
+	void OnLoadNextLevel();
+
 protected:
 	//virtual void SetupInputComponent() override;
 };

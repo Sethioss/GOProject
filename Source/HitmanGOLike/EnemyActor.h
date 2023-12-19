@@ -64,7 +64,7 @@ protected:
 	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected);
 	virtual FVector GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir);
 
-	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
+	virtual APathActor* SnapToGrid(FVector offset) override;
 
 	virtual APathActor* GetDestinationByPathfinding(APathActor* Target);
 	virtual TArray<APathActor*> AStarAlgorithm(APathActor* Target, APathActor* End, TArray<APathActor*>BlacklistedNodes);

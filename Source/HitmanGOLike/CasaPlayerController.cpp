@@ -225,6 +225,18 @@ void ACasaPlayerController::SetupInputComponent()
 	// Associez le clic gauche de la souris � la fonction OnMouseClick()
 	InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &ACasaPlayerController::OnMouseClick);
 	InputComponent->BindAction("PressF", IE_Pressed, this, &ACasaPlayerController::OnPressF);
+	InputComponent->BindAction("Reload", IE_Pressed, this, &ACasaPlayerController::OnReload);
+	InputComponent->BindAction("Load", IE_Pressed, this, &ACasaPlayerController::OnLoadNextLevel);
+}
+
+void ACasaPlayerController::OnReload()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName(GetWorld()->GetMapName()));
+}
+
+void ACasaPlayerController::OnLoadNextLevel()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), UGameManager::GetInstance()->NextLevel);
 }
 
 void ACasaPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)

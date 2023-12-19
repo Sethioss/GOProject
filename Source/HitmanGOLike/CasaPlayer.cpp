@@ -24,12 +24,7 @@ ACasaPlayer::ACasaPlayer()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cone.Cone")); //static permet d'executer la fonction qu'une fois
 	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 
-	// creation du component audio
-	AudioComponent =
-		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
-
 	RootComponent = StaticMeshComponent;
-	AudioComponent->SetupAttachment(RootComponent);
 
 	// creation de la camera du player
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
@@ -78,7 +73,7 @@ void ACasaPlayer::RegisterToManager()
 {
 	UGameManager::GetInstance()->Player = this;
 	RegisteredToManager = true;
-	CurrentNode = SnapToGrid();
+	CurrentNode = SnapToGrid(FVector(0, 0, 0));
 	UGameManager::GetInstance()->ElementsToRegister -= 1;
 	MoverComponent->Setup(FVector(500, 500, 500));
 }
@@ -176,6 +171,7 @@ APathActor* ACasaPlayer::SnapToGrid(FVector offset)
 			FBox ActorBounds = GetComponentsBoundingBox();
 
 			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
+			Path->PlayerPawn = UGameManager::GetInstance()->Player;
 			UE_LOG(LogTemp, Error, TEXT("Snapped player"));
 		}
 	}

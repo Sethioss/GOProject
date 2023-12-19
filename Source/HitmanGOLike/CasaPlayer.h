@@ -21,8 +21,6 @@ class HITMANGOLIKE_API ACasaPlayer : public APawn, public IBoardElement
 protected:
 	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
-	UPROPERTY()
-	class UAudioComponent* AudioComponent = nullptr;
 	UPROPERTY(EditAnywhere)
 	float Speed = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -32,12 +30,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMoverComponent* MoverComponent = nullptr;
 
-	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
-
 
 public:
 	// Sets default values for this pawn's properties
 	ACasaPlayer();
+
+	APathActor* SnapToGrid(FVector offset);
 
 	APathActor* CurrentNode;
 	UPROPERTY(VisibleAnywhere)

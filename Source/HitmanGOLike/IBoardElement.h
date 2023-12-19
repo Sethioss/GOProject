@@ -19,5 +19,5 @@ class HITMANGOLIKE_API IBoardElement
 	GENERATED_BODY()
 
 public:
-	virtual class APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) = 0;
+	virtual class APathActor* SnapToGrid(FVector offset) = 0;
 };

@@ -57,7 +57,7 @@ void AEnemyActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentNode = SnapToGrid();
+	CurrentNode = SnapToGrid(FVector(0, 0, 0));
 
 }
 

@@ -34,14 +34,17 @@ void ASecurityGuardEnemy::OnTurn()
 
 void ASecurityGuardEnemy::OnPostTurn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player node: %s"), *UGameManager::GetInstance()->GetPlayerNode()->GetActorNameOrLabel());
-	if (UGameManager::GetInstance()->GetPlayerNode() == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true))
+	if (UGameManager::GetInstance()->Player)
 	{
-		Destination = GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true);
-		UGameManager::GetInstance()->RegisterToBarrier(this);
-		Fsm->ChangeState("OnPreAttack");
-		return;
+		UE_LOG(LogTemp, Warning, TEXT("I have my player!"));
 	}
+	//if (UGameManager::GetInstance()->GetPlayerNode() == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true))
+	//{
+	//	Destination = GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true);
+	//	UGameManager::GetInstance()->RegisterToBarrier(this);
+	//	Fsm->ChangeState("OnPreAttack");
+	//	return;
+	//}
 
 	//At end
 	Super::OnPostTurn();
