@@ -503,7 +503,6 @@ void UGameManager::OnSaveHostage()
 	{
 		Enemies[i]->IsLookingForHostage = false;
 	}
-	PlaySound("SND_OtageDetresse");
 }
 
 void UGameManager::InitiateGameDataFromCasaInstance()
