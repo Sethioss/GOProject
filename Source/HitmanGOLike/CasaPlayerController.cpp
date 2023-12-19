@@ -145,6 +145,7 @@ void ACasaPlayerController::OnMouseClick()
 											}
 											PlayerFinal->SetActorLocation(Otage->GetActorLocation());
 											Otage->SetOtageLocation(Path);
+											UGameManager::GetInstance()->PlaySound("SND_OtageHelp");
 											PlayerFinal->HeldItem = nullptr;
 											//Otage->ItemEffect();
 										}
@@ -166,6 +167,11 @@ void ACasaPlayerController::OnMouseClick()
 						UE_LOG(LogTemp, Error, TEXT("Unequipping foreuse!"));
 						HeldItem->SetIsHeld();
 						PlayerFinal->HeldItem = nullptr;
+						AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+						if (Foreuse)
+						{
+							UGameManager::GetInstance()->PlaySound("SND_Foreuse_Grab");
+						}
 					}
 
 					else if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
@@ -174,6 +180,19 @@ void ACasaPlayerController::OnMouseClick()
 						UE_LOG(LogTemp, Error, TEXT("Equipping foreuse!"));
 						PlayerFinal->HeldItem = Item;
 						Item->SetIsHeld();
+					}
+					AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
+					if (Foreuse)
+					{
+						UGameManager::GetInstance()->PlaySound("SND_Foreuse_Grab");
+					}
+					else
+					{
+						AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+						if(Otage)
+						{
+							UGameManager::GetInstance()->PlaySound("SND_OtageDetresse");
+						}
 					}
 				}
 				AWall* Wall = Cast<AWall>(HitResult.GetActor());
@@ -198,6 +217,7 @@ void ACasaPlayerController::OnMouseClick()
 									Foreuse->SetIsHeld();
 									PlayerFinal->HeldItem = nullptr;
 									Foreuse->ItemEffect(Wall);
+									UGameManager::GetInstance()->PlaySound("SND_ForreuseEnd");
 									PlayerFinal->InitiateMovement(NewNodeForPlayer);
 								}
 							}

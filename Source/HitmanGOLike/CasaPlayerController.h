@@ -10,6 +10,7 @@
 /**
  * 
  */
+class GameManager;
 UCLASS()
 class HITMANGOLIKE_API ACasaPlayerController : public APlayerController
 {
