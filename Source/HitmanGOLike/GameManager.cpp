@@ -317,6 +317,9 @@ void UGameManager::OnInitGame()
 	if (pl != nullptr) {
 		InitPlayer(pl);
 	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find player"));
+	}
 
 	if (pl != nullptr)
 	{

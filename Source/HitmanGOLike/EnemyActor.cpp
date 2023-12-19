@@ -581,6 +581,22 @@ void AEnemyActor::OnPostTurn()
 				UGameManager::GetInstance()->UnregisterHostage(Hostage);
 				UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
+				Destination = GetDestination();
+
+				if (Destination)
+				{
+					FVector2D diff = FVector2D(Destination->GetActorLocation().X - GetActorLocation().Y);
+
+					float AngleToRotate = FMath::Atan2(Destination->GetActorLocation().Y - GetActorLocation().Y, Destination->GetActorLocation().X - GetActorLocation().X);
+
+					// Convert the angle from radians to degrees
+					float AngleInDegrees = FMath::RadiansToDegrees(AngleToRotate);
+
+					FQuat RotationQuat = FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AngleInDegrees));
+
+					// Set the new rotation to your object
+					SetActorRotation(RotationQuat.Rotator());
+				}
 			}
 		}
 	}

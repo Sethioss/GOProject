@@ -37,7 +37,14 @@ void AForeuse::BeginPlay()
 	Super::BeginPlay();
 
 	//UE_LOG(LogTemp, Warning, TEXT("Making this node an obstacle"));
-	CurrentNode->IsObstacle = true;
+	if (CurrentNode)
+	{
+		CurrentNode->IsObstacle = true;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("ERROR: This node hasn't been found by the IBoard interface. Maybe there was a blocking hit on a non node objet?"));
+	}
+
 }
 
 void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)

@@ -71,7 +71,7 @@ void ACasaPlayer::BeginPlay()
 	//Take control of the default Player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	RegisterToManager();
+	//RegisterToManager();
 }
 
 void ACasaPlayer::RegisterToManager()
@@ -157,6 +157,7 @@ void ACasaPlayer::InitiateMovementWithDrill(APathActor* Target, APathActor* Fore
 
 APathActor* ACasaPlayer::SnapToGrid(FVector offset)
 {
+
 	FHitResult HitResult;
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), -(GetActorUpVector() * 1000), ECollisionChannel::ECC_GameTraceChannel1);
@@ -175,6 +176,7 @@ APathActor* ACasaPlayer::SnapToGrid(FVector offset)
 			FBox ActorBounds = GetComponentsBoundingBox();
 
 			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
+			UE_LOG(LogTemp, Error, TEXT("Snapped player"));
 		}
 	}
 
