@@ -208,6 +208,7 @@ void ACasaPlayerController::OnMouseClick()
 							//C'est une Foreuse et elle est utilisable
 							if ((Wall->GetActorLocation().X == Foreuse->GetActorLocation().X && Foreuse->GetActorLocation().X == PlayerFinal->GetActorLocation().X) || (Wall->GetActorLocation().Y == Foreuse->GetActorLocation().Y && Foreuse->GetActorLocation().Y == PlayerFinal->GetActorLocation().Y))
 							{
+								UE_LOG(LogTemp, Error, TEXT("Mur Foreuse Joueur aligné"));
 								//La Foreuse, Le Wall et le Joueur sont bien align�s
 								APathActor* NewNodeForPlayer = Wall->CurrentNode->IsForeuseOnNeighbouringNode();
 								if (NewNodeForPlayer)
@@ -217,7 +218,7 @@ void ACasaPlayerController::OnMouseClick()
 									Foreuse->SetIsHeld();
 									PlayerFinal->HeldItem = nullptr;
 									Foreuse->ItemEffect(Wall);
-									UGameManager::GetInstance()->PlaySound("SND_ForreuseEnd");
+									UGameManager::GetInstance()->PlaySound("SND_ForeuseEnd");
 									PlayerFinal->InitiateMovement(NewNodeForPlayer);
 								}
 							}
