@@ -34,6 +34,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BluePrintReadOnly, EditAnywhere)
+	TArray<APathActor*> ConnectionBlockedNodes;
+
 	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
 
 protected:

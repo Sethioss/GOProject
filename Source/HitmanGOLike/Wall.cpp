@@ -26,6 +26,9 @@ void AWall::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentNode = SnapToGrid();
+
+	CurrentNode->HasObjectOnIt = true;
+	CurrentNode->IsObstacle = true;
 }
 
 // Called every frame
@@ -41,7 +44,6 @@ void AWall::Break()
 	if (!IsBroken)
 	{
 		IsBroken = true;
-		CurrentNode->HasObjectOnIt = false;
 		//static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //Modification du Mesh
 		//StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 

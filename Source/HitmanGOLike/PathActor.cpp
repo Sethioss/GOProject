@@ -110,8 +110,7 @@ APathActor* APathActor::IsForeuseOnNeighbouringNode()
 	{
 		if (ConnectorInfo[i].DestinationNode == Foreuse->CurrentNode)
 		{
-			Foreuse->NextNode = ConnectorInfo[i].OriginNode;
-			return ConnectorInfo[i].DestinationNode;
+			return ConnectorInfo[i].OriginNode;
 
 			//FVector TargetPos = GetActorLocation();
 			//FVector ForeusePos = ConnectorInfo[i].DestinationNode->GetActorLocation();

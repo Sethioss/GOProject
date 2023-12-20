@@ -6,6 +6,8 @@
 void AOtage::BeginPlay() 
 {
 	Super::BeginPlay();
+	PlayerObstacle = true;
+	PathfindingObstacle = false;
 	FVector PlacingBoxExtent = FVector(((GetActorScale().X * 50) * 8) + 1, ((GetActorScale().X * 50) * 8) + 1, 100);
 	PlacingArea = FBox::BuildAABB(GetActorLocation(), PlacingBoxExtent);
 	UE_LOG(LogTemp, Warning, TEXT("PlaceArea minX : %f Path X: %f PlaceArea maxX : %f , PlaceArea minY : %f Path Y: %f PlaceArea maxY : %f"), (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).X, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).X, (GetActorLocation() + FVector(-(((GetActorScale().X * 50) * 3) + 1), -(((GetActorScale().X * 50) * 3) + 1), -10)).Y, 100.0f, (GetActorLocation() + FVector(((GetActorScale().X * 50) * 3) + 1, ((GetActorScale().X * 50) * 3) + 1, 100)).Y);

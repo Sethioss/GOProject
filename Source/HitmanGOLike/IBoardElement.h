@@ -20,4 +20,6 @@ class HITMANGOLIKE_API IBoardElement
 
 public:
 	virtual class APathActor* SnapToGrid(FVector offset) = 0;
+	bool PathfindingObstacle = false;
+	bool PlayerObstacle = true;
 };

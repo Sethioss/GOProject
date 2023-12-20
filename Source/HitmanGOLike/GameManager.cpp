@@ -81,6 +81,27 @@ void UGameManager::BeginPlay()
 }
 
 
+bool UGameManager::CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken)
+{
+	for (int i = 0; i < Instance->Walls.Num(); ++i)
+	{
+		if ((Node1 == Instance->Walls[i]->ConnectionBlockedNodes[0] && Node2 == Instance->Walls[i]->ConnectionBlockedNodes[1]) ||
+			(Node1 == Instance->Walls[i]->ConnectionBlockedNodes[1] && Node2 == Instance->Walls[i]->ConnectionBlockedNodes[0]))
+		{
+			if (CheckIfBroken)
+			{
+				if (!Instance->Walls[i]->IsBroken)
+				{
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 void UGameManager::InitPlayer(ACasaPlayer* pl)
 {
 	pl->RegisterToManager();
@@ -344,15 +365,6 @@ void UGameManager::OnInitGame()
 		TArray<AActor*> EnemiesToFind;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
 
-		if (EnemiesToFind.Num() > 0)
-		{
-			for (int i = 0; i < EnemiesToFind.Num(); ++i)
-			{
-				Cast<AEnemyActor>(EnemiesToFind[i])->Init();
-				Cast<AEnemyActor>(EnemiesToFind[i])->Update();
-			}		
-		}
-
 		TArray<AActor*> ItemsToFind;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem::StaticClass(), ItemsToFind);
 
@@ -361,6 +373,26 @@ void UGameManager::OnInitGame()
 			for (int i = 0; i < ItemsToFind.Num(); ++i)
 			{
 				Instance->Items.Add(Cast<AItem>(ItemsToFind[i]));
+			}
+		}
+
+		TArray<AActor*> WallsToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWall::StaticClass(), WallsToFind);
+
+		if (WallsToFind.Num() > 0)
+		{
+			for (int i = 0; i < WallsToFind.Num(); ++i)
+			{
+				Instance->Walls.Add(Cast<AWall>(WallsToFind[i]));
+			}
+		}
+
+		if (EnemiesToFind.Num() > 0)
+		{
+			for (int i = 0; i < EnemiesToFind.Num(); ++i)
+			{
+				Cast<AEnemyActor>(EnemiesToFind[i])->Init();
+				Cast<AEnemyActor>(EnemiesToFind[i])->Update();
 			}
 		}
 
@@ -380,6 +412,8 @@ void UGameManager::OnStartGame()
 		if (Items[i]->CurrentNode)
 		{
 			Instance->Items[i]->SetActorLocation(FVector(Items[i]->CurrentNode->GetActorLocation().X, Items[i]->CurrentNode->GetActorLocation().Y, Items[i]->CurrentNode->GetActorLocation().Z));
+			Instance->Items[i]->CurrentNode->HasObjectOnIt = Instance->Items[i]->PlayerObstacle;
+			Instance->Items[i]->CurrentNode->IsObstacle = Instance->Items[i]->PathfindingObstacle;
 		}
 	}
 

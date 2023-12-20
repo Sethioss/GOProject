@@ -27,6 +27,9 @@ public:
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
 	TArray<AItem*> Items;
+	TArray<AWall*> Walls;
+
+	bool CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken);
 
 	UPROPERTY(EditAnywhere)
 	FName NextLevel;
@@ -36,6 +39,7 @@ public:
 	APathActor* PlayerNextNode;
 
 	void InitPlayer(ACasaPlayer* pl);
+
 
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
 	int FirstLevelID = 1;

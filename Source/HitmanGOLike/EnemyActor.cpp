@@ -210,9 +210,14 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		Blacklisted.Add(GetCurrentNode());
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			if (GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle == false)
+			if (!GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle)
 			{
 				CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
+
+				for (int j = 0; j < CurList.Num(); ++j)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("%s"), *CurList[j]->GetActorNameOrLabel());
+				}
 
 				if (CurList[CurList.Num() - 1] == Dest)
 				{
@@ -226,7 +231,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 			//UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
 			for (int j = 0; j < AllLists[i].Num(); ++j)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
 			}
 
 		}
@@ -335,16 +340,18 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 				continue;
 			}
 
-			if (Current->IsObstacle == false)
+			if (!Current->IsObstacle)
 			{
-				APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
-				Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
-				if (Current->IsObstacle) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
-				if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 88888; }
-				//Set a specific FScore to the node that is in the direction of a wall if it is (Like 55555)
-				Successor->PathfindingParent = Current;
+				if (!UGameManager::GetInstance()->CheckIfWall(Current, Current->ConnectorInfo[i].DestinationNode, false))
+				{
+					APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
+					Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+					if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 88888; }
+					//Set a specific FScore to the node that is in the direction of a wall if it is (Like 55555)
+					Successor->PathfindingParent = Current;
 
-				OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+					OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+				}
 			}
 		}
 	}
@@ -567,26 +574,38 @@ void AEnemyActor::OnPreTurn()
 					return;
 				}
 			}
-		}
-
-		if (Destination)
-		{
-			if (Destination == UGameManager::GetInstance()->GetPlayerNode())
-			{
-				UGameManager::GetInstance()->RegisterToBarrier(this);
-				Fsm->ChangeState("OnPreAttack");
-			}
 			else
 			{
 				Fsm->ChangeState("OnTurn");
+				return;
 			}
 		}
-		else
-		{
-			UGameManager::GetInstance()->ReleaseFromBarrier(this);
-			Fsm->ChangeState("OnAwait");
+		else {
+			if (Destination)
+			{
+				if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+				{
+					UGameManager::GetInstance()->RegisterToBarrier(this);
+					Fsm->ChangeState("OnPreAttack");
+					return;
+				}
+				else
+				{
+					Fsm->ChangeState("OnTurn");
+					return;
+				}
+			}
+			else
+			{
+				UGameManager::GetInstance()->ReleaseFromBarrier(this);
+				Fsm->ChangeState("OnAwait");
+				return;
+			}
 		}
 	}
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
+	Fsm->ChangeState("OnAwait");
+	return;
 }
 
 void AEnemyActor::OnStandby() {
@@ -603,7 +622,7 @@ void AEnemyActor::OnPostTurn()
 		{
 			if (GetCurrentNode() == Hostage->GetCurrentNode())
 			{
-					ReadyToSaveHostage = true;
+				ReadyToSaveHostage = true;
 			}
 		}
 	}

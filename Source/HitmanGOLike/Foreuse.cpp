@@ -36,6 +36,8 @@ void AForeuse::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerObstacle = true;
+	PathfindingObstacle = true;
 	//UE_LOG(LogTemp, Warning, TEXT("Making this node an obstacle"));
 	if (CurrentNode)
 	{
