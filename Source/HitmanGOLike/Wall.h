@@ -28,9 +28,14 @@ public:
 	bool IsBroken = false;
 	//Casse le Mur, permet de le traverser
 	void Break();
+
+	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	APathActor* CurrentNode;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BluePrintReadOnly, EditAnywhere)
+	TArray<APathActor*> ConnectionBlockedNodes;
 
 	APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0));
 
@@ -39,7 +44,5 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
-	UPROPERTY()
-	class UAudioComponent* AudioComponent = nullptr;
 
 };

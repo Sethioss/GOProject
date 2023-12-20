@@ -23,6 +23,19 @@ void AArmySoldierEnemy::BeginPlay()
 
 void AArmySoldierEnemy::OnPreTurn()
 {
+
+	if (IsLookingForHostage)
+	{
+		Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
+	}
+	else 
+	{
+		if (!Destination)
+		{
+			Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+		}
+	}
+
 	Super::OnPreTurn();
 }
 

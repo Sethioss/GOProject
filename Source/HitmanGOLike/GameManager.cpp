@@ -41,27 +41,18 @@ void UGameManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (Instance)
-	{
-		Instance = this;
-		// Ensure the instance is not garbage collected
-		Instance->AddToRoot();
+	Instance = this;
+	// Ensure the instance is not garbage collected
+	Instance->AddToRoot();
 
-	}
+	/*APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	AActor* act;
-	act = UGameplayStatics::GetActorOfClass(GetWorld(), ACasaPlayer::StaticClass());
-
-	ACasaPlayer* pl = Cast<ACasaPlayer>(act);
+	ACasaPlayer* pl = Cast<ACasaPlayer>(Pawn);
 
 	if (pl != nullptr) {
 		InitPlayer(pl);
 	}
 
-	InitFsm();
-	ClearBarrier();
-
-	// ...
 	TArray<AActor*> EnemiesToFind;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
 
@@ -69,7 +60,7 @@ void UGameManager::BeginPlay()
 	{
 		Cast<AEnemyActor>(EnemiesToFind[i])->Init();
 		Cast<AEnemyActor>(EnemiesToFind[i])->Update();
-	}
+	}*/
 
 	TArray<AActor*> paths;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), paths);
@@ -84,8 +75,32 @@ void UGameManager::BeginPlay()
 			}
 		}
 	}
+
+	InitFsm();
+	ClearBarrier();
 }
 
+
+bool UGameManager::CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken)
+{
+	for (int i = 0; i < Instance->Walls.Num(); ++i)
+	{
+		if ((Node1 == Instance->Walls[i]->ConnectionBlockedNodes[0] && Node2 == Instance->Walls[i]->ConnectionBlockedNodes[1]) ||
+			(Node1 == Instance->Walls[i]->ConnectionBlockedNodes[1] && Node2 == Instance->Walls[i]->ConnectionBlockedNodes[0]))
+		{
+			if (CheckIfBroken)
+			{
+				if (!Instance->Walls[i]->IsBroken)
+				{
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+	}
+	return false;
+}
 
 void UGameManager::InitPlayer(ACasaPlayer* pl)
 {
@@ -112,9 +127,11 @@ void UGameManager::UnregisterHostage(AOtage* Otage)
 	{
 		if (Enemies[i]->Hostage == Otage)
 		{
+
 			Enemies[i]->ClearBestPath();
 			Otage->CurrentNode->HasObjectOnIt = false;
 			Enemies[i]->IsLookingForHostage = false;
+			Enemies[i]->ReadyToSaveHostage = false;
 			Enemies[i]->Hostage = nullptr;
 		}
 	}
@@ -127,7 +144,7 @@ void UGameManager::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void UGameManager::ResetAllPathWeights()
 {
-	for (int i = 0; i < Paths.Num(); ++i)
+	for (int i = 0; i < Instance->Paths.Num(); ++i)
 	{
 		Paths[i]->FScore = 1;
 	}
@@ -199,6 +216,11 @@ void UGameManager::InitFsm()
 	EnemyAttack->Name = "OnEnemyAttack";
 	EnemyAttack->SetUpdateDelegate(this, &UGameManager::OnEnemyAttack);
 	Instance->Fsm->States.Add(EnemyAttack);
+
+	CasaState* PostGameTurn = new CasaState();
+	PostGameTurn->Name = "OnPostGameTurn";
+	PostGameTurn->SetUpdateDelegate(this, &UGameManager::OnPostGameTurn);
+	Instance->Fsm->States.Add(PostGameTurn);
 
 	CasaState* DeathState = new CasaState();
 	DeathState->Name = "OnDeath";
@@ -290,6 +312,7 @@ void UGameManager::ClearBarrier()
 void UGameManager::KillPlayer()
 {
 	Instance->Fsm->ChangeState("OnDeath");
+	PlaySound("SND_GameOver");
 }
 
 void UGameManager::RegisterToBarrier(AActor* Act)
@@ -312,21 +335,108 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 
 void UGameManager::OnInitGame()
 {
+
 	InitiateGameDataFromCasaInstance();
 	InitiateSceneDataFromCasaInstance();
 
-	if (IsFSMBarrierEmpty())
+	APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+	ACasaPlayer* pl = Cast<ACasaPlayer>(Pawn);
+
+	if (pl != nullptr) {
+		InitPlayer(pl);
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find player"));
+	}
+
+	TArray<AActor*> PathsToFind;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), PathsToFind);
+
+	if (PathsToFind.Num() > 0)
 	{
-		Instance->Fsm->ChangeState("OnStartGame");
+		for (int i = 0; i < PathsToFind.Num(); ++i)
+		{
+			Instance->Paths.Add(Cast<APathActor>(PathsToFind[i]));
+		}
+	}
+
+	if (pl != nullptr)
+	{
+		TArray<AActor*> EnemiesToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
+
+		TArray<AActor*> ItemsToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem::StaticClass(), ItemsToFind);
+
+		if (ItemsToFind.Num() > 0)
+		{
+			for (int i = 0; i < ItemsToFind.Num(); ++i)
+			{
+				Instance->Items.Add(Cast<AItem>(ItemsToFind[i]));
+			}
+		}
+
+		TArray<AActor*> WallsToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWall::StaticClass(), WallsToFind);
+
+		if (WallsToFind.Num() > 0)
+		{
+			for (int i = 0; i < WallsToFind.Num(); ++i)
+			{
+				Instance->Walls.Add(Cast<AWall>(WallsToFind[i]));
+			}
+		}
+
+		if (EnemiesToFind.Num() > 0)
+		{
+			for (int i = 0; i < EnemiesToFind.Num(); ++i)
+			{
+				Cast<AEnemyActor>(EnemiesToFind[i])->Init();
+				Cast<AEnemyActor>(EnemiesToFind[i])->Update();
+			}
+		}
+
+		if (IsFSMBarrierEmpty())
+		{
+			Instance->Fsm->ChangeState("OnStartGame");
+		}
+
 	}
 }
 
 void UGameManager::OnStartGame()
 {
+	//Places the elements on the grid if they were late to register
+	for (int i = 0; i < Items.Num(); ++i)
+	{
+		if (Items[i]->CurrentNode)
+		{
+			Instance->Items[i]->SetActorLocation(FVector(Items[i]->CurrentNode->GetActorLocation().X, Items[i]->CurrentNode->GetActorLocation().Y, Items[i]->CurrentNode->GetActorLocation().Z));
+			Instance->Items[i]->CurrentNode->HasObjectOnIt = Instance->Items[i]->PlayerObstacle;
+			Instance->Items[i]->CurrentNode->IsObstacle = Instance->Items[i]->PathfindingObstacle;
+		}
+	}
+
+	for (int i = 0; i < Instance->Paths.Num(); ++i)
+	{
+		if (Paths[i]->StartingNode)
+		{
+			Instance->Player->SetActorLocation(FVector(Paths[i]->GetActorLocation().X, Paths[i]->GetActorLocation().Y, Paths[i]->GetActorLocation().Z));
+			APathActor* PotentialNode = Instance->GetPlayerNode();
+			if (PotentialNode)
+			{
+				PotentialNode = nullptr;
+			}
+
+			Paths[i]->PlayerPawn = UGameManager::GetInstance()->Player;
+		}
+	}
+
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->Update();
 	}
+
 	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 
@@ -344,9 +454,6 @@ void UGameManager::OnPrePlayerTurn()
 
 	//LEVEL CHANGE - SEE HOW IT WORKS IN BUILDS
 	//UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);
-
-
-
 
 	for (int i = 0; i < Enemies.Num(); ++i)
 	{
@@ -388,6 +495,7 @@ void UGameManager::OnPlayerMoveWithDrill()
 
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
 		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+		PlaySound("SND_ForeuseDeplacement");
 	}
 
 	Instance->Fsm->ChangeState("OnPlayerPostTurn");
@@ -399,6 +507,7 @@ void UGameManager::OnPlayerTurn()
 	{
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
 		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
+		PlaySound("SND_Step");
 	}
 
 	Instance->Fsm->ChangeState("OnPlayerPostTurn");
@@ -415,6 +524,7 @@ void UGameManager::OnPlayerMoveToDeath()
 
 		diff = FVector2D(PlayerNextNode->GetActorLocation() - Player->GetActorLocation());
 		Player->SetActorLocation(FVector(Player->GetActorLocation().X + (diff.X / 2), PlayerNextNode->GetActorLocation().Y + (diff.Y / 2), Player->GetActorLocation().Z));
+		
 	}
 
 	Instance->Fsm->ChangeState("OnDeath");
@@ -456,18 +566,37 @@ void UGameManager::OnEnemyTurn()
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->Update();
+		
 	}
-
+	PlaySound("SND_DeplacementAgentHostile");
 	if (IsFSMBarrierEmpty())
 	{
-		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+		Instance->Fsm->ChangeState("OnPostGameTurn");
 	}
+}
+
+void UGameManager::OnPostGameTurn()
+{
+	for (int i = 0; i < Instance->Items.Num(); ++i)
+	{
+		AOtage* Hostage = Cast<AOtage>(Instance->Items[i]);
+
+		if (Hostage)
+		{
+			if (!Hostage->Placable)
+			{
+				Hostage->ItemEffect(false);
+			}
+		}
+	}
+	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 
 void UGameManager::OnPlayerDeath()
 {
 	Instance->ClearBarrier();
 	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
+	PlaySound("SND_GameOver");
 }
 
 void UGameManager::OnSaveHostage()
@@ -488,24 +617,24 @@ void UGameManager::InitiateGameDataFromCasaInstance()
 
 		AudioData = CasaGI->AudioData;
 
-		if (!CasaGI->InitiatedGame)
-		{
-			CasaGI->InitiatedGame = true;
-
-			UWorld* MyWorld = GetWorld();
-			FString CurrentMapName = MyWorld->GetMapName();
-
-			if (&CasaGI->LevelList[FirstLevelID])
-			{
-				if (CasaGI->LevelList[FirstLevelID] != CurrentMapName)
-				{
-					UGameplayStatics::OpenLevel(GetWorld(), FName(CasaGI->LevelList[FirstLevelID]));
-				}
-			}
-			else {
-				UE_LOG(LogTemp, Error, TEXT("LevelLoader: Couldn't load level %s"), &CasaGI->LevelList[FirstLevelID]);
-			}
-		}
+		//if (!CasaGI->InitiatedGame)
+		//{
+		//	CasaGI->InitiatedGame = true;
+		//
+		//	//UWorld* MyWorld = GetWorld();
+		//	//FString CurrentMapName = MyWorld->GetMapName();
+		//
+		//	//if (&CasaGI->LevelList[FirstLevelID])
+		//	//{
+		//	//	if (CasaGI->LevelList[FirstLevelID] != CurrentMapName)
+		//	//	{
+		//	//		UGameplayStatics::OpenLevel(GetWorld(), FName(CasaGI->LevelList[FirstLevelID]));
+		//	//	}
+		//	//}
+		//	//else {
+		//	//	UE_LOG(LogTemp, Error, TEXT("LevelLoader: Couldn't load level %s"), &CasaGI->LevelList[FirstLevelID]);
+		//	//}
+		//}
 	}
 }
 
@@ -520,15 +649,15 @@ void UGameManager::InitiateSceneDataFromCasaInstance()
 		AudioData = CasaGI->AudioData;
 
 #if WITH_EDITOR
-		PlaySound("SND_Debug");
+		//PlaySound("SND_Debug");
 #endif
 	}
 }
 
-void UGameManager::OnGameSucceeded() {}
-void UGameManager::OnGameFailed() {}
+void UGameManager::OnGameSucceeded() { PlaySound("SND_Win"); }
+void UGameManager::OnGameFailed() { PlaySound("SND_GameOver"); }
 void UGameManager::OnGameRestart() {}
-void UGameManager::OnGameReward() {}
+void UGameManager::OnGameReward() { PlaySound("SND_ContratValide"); }
 void UGameManager::OnGameQuit() {}
 void UGameManager::OnGameNextLevel() {}
 

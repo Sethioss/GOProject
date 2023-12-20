@@ -23,13 +23,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
 
+	USceneComponent* Holder;
+
 	UPROPERTY(VisibleAnywhere)
 	APathActor* CurrentNode;
 
 	UPROPERTY(VisibleAnywhere)
 	APathActor* Destination;
 
-	void Alert(AOtage* Otage);
+	void Alert(AOtage* Otage, bool GetStunned);
 
 	virtual void Update();
 	virtual void Init();
@@ -47,6 +49,7 @@ public:
 	void ClearBestPath();
 
 	bool Stunned = false;
+	bool ReadyToSaveHostage = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -62,7 +65,7 @@ protected:
 	virtual APathActor* GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, bool GetConnected);
 	virtual FVector GetNormalizedVectorFromDirection(EGeneralDirectionEnum Dir);
 
-	virtual APathActor* SnapToGrid(FVector offset = FVector(0, 0, 0)) override;
+	virtual APathActor* SnapToGrid(FVector offset) override;
 
 	virtual APathActor* GetDestinationByPathfinding(APathActor* Target);
 	virtual TArray<APathActor*> AStarAlgorithm(APathActor* Target, APathActor* End, TArray<APathActor*>BlacklistedNodes);

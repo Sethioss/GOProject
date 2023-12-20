@@ -36,8 +36,17 @@ void AForeuse::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerObstacle = true;
+	PathfindingObstacle = true;
 	//UE_LOG(LogTemp, Warning, TEXT("Making this node an obstacle"));
-	CurrentNode->IsObstacle = true;
+	if (CurrentNode)
+	{
+		CurrentNode->IsObstacle = true;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("ERROR: This node hasn't been found by the IBoard interface. Maybe there was a blocking hit on a non node objet?"));
+	}
+
 }
 
 void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)
@@ -48,7 +57,7 @@ void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)
 		if(NewNode)
 		{
 			//On appelle la fonction en donnant un Node
-			SetActorLocation(FVector(NewNode->GetActorLocation().X, NewNode->GetActorLocation().Y,50));
+			SetActorLocation(FVector(NewNode->GetActorLocation().X, NewNode->GetActorLocation().Y, NewNode->GetActorLocation().Z));
 			CurrentNode->IsObstacle = false;
 			CurrentNode->HasObjectOnIt = false;
 			CurrentNode = NewNode;
@@ -58,7 +67,7 @@ void AForeuse::SetForeuseLocation(APathActor* NewNode, FVector NodePos)
 		if(NodePos != FVector(NULL,NULL,NULL))
 		{
 			//On appelle la fonction en donnant un FVector
-			SetActorLocation(FVector(NodePos.X, NodePos.Y,50));
+			SetActorLocation(FVector(NodePos.X, NodePos.Y, NewNode->GetActorLocation().Z));
 			CurrentNode->IsObstacle = false;
 			CurrentNode->HasObjectOnIt = false;
 			CurrentNode = NewNode;

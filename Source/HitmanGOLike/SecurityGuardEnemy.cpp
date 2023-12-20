@@ -34,7 +34,6 @@ void ASecurityGuardEnemy::OnTurn()
 
 void ASecurityGuardEnemy::OnPostTurn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player node: %s"), *UGameManager::GetInstance()->GetPlayerNode()->GetActorNameOrLabel());
 	if (UGameManager::GetInstance()->GetPlayerNode() == GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true))
 	{
 		Destination = GetNodeAtCardinalDirection(EGeneralDirectionEnum::FORWARDS, true);

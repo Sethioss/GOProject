@@ -19,10 +19,6 @@ AWall::AWall()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
 	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 
-	// creation du component audio
-	AudioComponent =
-		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
-
 }
 
 // Called when the game starts or when spawned
@@ -30,6 +26,9 @@ void AWall::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentNode = SnapToGrid();
+
+	CurrentNode->HasObjectOnIt = true;
+	CurrentNode->IsObstacle = true;
 }
 
 // Called every frame
@@ -45,7 +44,6 @@ void AWall::Break()
 	if (!IsBroken)
 	{
 		IsBroken = true;
-		CurrentNode->HasObjectOnIt = false;
 		//static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //Modification du Mesh
 		//StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 
@@ -74,7 +72,7 @@ APathActor* AWall::SnapToGrid(FVector offset)
 
 			FBox ActorBounds = GetComponentsBoundingBox();
 
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
 			CurrentNode->HasObjectOnIt = true;
 			CurrentNode->IsObstacle = true;
 		}

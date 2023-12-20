@@ -38,13 +38,21 @@ AEnemyActor::AEnemyActor()
 	RootComponent = Mesh;
 }
 
-void AEnemyActor::Alert(AOtage* Otage)
+void AEnemyActor::Alert(AOtage* Otage, bool GetStunned)
 {
 	IsLookingForHostage = true;
-	Stunned = true;
 	Hostage = Otage;
 	GetDestinationByPathfinding(Otage->GetCurrentNode());
-	Fsm->ChangeState("OnPostTurn");
+	if (CurrentNode == Otage->GetCurrentNode())
+	{
+		ReadyToSaveHostage = true;
+	}
+	if (GetStunned)
+	{
+		Stunned = true;
+		Fsm->ChangeState("OnPostTurn");
+	}
+
 }
 
 void AEnemyActor::Update()
@@ -57,7 +65,7 @@ void AEnemyActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentNode = SnapToGrid();
+	CurrentNode = SnapToGrid(FVector(0, 0, 0));
 
 }
 
@@ -202,23 +210,31 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		Blacklisted.Add(GetCurrentNode());
 		for (int i = 0; i < GetCurrentNode()->ConnectorInfo.Num(); ++i)
 		{
-			if (GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle == false)
+			if (!GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle)
 			{
-				CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
-
-				if (CurList[CurList.Num() - 1] == Dest)
+				if(!UGameManager::GetInstance()->CheckIfWall(CurrentNode, GetCurrentNode()->ConnectorInfo[i].DestinationNode, false))
 				{
-					AllLists.Add(CurList);
+					CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
+
+					for (int j = 0; j < CurList.Num(); ++j)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("%s"), *CurList[j]->GetActorNameOrLabel());
+					}
+
+					if (CurList[CurList.Num() - 1] == Dest)
+					{
+						AllLists.Add(CurList);
+					}
 				}
 			}
 		}
 
 		for (int i = 0; i < AllLists.Num(); ++i)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
+			UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
 			for (int j = 0; j < AllLists[i].Num(); ++j)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
 			}
 
 		}
@@ -300,15 +316,15 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 		{
 			APathActor* SelectedNode = OpenList[i];
 
-				if (SelectedNode->FScore <= Current->FScore)
+			if (SelectedNode->FScore <= Current->FScore)
+			{
+				if (!BlacklistedNodes.Contains(Current))
 				{
-					if (!BlacklistedNodes.Contains(Current))
-					{
-						Current = SelectedNode;
-						CurIT = OpenList[i];
-					}
+					Current = SelectedNode;
+					CurIT = OpenList[i];
 				}
-				//Check if the score corresponds to 5555, set back to 1 if that's the case
+			}
+			//Check if the score corresponds to 5555, set back to 1 if that's the case
 		}
 
 		if (Current == End)
@@ -327,16 +343,18 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 				continue;
 			}
 
-			if (Current->IsObstacle == false)
+			if (!Current->IsObstacle)
 			{
-				APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
-				Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
-				if (Current->IsObstacle) { Current->ConnectorInfo[i].DestinationNode->FScore = 99999; }
-				if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 88888; }
-				//Set a specific FScore to the node that is in the direction of a wall if it is (Like 55555)
-				Successor->PathfindingParent = Current;
+				if (!UGameManager::GetInstance()->CheckIfWall(Current, Current->ConnectorInfo[i].DestinationNode, false))
+				{
+					APathActor* Successor = Current->ConnectorInfo[i].DestinationNode;
+					Current->ConnectorInfo[i].DestinationNode->FScore = ManhattanDistance(Current->ConnectorInfo[i].DestinationNode->GetActorLocation(), End->GetActorLocation());
+					if (Current->PathSecondary) { Current->ConnectorInfo[i].DestinationNode->FScore = 88888; }
+					//Set a specific FScore to the node that is in the direction of a wall if it is (Like 55555)
+					Successor->PathfindingParent = Current;
 
-				OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+					OpenList.Add(Current->ConnectorInfo[i].DestinationNode);
+				}
 			}
 		}
 	}
@@ -412,10 +430,12 @@ APathActor* AEnemyActor::GetNodeAtCardinalDirection(EGeneralDirectionEnum Dir, b
 	FVector vec = GetActorLocation() + NextNodePos;
 	vec.Z = CurrentNode->GetActorLocation().Z - 5;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), vec,
+	FVector OriginVec = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 25);
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, OriginVec, vec,
 		ECollisionChannel::ECC_GameTraceChannel1);
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), vec, FColor::Blue, true, 50.f);
+	DrawDebugLine(GetWorld(), OriginVec, vec, FColor::Blue, true, 50.f);
 
 	if (HitResult.bBlockingHit)
 	{
@@ -503,7 +523,7 @@ APathActor* AEnemyActor::SnapToGrid(FVector offset)
 
 			FBox ActorBounds = GetComponentsBoundingBox();
 
-			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z + (ActorBounds.GetSize().Z / 2)));
+			SetActorLocation(FVector(Path->GetActorLocation().X, Path->GetActorLocation().Y, Path->GetActorLocation().Z));
 		}
 	}
 
@@ -537,28 +557,58 @@ void AEnemyActor::OnAwait()
 	if (AllowedToMove) { Fsm->ChangeState("OnPreTurn"); }
 }
 
-void AEnemyActor::OnPreTurn() 
+void AEnemyActor::OnPreTurn()
 {
 	if (!Stunned)
 	{
-		if (Destination)
+		//UE_LOG(LogTemp, Warning, TEXT("Post turn"));
+		if (IsLookingForHostage && Hostage)
 		{
-			if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+			if (GetCurrentNode() == Hostage->GetCurrentNode())
 			{
-				UGameManager::GetInstance()->RegisterToBarrier(this);
-				Fsm->ChangeState("OnPreAttack");
+				if (ReadyToSaveHostage)
+				{
+					Hostage->SetActorLocation(FVector(100000, 100000, 100000));
+					UGameManager::GetInstance()->UnregisterHostage(Hostage);
+					UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+
+					UGameManager::GetInstance()->ReleaseFromBarrier(this);
+					Fsm->ChangeState("OnAwait");
+					return;
+				}
 			}
 			else
 			{
 				Fsm->ChangeState("OnTurn");
+				return;
 			}
 		}
-		else
-		{
-			UGameManager::GetInstance()->ReleaseFromBarrier(this);
-			Fsm->ChangeState("OnAwait");
+		else {
+			if (Destination)
+			{
+				if (Destination == UGameManager::GetInstance()->GetPlayerNode())
+				{
+					UGameManager::GetInstance()->RegisterToBarrier(this);
+					Fsm->ChangeState("OnPreAttack");
+					return;
+				}
+				else
+				{
+					Fsm->ChangeState("OnTurn");
+					return;
+				}
+			}
+			else
+			{
+				UGameManager::GetInstance()->ReleaseFromBarrier(this);
+				Fsm->ChangeState("OnAwait");
+				return;
+			}
 		}
 	}
+	UGameManager::GetInstance()->ReleaseFromBarrier(this);
+	Fsm->ChangeState("OnAwait");
+	return;
 }
 
 void AEnemyActor::OnStandby() {
@@ -575,11 +625,9 @@ void AEnemyActor::OnPostTurn()
 		{
 			if (GetCurrentNode() == Hostage->GetCurrentNode())
 			{
-				Hostage->SetActorLocation(FVector(100000, 100000, 100000));
-				UGameManager::GetInstance()->UnregisterHostage(Hostage);
-				UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
-
+				ReadyToSaveHostage = true;
 			}
+			Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
 		}
 	}
 
@@ -600,7 +648,7 @@ void AEnemyActor::OnAttack()
 }
 void AEnemyActor::OnPostAttack() {}
 
-void AEnemyActor::MoveToHalfDestination() 
+void AEnemyActor::MoveToHalfDestination()
 {
 	if (Destination)
 	{
@@ -618,6 +666,6 @@ void AEnemyActor::MoveToHalfDestination()
 		SetActorRotation(RotationQuat.Rotator());
 
 		diff = FVector2D(Destination->GetActorLocation() - GetActorLocation());
-		SetActorLocation(FVector(Destination->GetActorLocation().X - (diff.X/2), Destination->GetActorLocation().Y - (diff.Y / 2), GetActorLocation().Z));
+		SetActorLocation(FVector(Destination->GetActorLocation().X - (diff.X / 2), Destination->GetActorLocation().Y - (diff.Y / 2), GetActorLocation().Z));
 	}
 }

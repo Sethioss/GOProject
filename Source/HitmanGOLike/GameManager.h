@@ -26,6 +26,13 @@ public:
 
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
+	TArray<AItem*> Items;
+	TArray<AWall*> Walls;
+
+	bool CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken);
+
+	UPROPERTY(EditAnywhere)
+	FName NextLevel;
 
 	inline CasaFSM* GetFsm() { return Instance->Fsm; }
 
@@ -33,12 +40,12 @@ public:
 
 	void InitPlayer(ACasaPlayer* pl);
 
+
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1"))
 	int FirstLevelID = 1;
 
+	UPROPERTY(VisibleAnywhere)
 	TMap<FString, class USoundWave*> AudioData;
-
-	FName NextLevel;
 
 
 protected:
@@ -71,6 +78,8 @@ protected:
 
 	void OnStartEnemyTurn();
 	void OnEnemyAttack();
+
+	void OnPostGameTurn();
 
 	void OnGameFailed();
 	void OnGameSucceeded();

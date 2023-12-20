@@ -48,6 +48,7 @@ class HITMANGOLIKE_API APathActor : public AActor
 	
 public:	
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsObstacle = false;
 	// Sets default values for this actor's properties
 	APathActor();

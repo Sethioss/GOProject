@@ -29,6 +29,6 @@ public:
 	//virtual void ItemEffect() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void ItemEffect();
+	void ItemEffect(bool StunEnemies);
 
 };
