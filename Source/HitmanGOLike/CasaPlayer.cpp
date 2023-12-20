@@ -4,7 +4,6 @@
 #include "CasaPlayer.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/AudioComponent.h"
-#include "Sound/SoundWave.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Math/UnrealMathUtility.h"
@@ -45,7 +44,6 @@ ACasaPlayer::ACasaPlayer()
 
 	//Attach PlayerCamera to springarm
 	PlayerCamera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	MySound = CreateDefaultSubobject<USoundWave>(TEXT("My sound wave"));
 
 	//Assign SpringArm class variables.
 	SpringArmComponent->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));

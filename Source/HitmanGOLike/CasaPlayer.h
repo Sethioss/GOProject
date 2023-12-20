@@ -45,9 +45,6 @@ public:
 	void RegisterToManager();
 
 	UPROPERTY(EditAnywhere)
-	class USoundWave* MySound = nullptr;
-
-	UPROPERTY(EditAnywhere)
 	class UCameraComponent* PlayerCamera = nullptr;
 
 protected:
