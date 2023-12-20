@@ -18,6 +18,10 @@ class HITMANGOLIKE_API UGameManager : public UActorComponent
 	GENERATED_BODY()
 
 public:	
+
+	UPROPERTY(EditAnywhere)
+	TArray<class AActor*> Cameras;
+
 	// Sets default values for this component's properties
 	UGameManager();
 	class ACasaPlayer* Player;
@@ -30,6 +34,9 @@ public:
 	TArray<AWall*> Walls;
 
 	bool CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken);
+
+	void SetClock();
+	float Clock = 3;
 
 	UPROPERTY(EditAnywhere)
 	FName NextLevel;

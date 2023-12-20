@@ -6,6 +6,8 @@
 #include "CasaPlayer.h"
 #include "Sound/SoundWave.h"
 #include "CasaGameInstance.h"
+#include "Camera/CameraActor.h"
+#include "CasaPlayerController.h"
 #include "Engine/Level.h"
 
 UGameManager* UGameManager::Instance = nullptr;
@@ -44,6 +46,11 @@ void UGameManager::BeginPlay()
 	Instance = this;
 	// Ensure the instance is not garbage collected
 	Instance->AddToRoot();
+
+	ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
+	FViewTargetTransitionParams Params;
+	PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[0]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+
 
 	/*APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
@@ -224,6 +231,7 @@ void UGameManager::InitFsm()
 
 	CasaState* DeathState = new CasaState();
 	DeathState->Name = "OnDeath";
+	DeathState->SetStartDelegate(this, &UGameManager::SetClock);
 	DeathState->SetUpdateDelegate(this, &UGameManager::OnPlayerDeath);
 	Instance->Fsm->States.Add(DeathState);
 
@@ -234,6 +242,7 @@ void UGameManager::InitFsm()
 
 	CasaState* GameSucceeded = new CasaState();
 	GameSucceeded->Name = "OnGameSucceeded";
+	DeathState->SetStartDelegate(this, &UGameManager::SetClock);
 	GameSucceeded->SetUpdateDelegate(this, &UGameManager::OnGameSucceeded);
 	Instance->Fsm->States.Add(GameSucceeded);
 
@@ -335,7 +344,6 @@ void UGameManager::ReleaseFromBarrier(AActor* Act)
 
 void UGameManager::OnInitGame()
 {
-
 	InitiateGameDataFromCasaInstance();
 	InitiateSceneDataFromCasaInstance();
 
@@ -577,6 +585,13 @@ void UGameManager::OnEnemyTurn()
 
 void UGameManager::OnPostGameTurn()
 {
+	if (Instance->Player->CurrentNode->EndingNode)
+	{
+		PlaySound("SND_Win");
+		Instance->Fsm->ChangeState("OnGameSucceeded");
+		return;
+	}
+
 	for (int i = 0; i < Instance->Items.Num(); ++i)
 	{
 		AOtage* Hostage = Cast<AOtage>(Instance->Items[i]);
@@ -589,14 +604,30 @@ void UGameManager::OnPostGameTurn()
 			}
 		}
 	}
+
+	if (Instance->Player->CurrentNode->LoadCamera != 0)
+	{
+		ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
+		FViewTargetTransitionParams Params;
+		PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[Instance->Player->CurrentNode->LoadCamera]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+	}
 	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+}
+
+void UGameManager::SetClock()
+{
+	Clock = 3;
 }
 
 void UGameManager::OnPlayerDeath()
 {
 	Instance->ClearBarrier();
-	UE_LOG(LogTemp, Warning, TEXT("I'm dead skull emoji"));
-	PlaySound("SND_GameOver");
+	Clock -= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+
+	if (Clock <= 0)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), FName(GetWorld()->GetMapName()));
+	}
 }
 
 void UGameManager::OnSaveHostage()
@@ -654,10 +685,19 @@ void UGameManager::InitiateSceneDataFromCasaInstance()
 	}
 }
 
-void UGameManager::OnGameSucceeded() { PlaySound("SND_Win"); }
-void UGameManager::OnGameFailed() { PlaySound("SND_GameOver"); }
+void UGameManager::OnGameSucceeded() 
+{ 	
+	Instance->ClearBarrier();
+	Clock -= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+
+	if (Clock <= 0)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), FName(NextLevel));
+	};
+}
+void UGameManager::OnGameFailed() { /*PlaySound("SND_GameOver");*/}
 void UGameManager::OnGameRestart() {}
-void UGameManager::OnGameReward() { PlaySound("SND_ContratValide"); }
+void UGameManager::OnGameReward() { /*PlaySound("SND_ContratValide"); */ }
 void UGameManager::OnGameQuit() {}
 void UGameManager::OnGameNextLevel() {}
 

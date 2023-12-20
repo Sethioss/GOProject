@@ -23,8 +23,6 @@ protected:
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
 	UPROPERTY(EditAnywhere)
 	float Speed = 100;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class USpringArmComponent* SpringArmComponent = nullptr;
 
 	FVector2D TargetedPosition;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -35,21 +35,10 @@ ACasaPlayer::ACasaPlayer()
 	//PlayerCamera->SetRelativeLocation(FVector(-250.0f, 0.0f, 250.0f));
 	//PlayerCamera->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
 
-	//Creation Springarmcomponent
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-
-	//Attach springarm to root
-	SpringArmComponent->SetupAttachment(StaticMeshComponent);
 	MoverComponent->SetupAttachment(StaticMeshComponent);
 
 	//Attach PlayerCamera to springarm
-	PlayerCamera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-
-	//Assign SpringArm class variables.
-	SpringArmComponent->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));
-	SpringArmComponent->TargetArmLength = 400.f;
-	SpringArmComponent->bEnableCameraLag = true;
-	SpringArmComponent->CameraLagSpeed = 3.0f;
+	PlayerCamera->SetupAttachment(RootComponent, USpringArmComponent::SocketName);
 
 	HeldItem = nullptr;
 

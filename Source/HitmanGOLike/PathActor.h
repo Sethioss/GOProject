@@ -61,6 +61,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool PathSecondary = false;
+
+	UPROPERTY(EditAnywhere)
+	int LoadCamera = 0;
 	
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);
@@ -82,14 +85,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = NodeInfo)
 	bool StartingNode = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NodeInfo)
+	bool EndingNode = false;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NodeInfo)
-	bool EndingNode = false;
 	
 	UPROPERTY(EditAnywhere, Category = NodePathParameters)
     bool IsNode = false;

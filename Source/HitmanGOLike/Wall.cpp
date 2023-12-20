@@ -48,7 +48,7 @@ void AWall::Break()
 		//StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 
 		//TEMPORARY - SAFELY REMOVE FROM BOARD
-		SetActorLocation(FVector(10000, 10000, 10000));
+		SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 300));
 		StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
 	}
 }

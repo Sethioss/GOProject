@@ -2,6 +2,7 @@
 
 #include "Otage.h"
 #include "EnemyActor.h"
+#include "GameManager.h"
 
 void AOtage::BeginPlay() 
 {
@@ -43,7 +44,12 @@ void AOtage::ItemEffect(bool StunEnemies) {
 	TArray<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 0, -100),
+	if (!Placable)
+	{
+		//UGameManager::GetInstance()->PlaySound("SND_OtageHelp");
+	}
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 0, -800),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{

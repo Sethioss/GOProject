@@ -33,8 +33,10 @@ void ACasaPlayerController::OnMouseClick()
 			if (MyController)
 			{
 				//LineCast avec conversion des coordonn�es �cran en coordonn�es world 
-				UGameplayStatics::DeprojectScreenToWorld(MyController, MousePos, WorldPosition, WorldDirection);
-				GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 10000,
+				UGameplayStatics::DeprojectScreenToWorld(MyController, MousePosition, WorldPosition, WorldDirection);
+
+				DrawDebugLine(GetWorld(), WorldPosition, WorldDirection * 10000, FColor::White, true);
+				GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition,  WorldPosition + WorldDirection * 10000,
 					ECollisionChannel::ECC_GameTraceChannel1);
 			}
 
@@ -171,8 +173,8 @@ void ACasaPlayerController::OnMouseClick()
 													PlayerFinal->InitiateMovement(Target);
 												}
 												PlayerFinal->SetActorLocation(Otage->GetActorLocation());
-												Otage->SetOtageLocation(Path);
 												UGameManager::GetInstance()->PlaySound("SND_OtageHelp");
+												Otage->SetOtageLocation(Path);
 												PlayerFinal->HeldItem = nullptr;
 												//Otage->ItemEffect();
 											}

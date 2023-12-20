@@ -569,6 +569,7 @@ void AEnemyActor::OnPreTurn()
 				if (ReadyToSaveHostage)
 				{
 					Hostage->SetActorLocation(FVector(100000, 100000, 100000));
+					Hostage->Placable = false;
 					UGameManager::GetInstance()->UnregisterHostage(Hostage);
 					UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
