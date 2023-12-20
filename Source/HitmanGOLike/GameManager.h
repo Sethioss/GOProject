@@ -26,7 +26,6 @@ public:
 
 	int ElementsToRegister = 0;
 	TArray<APathActor*> Paths;
-
 	TArray<AItem*> Items;
 
 	UPROPERTY(EditAnywhere)
@@ -75,6 +74,8 @@ protected:
 
 	void OnStartEnemyTurn();
 	void OnEnemyAttack();
+
+	void OnPostGameTurn();
 
 	void OnGameFailed();
 	void OnGameSucceeded();

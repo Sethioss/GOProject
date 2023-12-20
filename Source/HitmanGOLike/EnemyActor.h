@@ -49,6 +49,7 @@ public:
 	void ClearBestPath();
 
 	bool Stunned = false;
+	bool ReadyToSaveHostage = false;
 
 protected:
 	// Called when the game starts or when spawned

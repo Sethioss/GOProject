@@ -106,9 +106,11 @@ void UGameManager::UnregisterHostage(AOtage* Otage)
 	{
 		if (Enemies[i]->Hostage == Otage)
 		{
+
 			Enemies[i]->ClearBestPath();
 			Otage->CurrentNode->HasObjectOnIt = false;
 			Enemies[i]->IsLookingForHostage = false;
+			Enemies[i]->ReadyToSaveHostage = false;
 			Enemies[i]->Hostage = nullptr;
 		}
 	}
@@ -193,6 +195,11 @@ void UGameManager::InitFsm()
 	EnemyAttack->Name = "OnEnemyAttack";
 	EnemyAttack->SetUpdateDelegate(this, &UGameManager::OnEnemyAttack);
 	Instance->Fsm->States.Add(EnemyAttack);
+
+	CasaState* PostGameTurn = new CasaState();
+	PostGameTurn->Name = "OnPostGameTurn";
+	PostGameTurn->SetUpdateDelegate(this, &UGameManager::OnPostGameTurn);
+	Instance->Fsm->States.Add(PostGameTurn);
 
 	CasaState* DeathState = new CasaState();
 	DeathState->Name = "OnDeath";
@@ -530,8 +537,13 @@ void UGameManager::OnEnemyTurn()
 	PlaySound("SND_DeplacementAgentHostile");
 	if (IsFSMBarrierEmpty())
 	{
-		Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
+		Instance->Fsm->ChangeState("OnPostGameTurn");
 	}
+}
+
+void UGameManager::OnPostGameTurn()
+{
+	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 
 void UGameManager::OnPlayerDeath()

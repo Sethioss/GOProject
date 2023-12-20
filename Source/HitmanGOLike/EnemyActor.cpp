@@ -44,6 +44,10 @@ void AEnemyActor::Alert(AOtage* Otage)
 	Stunned = true;
 	Hostage = Otage;
 	GetDestinationByPathfinding(Otage->GetCurrentNode());
+	if (CurrentNode == Otage->GetCurrentNode())
+	{
+		ReadyToSaveHostage = true;
+	}
 	Fsm->ChangeState("OnPostTurn");
 }
 
@@ -300,15 +304,15 @@ TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* E
 		{
 			APathActor* SelectedNode = OpenList[i];
 
-				if (SelectedNode->FScore <= Current->FScore)
+			if (SelectedNode->FScore <= Current->FScore)
+			{
+				if (!BlacklistedNodes.Contains(Current))
 				{
-					if (!BlacklistedNodes.Contains(Current))
-					{
-						Current = SelectedNode;
-						CurIT = OpenList[i];
-					}
+					Current = SelectedNode;
+					CurIT = OpenList[i];
 				}
-				//Check if the score corresponds to 5555, set back to 1 if that's the case
+			}
+			//Check if the score corresponds to 5555, set back to 1 if that's the case
 		}
 
 		if (Current == End)
@@ -539,10 +543,28 @@ void AEnemyActor::OnAwait()
 	if (AllowedToMove) { Fsm->ChangeState("OnPreTurn"); }
 }
 
-void AEnemyActor::OnPreTurn() 
+void AEnemyActor::OnPreTurn()
 {
 	if (!Stunned)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("Post turn"));
+		if (IsLookingForHostage && Hostage)
+		{
+			if (GetCurrentNode() == Hostage->GetCurrentNode())
+			{
+				if (ReadyToSaveHostage)
+				{
+					Hostage->SetActorLocation(FVector(100000, 100000, 100000));
+					UGameManager::GetInstance()->UnregisterHostage(Hostage);
+					UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
+
+					UGameManager::GetInstance()->ReleaseFromBarrier(this);
+					Fsm->ChangeState("OnAwait");
+					return;
+				}
+			}
+		}
+
 		if (Destination)
 		{
 			if (Destination == UGameManager::GetInstance()->GetPlayerNode())
@@ -577,26 +599,7 @@ void AEnemyActor::OnPostTurn()
 		{
 			if (GetCurrentNode() == Hostage->GetCurrentNode())
 			{
-				Hostage->SetActorLocation(FVector(100000, 100000, 100000));
-				UGameManager::GetInstance()->UnregisterHostage(Hostage);
-				UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
-
-				Destination = GetDestination();
-
-				if (Destination)
-				{
-					FVector2D diff = FVector2D(Destination->GetActorLocation().X - GetActorLocation().Y);
-
-					float AngleToRotate = FMath::Atan2(Destination->GetActorLocation().Y - GetActorLocation().Y, Destination->GetActorLocation().X - GetActorLocation().X);
-
-					// Convert the angle from radians to degrees
-					float AngleInDegrees = FMath::RadiansToDegrees(AngleToRotate);
-
-					FQuat RotationQuat = FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AngleInDegrees));
-
-					// Set the new rotation to your object
-					SetActorRotation(RotationQuat.Rotator());
-				}
+					ReadyToSaveHostage = true;
 			}
 		}
 	}
@@ -618,7 +621,7 @@ void AEnemyActor::OnAttack()
 }
 void AEnemyActor::OnPostAttack() {}
 
-void AEnemyActor::MoveToHalfDestination() 
+void AEnemyActor::MoveToHalfDestination()
 {
 	if (Destination)
 	{
@@ -636,6 +639,6 @@ void AEnemyActor::MoveToHalfDestination()
 		SetActorRotation(RotationQuat.Rotator());
 
 		diff = FVector2D(Destination->GetActorLocation() - GetActorLocation());
-		SetActorLocation(FVector(Destination->GetActorLocation().X - (diff.X/2), Destination->GetActorLocation().Y - (diff.Y / 2), GetActorLocation().Z));
+		SetActorLocation(FVector(Destination->GetActorLocation().X - (diff.X / 2), Destination->GetActorLocation().Y - (diff.Y / 2), GetActorLocation().Z));
 	}
 }
