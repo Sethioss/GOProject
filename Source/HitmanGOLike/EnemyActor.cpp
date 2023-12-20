@@ -212,23 +212,26 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		{
 			if (!GetCurrentNode()->ConnectorInfo[i].DestinationNode->IsObstacle)
 			{
-				CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
-
-				for (int j = 0; j < CurList.Num(); ++j)
+				if(!UGameManager::GetInstance()->CheckIfWall(CurrentNode, GetCurrentNode()->ConnectorInfo[i].DestinationNode, false))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("%s"), *CurList[j]->GetActorNameOrLabel());
-				}
+					CurList = AStarAlgorithm(GetCurrentNode()->ConnectorInfo[i].DestinationNode, Dest, Blacklisted);
 
-				if (CurList[CurList.Num() - 1] == Dest)
-				{
-					AllLists.Add(CurList);
+					for (int j = 0; j < CurList.Num(); ++j)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("%s"), *CurList[j]->GetActorNameOrLabel());
+					}
+
+					if (CurList[CurList.Num() - 1] == Dest)
+					{
+						AllLists.Add(CurList);
+					}
 				}
 			}
 		}
 
 		for (int i = 0; i < AllLists.Num(); ++i)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
+			UE_LOG(LogTemp, Warning, TEXT("Current path List %i"), i);
 			for (int j = 0; j < AllLists[i].Num(); ++j)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLists[i][j]->GetActorNameOrLabel());
@@ -624,6 +627,7 @@ void AEnemyActor::OnPostTurn()
 			{
 				ReadyToSaveHostage = true;
 			}
+			Destination = GetDestinationByPathfinding(Hostage->GetCurrentNode());
 		}
 	}
 
