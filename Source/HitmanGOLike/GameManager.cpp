@@ -543,6 +543,18 @@ void UGameManager::OnEnemyTurn()
 
 void UGameManager::OnPostGameTurn()
 {
+	for (int i = 0; i < Instance->Items.Num(); ++i)
+	{
+		AOtage* Hostage = Cast<AOtage>(Instance->Items[i]);
+
+		if (Hostage)
+		{
+			if (!Hostage->Placable)
+			{
+				Hostage->ItemEffect(false);
+			}
+		}
+	}
 	Instance->Fsm->ChangeState("OnAwaitingPlayerInput");
 }
 

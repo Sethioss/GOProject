@@ -38,17 +38,21 @@ AEnemyActor::AEnemyActor()
 	RootComponent = Mesh;
 }
 
-void AEnemyActor::Alert(AOtage* Otage)
+void AEnemyActor::Alert(AOtage* Otage, bool GetStunned)
 {
 	IsLookingForHostage = true;
-	Stunned = true;
 	Hostage = Otage;
 	GetDestinationByPathfinding(Otage->GetCurrentNode());
 	if (CurrentNode == Otage->GetCurrentNode())
 	{
 		ReadyToSaveHostage = true;
 	}
-	Fsm->ChangeState("OnPostTurn");
+	if (GetStunned)
+	{
+		Stunned = true;
+		Fsm->ChangeState("OnPostTurn");
+	}
+
 }
 
 void AEnemyActor::Update()

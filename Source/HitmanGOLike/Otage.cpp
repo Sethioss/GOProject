@@ -31,12 +31,12 @@ void AOtage::SetOtageLocation(APathActor* Target)
 		Placable = false;
 		SetIsHeld();
 		StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
-		ItemEffect();
+		ItemEffect(true);
 	}
 }
 
 //Cherche les Ennemis a range de cri, et les alertes en leur donnant sa position.
-void AOtage::ItemEffect() {
+void AOtage::ItemEffect(bool StunEnemies) {
 
 	TArray<AEnemyActor*> EnemiesArray;
 	FHitResult HitResult;
@@ -137,7 +137,7 @@ void AOtage::ItemEffect() {
 	//Après avoir recupérer tous les ennemies à range de cri, les alertes
 	for (int i = 0; i < EnemiesArray.Num(); ++i)
 	{
-		EnemiesArray[i]->Alert(this);
+		EnemiesArray[i]->Alert(this, StunEnemies);
 	}
 
 }

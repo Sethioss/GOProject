@@ -31,7 +31,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	APathActor* Destination;
 
-	void Alert(AOtage* Otage);
+	void Alert(AOtage* Otage, bool GetStunned);
 
 	virtual void Update();
 	virtual void Init();
