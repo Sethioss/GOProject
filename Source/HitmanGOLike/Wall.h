@@ -41,7 +41,5 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
-	UPROPERTY()
-	class UAudioComponent* AudioComponent = nullptr;
 
 };

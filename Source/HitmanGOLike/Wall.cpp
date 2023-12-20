@@ -19,10 +19,6 @@ AWall::AWall()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
 	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
 
-	// creation du component audio
-	AudioComponent =
-		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
-
 }
 
 // Called when the game starts or when spawned

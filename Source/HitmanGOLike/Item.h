@@ -45,8 +45,6 @@ protected:
 
 	UPROPERTY(BluePrintReadOnly, EditAnywhere)
 	class UStaticMeshComponent* StaticMeshComponent = nullptr;
-	UPROPERTY()
-	class UAudioComponent* AudioComponent = nullptr;
 
 	//Node en face de l'item permet d'utiliser l'item (avancer la foreuse, pousser l'otage)
 	//UFUNCTION()

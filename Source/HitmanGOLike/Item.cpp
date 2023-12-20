@@ -16,10 +16,6 @@ AItem::AItem()
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
 	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
-
-	// creation du component audio
-	AudioComponent =
-		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
 }
 
 // Sets default values
@@ -34,10 +30,6 @@ AItem::AItem(APathActor* CurrentNode)
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Engine/BasicShapes/Cube.Cube")); //static permet d'executer la fonction qu'une fois
 	StaticMeshComponent->SetStaticMesh(meshFinder.Object);
-
-	// creation du component audio
-	AudioComponent =
-		CreateDefaultSubobject<UAudioComponent>(TEXT("Son"));
 
 
 }
