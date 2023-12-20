@@ -214,6 +214,14 @@ void ACasaPlayerController::OnMouseClick()
 					{
 						UGameManager::GetInstance()->PlaySound("SND_Foreuse_Grab");
 					}
+					else
+					{
+						AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+						if (Otage)
+						{
+							UGameManager::GetInstance()->PlaySound("SND_OtageDetresse");
+						}
+					}
 				}
 				AWall* Wall = Cast<AWall>(HitResult.GetActor());
 				if (Wall)
