@@ -60,9 +60,18 @@ void AArmySoldierEnemy::OnTurn()
 		else {
 			MoveToDestination();
 		}
+		if (FVector::Distance(GetActorLocation(), Destination->GetActorLocation()) < 20.f)
+		{
+			UGameManager::GetInstance()->RegisterToBarrier(this);
+			SetActorLocation(Destination->GetActorLocation());
+			CurrentNode = Destination;
+			Fsm->ChangeState("OnPostTurn");
+		}
 	}
-
-	Fsm->ChangeState("OnPostTurn");
+	else {
+		UGameManager::GetInstance()->RegisterToBarrier(this);
+		Fsm->ChangeState("OnPostTurn");
+	}
 }
 
 void AArmySoldierEnemy::OnPostTurn()
@@ -100,8 +109,11 @@ void AArmySoldierEnemy::Init()
 
 void AArmySoldierEnemy::OnStartGame()
 {
-	Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
-	Super::OnStartGame();
+	if (UGameManager::GetInstance()->GetPlayerNode())
+	{
+		Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+		Super::OnStartGame();
+	}
 }
 
 void AArmySoldierEnemy::MoveToDestination()
@@ -120,9 +132,12 @@ void AArmySoldierEnemy::MoveToDestination()
 		// Set the new rotation to your object
 		SetActorRotation(RotationQuat.Rotator());
 
-		SetActorLocation(FVector(Destination->GetActorLocation().X, Destination->GetActorLocation().Y, GetActorLocation().Z));
-		CurrentNode = Destination;
-		Destination = nullptr;
+		if (FVector::Distance(GetActorLocation(), Destination->GetActorLocation()) > 20.f)
+		{
+			FVector Move = FMath::InterpEaseInOut<FVector>(GetActorLocation(), Destination->GetActorLocation(), GetWorld()->GetDeltaSeconds(), 0.3f);
+			SetActorLocation(Move);
+		}
+
 	}
 }
 

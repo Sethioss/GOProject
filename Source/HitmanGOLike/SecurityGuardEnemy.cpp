@@ -35,10 +35,21 @@ void ASecurityGuardEnemy::OnTurn()
 		else {
 			MoveToDestination();
 		}
+		if (FVector::Distance(GetActorLocation(), Destination->GetActorLocation()) < 20.f)
+		{
+			UGameManager::GetInstance()->RegisterToBarrier(this);
+			SetActorLocation(Destination->GetActorLocation());
+			CurrentNode = Destination;
+			Destination = nullptr;
+			Fsm->ChangeState("OnPostTurn");
+			return;
+		}
+	}
+	else {
+		UGameManager::GetInstance()->RegisterToBarrier(this);
+		Fsm->ChangeState("OnPostTurn");
 	}
 
-	UGameManager::GetInstance()->RegisterToBarrier(this);
-	Fsm->ChangeState("OnPostTurn");
 }
 
 void ASecurityGuardEnemy::OnPostTurn()
@@ -99,9 +110,16 @@ void ASecurityGuardEnemy::MoveToDestination()
 		// Set the new rotation to your object
 		SetActorRotation(RotationQuat.Rotator());
 
-		SetActorLocation(FVector(Destination->GetActorLocation().X, Destination->GetActorLocation().Y, GetActorLocation().Z));
-		CurrentNode = Destination;
-		Destination = nullptr;
+		if (FVector::Distance(GetActorLocation(), Destination->GetActorLocation()) > 20.f)
+		{
+			FVector Move = FMath::InterpEaseInOut<FVector>(GetActorLocation(), Destination->GetActorLocation(), GetWorld()->GetDeltaSeconds(), 0.3f);
+			SetActorLocation(Move);
+		}
+		else {
+			SetActorLocation(Destination->GetActorLocation());
+			CurrentNode = Destination;
+			Destination = nullptr;
+		}
 	}
 }
 

@@ -89,6 +89,9 @@ protected:
 
 	void OnPlayerRotation();
 	void OnPlayerTranslation();
+
+	void OnStartPlayerTurn();
+
 	void OnPostPlayerTurn();
 
 	void OnStartEnemyTurn();

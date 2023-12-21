@@ -205,6 +205,7 @@ void UGameManager::InitFsm()
 
 	CasaState* PlayerTurnState = new CasaState();
 	PlayerTurnState->Name = "OnPlayerTurn";
+	PlayerTurnState->SetStartDelegate(this, &UGameManager::OnStartPlayerTurn);
 	PlayerTurnState->SetUpdateDelegate(this, &UGameManager::OnPlayerTurn);
 	Instance->Fsm->States.Add(PlayerTurnState);
 
@@ -522,16 +523,27 @@ void UGameManager::OnPlayerMoveWithDrill()
 	Instance->Fsm->ChangeState("OnPlayerPostTurn");
 }
 
-void UGameManager::OnPlayerTurn()
+void UGameManager::OnStartPlayerTurn()
 {
 	if (PlayerNextNode)
 	{
 		PlayerNextNode->TransferPlayerOwnership(*Player->CurrentNode);
-		Player->SetActorLocation(FVector(PlayerNextNode->GetActorLocation().X, PlayerNextNode->GetActorLocation().Y, Player->GetActorLocation().Z));
-		PlaySound("SND_Step");
 	}
 
-	Instance->Fsm->ChangeState("OnPlayerPostTurn");
+	PlaySound("SND_Step");
+}
+
+void UGameManager::OnPlayerTurn()
+{
+	if (FVector::Distance(Player->GetActorLocation(), PlayerNextNode->GetActorLocation()) > 20.f)
+	{
+		FVector Move = FMath::InterpEaseInOut<FVector>(Player->GetActorLocation(), PlayerNextNode->GetActorLocation(), GetWorld()->GetDeltaSeconds(), 0.3f);
+		Player->SetActorLocation(Move);
+	}
+	else {
+		Player->SetActorLocation(PlayerNextNode->GetActorLocation());
+		Instance->Fsm->ChangeState("OnPlayerPostTurn");
+	}
 }
 
 void UGameManager::OnPlayerRotation() {}
@@ -598,6 +610,8 @@ void UGameManager::ReleasePlayerInput()
 
 void UGameManager::OnStartEnemyTurn()
 {
+	PlaySound("SND_DeplacementAgentHostile");
+
 	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 
@@ -625,7 +639,6 @@ void UGameManager::OnEnemyTurn()
 	{
 		Enemy->Update();
 	}
-	PlaySound("SND_DeplacementAgentHostile");
 	if (IsFSMBarrierEmpty())
 	{
 		Instance->Fsm->ChangeState("OnPostGameTurn");

@@ -291,7 +291,7 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 	{
 		return CustomTemp[0];
 	}
-	return nullptr;
+	return BestPath[1];
 }
 
 TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes)
@@ -577,7 +577,7 @@ void AEnemyActor::OnPreTurn()
 					UE_LOG(LogTemp, Warning, TEXT("Hostage found! retrieving..."));
 
 					UGameManager::GetInstance()->ReleaseFromBarrier(this);
-					Fsm->ChangeState("OnAwait");
+					Fsm->ChangeState("OnPostTurn");
 					return;
 				}
 			}
