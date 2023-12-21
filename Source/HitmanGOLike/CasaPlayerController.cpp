@@ -172,7 +172,8 @@ void ACasaPlayerController::OnMouseClick()
 												{
 													PlayerFinal->InitiateMovement(Target);
 												}
-												PlayerFinal->SetActorLocation(Otage->GetActorLocation());
+												//PlayerFinal->SetActorLocation(Otage->GetActorLocation());
+												Otage->DropHostage();
 												UGameManager::GetInstance()->PlaySound("SND_OtageHelp");
 												Otage->SetOtageLocation(Path);
 												PlayerFinal->HeldItem = nullptr;
@@ -196,12 +197,19 @@ void ACasaPlayerController::OnMouseClick()
 						// Le Joueur possède un Objet
 						UE_LOG(LogTemp, Error, TEXT("Unequipping foreuse!"));
 						HeldItem->SetIsHeld();
-						PlayerFinal->HeldItem = nullptr;
+
+						AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+						if (Otage)
+						{
+							Otage->DropHostage();
+						}
+
 						AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
 						if (Foreuse)
 						{
 							UGameManager::GetInstance()->PlaySound("SND_Foreuse_Grab");
 						}
+						PlayerFinal->HeldItem = nullptr;
 					}
 
 					else if (Item->GetCurrentNode()->IsPlayerOnNeighbouringNodeWithoutOwnershipTransfer())
@@ -210,6 +218,11 @@ void ACasaPlayerController::OnMouseClick()
 						UE_LOG(LogTemp, Error, TEXT("Equipping foreuse!"));
 						PlayerFinal->HeldItem = Item;
 						Item->SetIsHeld();
+					}
+					AOtage* Otage = Cast<AOtage>(PlayerFinal->HeldItem);
+					if (Otage)
+					{
+						Otage->LiftHostage();
 					}
 					AForeuse* Foreuse = Cast<AForeuse>(PlayerFinal->HeldItem);
 					if (Foreuse)

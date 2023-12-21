@@ -34,4 +34,7 @@ public:
 
 	void ItemEffect(bool StunEnemies);
 
+	void DropHostage();
+	void LiftHostage();
+
 };

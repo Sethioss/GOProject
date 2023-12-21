@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Otage.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "EnemyActor.h"
 #include "GameManager.h"
 
@@ -38,6 +39,46 @@ void AOtage::SetOtageLocation(APathActor* Target)
 	}
 }
 
+void AOtage::LiftHostage()
+{
+	UE_LOG(LogTemp, Error, TEXT("I'm gonna lift the hostage"));
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+
+	TArray<AActor*> InteractableActors;
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init(this->GetCurrentNode(), 1);
+
+	//DrawDebugBox(GetWorld(), GetActorLocation(), PlacingArea.GetExtent(), FColor::Green, true);
+	UKismetSystemLibrary::BoxOverlapActors(GetWorld(), GetActorLocation(),
+		PlacingArea.GetExtent(), traceObjectTypes, APathActor::StaticClass(), ignoreActors, InteractableActors);
+
+	for (int i = 0; i < InteractableActors.Num(); ++i)
+	{
+		UGameManager::GetInstance()->InteractablePaths.Add(Cast<APathActor>(InteractableActors[i]));
+	}
+
+	for (int i = 0; i < UGameManager::GetInstance()->InteractablePaths.Num(); ++i)
+	{
+		UMaterialInstanceDynamic* DynMat = Cast<UMaterialInstanceDynamic>(UGameManager::GetInstance()->InteractablePaths[i]->PlaneMesh->GetMaterial(0));
+		UGameManager::GetInstance()->InteractablePaths[i]->SetMaterialBoolParameterValue(DynMat, UGameManager::GetInstance()->InteractablePaths[i]->Interactable, "Interactable", 1.0f);
+	}
+}
+
+void AOtage::DropHostage()
+{
+	UE_LOG(LogTemp, Error, TEXT("I'm gonna drop the hostage"));
+
+	for (int i = 0; i < UGameManager::GetInstance()->InteractablePaths.Num(); ++i)
+	{
+		UMaterialInstanceDynamic* DynMat = Cast<UMaterialInstanceDynamic>(UGameManager::GetInstance()->InteractablePaths[i]->PlaneMesh->GetMaterial(0));
+		UGameManager::GetInstance()->InteractablePaths[i]->SetMaterialBoolParameterValue(DynMat, UGameManager::GetInstance()->InteractablePaths[i]->Interactable, "Interactable", 0.0f);
+	}
+
+	UGameManager::GetInstance()->InteractablePaths.Reset();
+}
+
 //Cherche les Ennemis a range de cri, et les alertes en leur donnant sa position.
 void AOtage::ItemEffect(bool StunEnemies) {
 
@@ -49,7 +90,7 @@ void AOtage::ItemEffect(bool StunEnemies) {
 		//UGameManager::GetInstance()->PlaySound("SND_OtageHelp");
 	}
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 0, -800),
+	GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation() + FVector(0, 0, 80), GetActorLocation() + FVector(0, 0, -15),
 		ECollisionChannel::ECC_Visibility);
 	if (HitResult.bBlockingHit)
 	{

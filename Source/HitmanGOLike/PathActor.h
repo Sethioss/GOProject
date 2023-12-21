@@ -93,6 +93,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NodeInfo)
 	bool EndingNode = false;
 
+	UPROPERTY(BlueprintReadWrite, Category = "NodePathParameters | Connectors")
+	bool Interactable = false;
+
+	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -118,12 +122,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NodePathParameters | Connectors")
 	bool Left = true;
-
 	
 
 	APathActor* CheckNeighbourNode(int Direction, bool GetConnected = false);
 	APathActor* CheckNeighbourNode(EGeneralDirectionEnum Dir, bool GetConnected = false);
-	void SetMaterialBoolParameterValue(UMaterialInstanceDynamic* DynMat, bool& boolVal, FString boolValName, float value);
 	void RemoveConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	void AddConnector(APathActor* CurNode, APathActor* DestNode, EGeneralDirectionEnum Direction);
 	bool CheckConnectorInfo(APathActor* CurNode, EGeneralDirectionEnum Direction);

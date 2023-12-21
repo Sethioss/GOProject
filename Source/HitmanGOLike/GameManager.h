@@ -35,6 +35,9 @@ public:
 	TArray<AItem*> Items;
 	TArray<AWall*> Walls;
 
+	UPROPERTY(VisibleAnywhere)
+	TArray<APathActor*> InteractablePaths;
+
 	UPROPERTY(EditAnywhere)
 	TArray<APathActor*> SubLevelStartPaths;
 
