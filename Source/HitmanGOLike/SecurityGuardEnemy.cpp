@@ -25,7 +25,16 @@ void ASecurityGuardEnemy::OnTurn()
 {
 	if (Destination)
 	{
-		MoveToDestination();
+		if (UGameManager::GetInstance()->JustChangedSubLevel)
+		{
+			UGameManager::GetInstance()->JustChangedSubLevel = false;
+			UGameManager::GetInstance()->ReleaseFromBarrier(this);
+			Fsm->ChangeState("OnAwait");
+			return;
+		}
+		else {
+			MoveToDestination();
+		}
 	}
 
 	UGameManager::GetInstance()->RegisterToBarrier(this);

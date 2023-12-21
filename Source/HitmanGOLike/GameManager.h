@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<class AActor*> Cameras;
 
+	bool JustChangedSubLevel = false;
+
 	// Sets default values for this component's properties
 	UGameManager();
 	class ACasaPlayer* Player;
@@ -32,6 +34,9 @@ public:
 	TArray<APathActor*> Paths;
 	TArray<AItem*> Items;
 	TArray<AWall*> Walls;
+
+	UPROPERTY(EditAnywhere)
+	TArray<APathActor*> SubLevelStartPaths;
 
 	bool CheckIfWall(APathActor* Node1, APathActor* Node2, bool CheckIfBroken);
 

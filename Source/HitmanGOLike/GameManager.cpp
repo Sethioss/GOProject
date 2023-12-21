@@ -47,10 +47,6 @@ void UGameManager::BeginPlay()
 	// Ensure the instance is not garbage collected
 	Instance->AddToRoot();
 
-	ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
-	FViewTargetTransitionParams Params;
-	PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[0]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
-
 
 	/*APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
@@ -83,6 +79,7 @@ void UGameManager::BeginPlay()
 		}
 	}
 
+
 	InitFsm();
 	ClearBarrier();
 }
@@ -114,15 +111,28 @@ void UGameManager::InitPlayer(ACasaPlayer* pl)
 	pl->RegisterToManager();
 	TArray<AActor*> paths;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APathActor::StaticClass(), paths);
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	for (int i = 0; i < paths.Num(); ++i)
 	{
-		APathActor* CastPath = Cast<APathActor>(paths[i]);
-		if (CastPath)
+		APathActor* p = Cast<APathActor>(paths[i]);
+		if (p)
 		{
-			if (CastPath->StartingNode)
+			if (p == SubLevelStartPaths[CasaGI->CurrentSubLevel])
 			{
-				Instance->Player->CurrentNode = CastPath;
+				ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
+				if (p->SetSublevelTo == 0 && p->StartingNode)
+				{
+					p->SetPlayerPos();
+					PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[0]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+					break;
+				}
+				else {
+					p->SetPlayerPos();
+					PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[p->LoadCamera]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+					break;
+				}
+
 			}
 		}
 	}
@@ -370,9 +380,6 @@ void UGameManager::OnInitGame()
 
 	if (pl != nullptr)
 	{
-		TArray<AActor*> EnemiesToFind;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
-
 		TArray<AActor*> ItemsToFind;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AItem::StaticClass(), ItemsToFind);
 
@@ -395,6 +402,8 @@ void UGameManager::OnInitGame()
 			}
 		}
 
+		TArray<AActor*> EnemiesToFind;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyActor::StaticClass(), EnemiesToFind);
 		if (EnemiesToFind.Num() > 0)
 		{
 			for (int i = 0; i < EnemiesToFind.Num(); ++i)
@@ -414,6 +423,8 @@ void UGameManager::OnInitGame()
 
 void UGameManager::OnStartGame()
 {
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	//Places the elements on the grid if they were late to register
 	for (int i = 0; i < Items.Num(); ++i)
 	{
@@ -425,20 +436,22 @@ void UGameManager::OnStartGame()
 		}
 	}
 
-	for (int i = 0; i < Instance->Paths.Num(); ++i)
-	{
-		if (Paths[i]->StartingNode)
-		{
-			Instance->Player->SetActorLocation(FVector(Paths[i]->GetActorLocation().X, Paths[i]->GetActorLocation().Y, Paths[i]->GetActorLocation().Z));
-			APathActor* PotentialNode = Instance->GetPlayerNode();
-			if (PotentialNode)
-			{
-				PotentialNode = nullptr;
-			}
-
-			Paths[i]->PlayerPawn = UGameManager::GetInstance()->Player;
-		}
-	}
+	//for (int i = 0; i < Instance->Paths.Num(); ++i)
+	//{
+	//	APathActor* p = Cast<APathActor>(Instance->Paths[i]);
+	//	if (p && p == Instance->SubLevelStartPaths[CasaGI->CurrentSubLevel])
+	//	{
+	//		ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
+	//		if (p->SetSublevelTo == 0 && p->StartingNode)
+	//		{
+	//			p->SetPlayerPos();
+	//			PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[0]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+	//		}
+	//		p->SetPlayerPos();
+	//		PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[p->LoadCamera]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+	//		break;
+	//	}
+	//}
 
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
@@ -532,7 +545,7 @@ void UGameManager::OnPlayerMoveToDeath()
 
 		diff = FVector2D(PlayerNextNode->GetActorLocation() - Player->GetActorLocation());
 		Player->SetActorLocation(FVector(Player->GetActorLocation().X + (diff.X / 2), PlayerNextNode->GetActorLocation().Y + (diff.Y / 2), Player->GetActorLocation().Z));
-		
+
 	}
 
 	Instance->Fsm->ChangeState("OnDeath");
@@ -542,6 +555,29 @@ void UGameManager::OnPlayerMoveToDeath()
 void UGameManager::OnPostPlayerTurn()
 {
 	//Check if it's the end node, change state to win state if yes
+	if (Instance->Player->CurrentNode->EndingNode)
+	{
+		PlaySound("SND_Win");
+		Instance->Fsm->ChangeState("OnGameSucceeded");
+		return;
+	}
+
+	if (Instance->Player->CurrentNode->SetSublevelTo != 0)
+	{
+		UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+		if (CasaGI)
+		{
+			if (CasaGI->CurrentSubLevel != Instance->Player->CurrentNode->SetSublevelTo)
+			{
+				ACasaPlayerController* PlayerController = Cast<ACasaPlayerController>(GetWorld()->GetFirstPlayerController());
+
+				CasaGI->CurrentSubLevel = Instance->Player->CurrentNode->SetSublevelTo;
+				PlayerController->SetViewTargetWithBlend(Cast<AActor>(Instance->Cameras[Instance->Player->CurrentNode->LoadCamera]), 0.0, EViewTargetBlendFunction::VTBlend_Linear);
+				Instance->JustChangedSubLevel = true;
+			}
+		}
+	}
 
 	Instance->Fsm->ChangeState("OnEnemyTurn");
 	Instance->Player->TurnFinished = true;
@@ -562,19 +598,32 @@ void UGameManager::ReleasePlayerInput()
 
 void UGameManager::OnStartEnemyTurn()
 {
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
-		Enemy->AllowedToMove = true;
-		RegisterToBarrier(Enemy);
+		if (CasaGI)
+		{
+			if (Enemy->SubLevel == CasaGI->CurrentSubLevel)
+			{
+				Enemy->AllowedToMove = true;
+				RegisterToBarrier(Enemy);
+			}
+		}
+		else {
+			Enemy->AllowedToMove = true;
+			RegisterToBarrier(Enemy);
+		}
 	}
 }
 
 void UGameManager::OnEnemyTurn()
 {
+
 	for (AEnemyActor* Enemy : Instance->Enemies)
 	{
 		Enemy->Update();
-		
 	}
 	PlaySound("SND_DeplacementAgentHostile");
 	if (IsFSMBarrierEmpty())
@@ -585,12 +634,6 @@ void UGameManager::OnEnemyTurn()
 
 void UGameManager::OnPostGameTurn()
 {
-	if (Instance->Player->CurrentNode->EndingNode)
-	{
-		PlaySound("SND_Win");
-		Instance->Fsm->ChangeState("OnGameSucceeded");
-		return;
-	}
 
 	for (int i = 0; i < Instance->Items.Num(); ++i)
 	{
@@ -685,8 +728,14 @@ void UGameManager::InitiateSceneDataFromCasaInstance()
 	}
 }
 
-void UGameManager::OnGameSucceeded() 
-{ 	
+void UGameManager::OnGameSucceeded()
+{
+	UCasaGameInstance* CasaGI = Cast<UCasaGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (CasaGI)
+	{
+		CasaGI->CurrentSubLevel = 0;
+	}
+
 	Instance->ClearBarrier();
 	Clock -= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 
@@ -695,7 +744,7 @@ void UGameManager::OnGameSucceeded()
 		UGameplayStatics::OpenLevel(GetWorld(), FName(NextLevel));
 	};
 }
-void UGameManager::OnGameFailed() { /*PlaySound("SND_GameOver");*/}
+void UGameManager::OnGameFailed() { /*PlaySound("SND_GameOver");*/ }
 void UGameManager::OnGameRestart() {}
 void UGameManager::OnGameReward() { /*PlaySound("SND_ContratValide"); */ }
 void UGameManager::OnGameQuit() {}

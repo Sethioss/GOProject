@@ -23,6 +23,9 @@ public:
 	FBox PlacingArea;
 	//L'Otage est placable ou non
 	bool Placable=true;
+
+	UPROPERTY(EditAnywhere)
+	int SubLevel = 0;
 	//D�finit les valeur par d�faut fonction de l'emplacement de l'otage.
 	virtual void BeginPlay() override;
 	//Call the special effect of the item

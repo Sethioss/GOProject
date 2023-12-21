@@ -31,18 +31,18 @@ void APathActor::BeginPlay()
 		ConnectorInfo[i].OriginNode = this;
 	}
 
-	if (StartingNode)
-	{
-		APawn* Pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-		if (Pawn)
-		{
-			FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+	//if (StartingNode)
+	//{
+	//	SetPlayerPos();
+	//}
+}
 
-			Pawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, Pawn->GetActorLocation().Z));
-
-			PlayerPawn = Cast<ACasaPlayer>(Pawn);
-		}
-	}
+void APathActor::SetPlayerPos()
+{
+	PlayerPawn = UGameManager::GetInstance()->Player;
+	PlayerPawn->SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z));
+	PlayerPawn->CurrentNode = this;
+	this->PlayerPawn = PlayerPawn;
 }
 
 void APathActor::OnConstruction(const FTransform& Transform)

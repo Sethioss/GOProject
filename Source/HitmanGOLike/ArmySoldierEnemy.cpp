@@ -30,6 +30,13 @@ void AArmySoldierEnemy::OnPreTurn()
 	}
 	else 
 	{
+		for (int i = 0; i < BestPath.Num(); ++i)
+		{
+			if (BestPath[i]->IsObstacle)
+			{
+				Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
+			}
+		}
 		if (!Destination)
 		{
 			Destination = GetDestinationByPathfinding(UGameManager::GetInstance()->GetPlayerNode());
@@ -43,7 +50,16 @@ void AArmySoldierEnemy::OnTurn()
 {
 	if (Destination)
 	{
-		MoveToDestination();
+		if (UGameManager::GetInstance()->JustChangedSubLevel)
+		{
+			UGameManager::GetInstance()->JustChangedSubLevel = false;
+			UGameManager::GetInstance()->ReleaseFromBarrier(this);
+			Fsm->ChangeState("OnAwait");
+			return;
+		}
+		else {
+			MoveToDestination();
+		}
 	}
 
 	Fsm->ChangeState("OnPostTurn");

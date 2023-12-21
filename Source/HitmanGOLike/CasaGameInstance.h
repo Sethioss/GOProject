@@ -26,5 +26,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	int CurrentLevelID;
+
+	UPROPERTY(EditAnywhere)
+	int CurrentSubLevel = 0;
 	
 };

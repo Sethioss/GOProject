@@ -64,6 +64,11 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int LoadCamera = 0;
+
+	UPROPERTY(EditAnywhere)
+	int SetSublevelTo = 0;
+
+	void SetPlayerPos();
 	
 	//Put this in a manager
 	bool IsConnectedNode(APathActor* A, APathActor* B);

@@ -287,8 +287,11 @@ APathActor* AEnemyActor::GetDestinationByPathfinding(APathActor* DestinationPath
 		}
 	}
 
-
-	return CustomTemp[0];
+	if (!CustomTemp.IsEmpty())
+	{
+		return CustomTemp[0];
+	}
+	return nullptr;
 }
 
 TArray<APathActor*> AEnemyActor::AStarAlgorithm(APathActor* Start, APathActor* End, TArray<APathActor*> BlacklistedNodes)

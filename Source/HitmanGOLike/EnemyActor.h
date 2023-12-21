@@ -23,6 +23,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere)
+	int SubLevel;
+
 	USceneComponent* Holder;
 
 	UPROPERTY(VisibleAnywhere)
